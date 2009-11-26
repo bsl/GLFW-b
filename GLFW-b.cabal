@@ -83,41 +83,41 @@ library
       GLU
       X11
       Xrandr
+--else
+--  if os(darwin)
+--    include-dirs:
+--      glfw/lib/macosx
+--    c-sources:
+--      glfw/lib/macosx/macosx_enable.c
+--      glfw/lib/macosx/macosx_fullscreen.c
+--      glfw/lib/macosx/macosx_glext.c
+--      glfw/lib/macosx/macosx_init.c
+--      glfw/lib/macosx/macosx_joystick.c
+--      glfw/lib/macosx/macosx_thread.c
+--      glfw/lib/macosx/macosx_time.c
+--      glfw/lib/macosx/macosx_window.c
+--    cc-options:
+--      -march=apple
+--    frameworks:
+--      AGL
+--      Carbon
+--      OpenGL
   else
-    if os(darwin)
+    if os(mingw32)
       include-dirs:
-        glfw/lib/macosx
+        glfw/lib/win32
       c-sources:
-        glfw/lib/macosx/macosx_enable.c
-        glfw/lib/macosx/macosx_fullscreen.c
-        glfw/lib/macosx/macosx_glext.c
-        glfw/lib/macosx/macosx_init.c
-        glfw/lib/macosx/macosx_joystick.c
-        glfw/lib/macosx/macosx_thread.c
-        glfw/lib/macosx/macosx_time.c
-        glfw/lib/macosx/macosx_window.c
-      cc-options:
-        -march=apple
-      frameworks:
-        AGL
-        Carbon
-        OpenGL
-    else
-      if os(mingw32)
-        include-dirs:
-          glfw/lib/win32
-        c-sources:
-          glfw/lib/win32/win32_dllmain.c
-          glfw/lib/win32/win32_enable.c
-          glfw/lib/win32/win32_fullscreen.c
-          glfw/lib/win32/win32_glext.c
-          glfw/lib/win32/win32_init.c
-          glfw/lib/win32/win32_joystick.c
-          glfw/lib/win32/win32_thread.c
-          glfw/lib/win32/win32_time.c
-          glfw/lib/win32/win32_window.c
-        extra-libraries:
-          opengl32
+        glfw/lib/win32/win32_dllmain.c
+        glfw/lib/win32/win32_enable.c
+        glfw/lib/win32/win32_fullscreen.c
+        glfw/lib/win32/win32_glext.c
+        glfw/lib/win32/win32_init.c
+        glfw/lib/win32/win32_joystick.c
+        glfw/lib/win32/win32_thread.c
+        glfw/lib/win32/win32_time.c
+        glfw/lib/win32/win32_window.c
+      extra-libraries:
+        opengl32
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 

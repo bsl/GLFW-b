@@ -158,28 +158,24 @@ foreign import ccall unsafe glfwGetGLVersion             :: Ptr CInt -> Ptr CInt
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Initialization and termination
 
-initialize
-  :: IO Bool
+initialize :: IO Bool
 initialize =
     fromC `fmap` glfwInit
 
-terminate
-  :: IO ()
+terminate :: IO ()
 terminate =
     glfwTerminate
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Video mode information
 
-getVideoMode
-  :: IO VideoMode
+getVideoMode :: IO VideoMode
 getVideoMode =
     alloca $ \ptr -> do
         glfwGetDesktopMode ptr
         peek ptr
 
-getVideoModes
-  :: IO [VideoMode]
+getVideoModes :: IO [VideoMode]
 getVideoModes =
     allocaArray m $ \ptr -> do
         n <- glfwGetVideoModes ptr (toC m)
@@ -218,9 +214,7 @@ instance Storable VideoMode where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Window management
 
-openWindow
-  :: DisplayOptions
-  -> IO Bool
+openWindow :: DisplayOptions -> IO Bool
 openWindow displayOptions = do
     let DisplayOptions
           { displayOptions_width               = _displayOptions_width
@@ -266,49 +260,35 @@ openWindow displayOptions = do
       (toC _displayOptions_numStencilBits)
       (toC _displayOptions_displayMode)
 
-closeWindow
-  :: IO ()
+closeWindow :: IO ()
 closeWindow =
     glfwCloseWindow
 
-setWindowTitle
-  :: String
-  -> IO ()
+setWindowTitle :: String -> IO ()
 setWindowTitle t =
     withCString t glfwSetWindowTitle
 
-setWindowDimensions
-  :: Int
-  -> Int
-  -> IO ()
+setWindowDimensions :: Int -> Int -> IO ()
 setWindowDimensions w h =
     glfwSetWindowSize (toC w) (toC h)
 
-setWindowPosition
-  :: Int
-  -> Int
-  -> IO ()
+setWindowPosition :: Int -> Int -> IO ()
 setWindowPosition w h =
     glfwSetWindowPos (toC w) (toC h)
 
-iconifyWindow
-  :: IO ()
+iconifyWindow :: IO ()
 iconifyWindow =
     glfwIconifyWindow
 
-restoreWindow
-  :: IO ()
+restoreWindow :: IO ()
 restoreWindow =
     glfwRestoreWindow
 
-swapWindowBuffers
-  :: IO ()
+swapWindowBuffers :: IO ()
 swapWindowBuffers =
     glfwSwapBuffers
 
-setWindowBufferSwapInterval
-  :: Int
-  -> IO ()
+setWindowBufferSwapInterval :: Int -> IO ()
 setWindowBufferSwapInterval =
     glfwSwapInterval . toC
 
@@ -350,8 +330,7 @@ data DisplayOptions = DisplayOptions
   , displayOptions_numFsaaSamples      :: Maybe Int
   , displayOptions_windowIsResizable   :: Bool
   , displayOptions_stereoRendering     :: Bool
-  }
-  deriving (Show)
+  } deriving (Show)
 
 defaultDisplayOptions :: DisplayOptions
 defaultDisplayOptions =
@@ -379,43 +358,35 @@ defaultDisplayOptions =
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Window information
 
-windowIsOpen
-  :: IO Bool
+windowIsOpen :: IO Bool
 windowIsOpen =
     fromC `fmap` glfwGetWindowParam (#const GLFW_OPENED)
 
-windowIsActive
-  :: IO Bool
+windowIsActive :: IO Bool
 windowIsActive =
     fromC `fmap` glfwGetWindowParam (#const GLFW_ACTIVE)
 
-windowIsIconified
-  :: IO Bool
+windowIsIconified :: IO Bool
 windowIsIconified =
     fromC `fmap` glfwGetWindowParam (#const GLFW_ICONIFIED)
 
-windowIsResizable
-  :: IO Bool
+windowIsResizable :: IO Bool
 windowIsResizable =
     (not . fromC) `fmap` glfwGetWindowParam (#const GLFW_WINDOW_NO_RESIZE)
 
-windowIsHardwareAccelerated
-  :: IO Bool
+windowIsHardwareAccelerated :: IO Bool
 windowIsHardwareAccelerated =
     fromC `fmap` glfwGetWindowParam (#const GLFW_ACCELERATED)
 
-windowSupportsStereoRendering
-  :: IO Bool
+windowSupportsStereoRendering :: IO Bool
 windowSupportsStereoRendering =
     fromC `fmap` glfwGetWindowParam (#const GLFW_STEREO)
 
-getWindowRefreshRate
-  :: IO Int
+getWindowRefreshRate :: IO Int
 getWindowRefreshRate =
     fromC `fmap` glfwGetWindowParam (#const GLFW_REFRESH_RATE)
 
-getWindowDimensions
-  :: IO (Int, Int)
+getWindowDimensions :: IO (Int, Int)
 getWindowDimensions =
     alloca $ \wp ->
     alloca $ \hp -> do
@@ -424,33 +395,25 @@ getWindowDimensions =
         h <- peek hp
         return (fromC w, fromC h)
 
-getWindowValue
-  :: WindowValue
-  -> IO Int
+getWindowValue :: WindowValue -> IO Int
 getWindowValue wn =
     fromC `fmap` glfwGetWindowParam (toC wn)
 
-setWindowCloseCallback
-  :: WindowCloseCallback
-  -> IO ()
+setWindowCloseCallback :: WindowCloseCallback -> IO ()
 setWindowCloseCallback cb =
     bracket
       (wrapWindowCloseCallback (toC `fmap` cb))
       freeHaskellFunPtr
       glfwSetWindowCloseCallback
 
-setWindowResizeCallback
-  :: WindowResizeCallback
-  -> IO ()
+setWindowResizeCallback :: WindowResizeCallback -> IO ()
 setWindowResizeCallback cb =
     bracket
       (wrapWindowResizeCallback (\w h -> cb (fromC w) (fromC h)))
       freeHaskellFunPtr
       glfwSetWindowSizeCallback
 
-setWindowRefreshCallback
-  :: WindowRefreshCallback
-  -> IO ()
+setWindowRefreshCallback :: WindowRefreshCallback -> IO ()
 setWindowRefreshCallback cb =
     bracket
       (wrapWindowRefreshCallback cb)
@@ -504,37 +467,29 @@ foreign import ccall "wrapper" wrapWindowRefreshCallback :: IO () -> IO (FunPtr 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Input
 
-pollEvents
-  :: IO ()
+pollEvents :: IO ()
 pollEvents =
     glfwPollEvents
 
-waitEvents
-  :: IO ()
+waitEvents :: IO ()
 waitEvents =
     glfwWaitEvents
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Keyboard
 
-keyboardKeyIsPressed
-  :: KeyboardKey
-  -> IO Bool
+keyboardKeyIsPressed :: KeyboardKey -> IO Bool
 keyboardKeyIsPressed k =
     fromC `fmap` glfwGetKey (toC k)
 
-setKeyboardKeyCallback
-  :: KeyboardKeyCallback
-  -> IO ()
+setKeyboardKeyCallback :: KeyboardKeyCallback -> IO ()
 setKeyboardKeyCallback cb =
     bracket
       (wrapKeyboardKeyCallback (\k b -> cb (fromC k) (fromC b)))
       freeHaskellFunPtr
       glfwSetKeyCallback
 
-setKeyboardCharCallback
-  :: KeyboardCharCallback
-  -> IO ()
+setKeyboardCharCallback :: KeyboardCharCallback -> IO ()
 setKeyboardCharCallback cb =
     bracket
       (wrapKeyboardCharCallback (\c b -> cb (fromC c) (fromC b)))
@@ -760,14 +715,11 @@ foreign import ccall "wrapper" wrapKeyboardCharCallback :: (CInt -> CInt -> IO (
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Mouse
 
-mouseButtonIsPressed
-  :: MouseButton
-  -> IO Bool
+mouseButtonIsPressed :: MouseButton -> IO Bool
 mouseButtonIsPressed mb =
     fromC `fmap` glfwGetMouseButton (toC mb)
 
-getMousePosition
-  :: IO (Int, Int)
+getMousePosition :: IO (Int, Int)
 getMousePosition =
     alloca $ \px ->
     alloca $ \py -> do
@@ -776,45 +728,33 @@ getMousePosition =
         y <- peek py
         return (fromC x, fromC y)
 
-getMouseWheel
-  :: IO Int
+getMouseWheel :: IO Int
 getMouseWheel =
     fromC `fmap` glfwGetMouseWheel
 
-setMousePosition
-  :: Int
-  -> Int
-  -> IO ()
+setMousePosition :: Int -> Int -> IO ()
 setMousePosition x y =
     glfwSetMousePos (toC x) (toC y)
 
-setMouseWheel
-  :: Int
-  -> IO ()
+setMouseWheel :: Int -> IO ()
 setMouseWheel =
     glfwSetMouseWheel . toC
 
-setMouseButtonCallback
-  :: MouseButtonCallback
-  -> IO ()
+setMouseButtonCallback :: MouseButtonCallback -> IO ()
 setMouseButtonCallback cb =
     bracket
       (wrapMouseButtonCallback (\b p -> cb (fromC b) (fromC p)))
       freeHaskellFunPtr
       glfwSetMouseButtonCallback
 
-setMousePositionCallback
-  :: MousePositionCallback
-  -> IO ()
+setMousePositionCallback :: MousePositionCallback -> IO ()
 setMousePositionCallback cb =
     bracket
       (wrapMousePositionCallback (\x y -> cb (fromC x) (fromC y)))
       freeHaskellFunPtr
       glfwSetMousePosCallback
 
-setMouseWheelCallback
-  :: MouseWheelCallback
-  -> IO ()
+setMouseWheelCallback :: MouseWheelCallback -> IO ()
 setMouseWheelCallback cb =
     bracket
       (wrapMouseWheelCallback (cb . fromC))
@@ -865,28 +805,19 @@ foreign import ccall "wrapper" wrapMouseWheelCallback    :: (CInt -> IO ()) -> I
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Joystick
 
-joystickIsPresent
-  :: Joystick
-  -> IO Bool
+joystickIsPresent :: Joystick -> IO Bool
 joystickIsPresent j =
     fromC `fmap` glfwGetJoystickParam (toC j) (#const GLFW_PRESENT)
 
-getNumJoystickAxes
-  :: Joystick
-  -> IO Int
+getNumJoystickAxes :: Joystick -> IO Int
 getNumJoystickAxes j =
     fromC `fmap` glfwGetJoystickParam (toC j) (#const GLFW_AXES)
 
-getNumJoystickButtons
-  :: Joystick
-  -> IO Int
+getNumJoystickButtons :: Joystick -> IO Int
 getNumJoystickButtons j =
     fromC `fmap` glfwGetJoystickParam (toC j) (#const GLFW_BUTTONS)
 
-getJoystickPosition
-  :: Joystick
-  -> Int
-  -> IO [Float]
+getJoystickPosition :: Joystick -> Int -> IO [Float]
 getJoystickPosition j m =
     if m < 1
       then return []
@@ -895,10 +826,7 @@ getJoystickPosition j m =
                a <- peekArray n ptr
                return $ map fromC a
 
-joystickButtonsArePressed
-  :: Joystick
-  -> Int
-  -> IO [Bool]
+joystickButtonsArePressed :: Joystick -> Int -> IO [Bool]
 joystickButtonsArePressed j m =
     if m < 1
       then return []
@@ -957,14 +885,11 @@ instance C Joystick CInt where
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Time
 
-getTime
-  :: IO Double
+getTime :: IO Double
 getTime =
     realToFrac `fmap` glfwGetTime
 
-setTime
-  :: Double
-  -> IO ()
+setTime :: Double -> IO ()
 setTime =
     glfwSetTime . realToFrac
 
@@ -972,17 +897,14 @@ resetTime :: IO ()
 resetTime =
     setTime (0 :: Double)
 
-sleep
-  :: Double
-  -> IO ()
+sleep :: Double -> IO ()
 sleep =
     glfwSleep . realToFrac
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Version information
 
-getGlfwVersion
-  :: IO Version
+getGlfwVersion :: IO Version
 getGlfwVersion =
     alloca $ \p0 ->
     alloca $ \p1 ->
@@ -993,8 +915,7 @@ getGlfwVersion =
         v2 <- fromC `fmap` peek p2
         return $ Version [v0, v1, v2] []
 
-getGlVersion
-  :: IO Version
+getGlVersion :: IO Version
 getGlVersion =
     alloca $ \p0 ->
     alloca $ \p1 ->

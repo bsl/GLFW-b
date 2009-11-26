@@ -1,15 +1,15 @@
-name:         glfw-b
+name:         GLFW-b
 version:      0.0.1
 
 category:     Graphics
 
 synopsis:     GLFW bindings
-description:  A binding to GLFW, a free, Open Source, multi-platform library for
+description:  Bindings to GLFW, a free, Open Source, multi-platform library for
               creating OpenGL contexts and managing input, including keyboard,
               mouse, joystick and time.
 
-              For more information about the library on which this binding is
-              based, please see <http://glfw.sourceforge.net>.
+              For more information about the library on which these bindings
+              are based, please see <http://glfw.sourceforge.net>.
 
 author:       Brian Lewis <brian@lorf.org>
 maintainer:   Brian Lewis <brian@lorf.org>
@@ -96,7 +96,8 @@ library
         glfw/lib/macosx/macosx_thread.c
         glfw/lib/macosx/macosx_time.c
         glfw/lib/macosx/macosx_window.c
-      cc-options: -march=apple
+      cc-options:
+        -march=apple
       frameworks:
         AGL
         Carbon
@@ -121,5 +122,5 @@ library
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 source-repository head
-    type:     git
-    location: git://github.com/bsl/glfw-b.git
+  type:     git
+  location: git://github.com/bsl/GLFW-b.git

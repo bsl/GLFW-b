@@ -93,9 +93,9 @@ module Graphics.UI.GLFW
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
-import Control.Exception     (bracket)
 import Control.Monad         (when)
 import Data.Char             (chr, ord)
+import Data.IORef            (IORef, atomicModifyIORef, newIORef)
 import Data.Maybe            (fromJust, isJust)
 import Data.Version          (Version(..))
 import Foreign.C.String      (CString, withCString)
@@ -104,6 +104,7 @@ import Foreign.Marshal.Alloc (alloca)
 import Foreign.Marshal.Array (allocaArray, peekArray)
 import Foreign.Ptr           (FunPtr, Ptr, freeHaskellFunPtr)
 import Foreign.Storable      (Storable(..))
+import System.IO.Unsafe      (unsafePerformIO)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -116,18 +117,18 @@ foreign import ccall unsafe glfwGetVersion               :: Ptr CInt -> Ptr CInt
 foreign import ccall unsafe glfwOpenWindow               :: CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> IO CInt
 foreign import ccall unsafe glfwOpenWindowHint           :: CInt -> CInt -> IO ()
 foreign import ccall unsafe glfwCloseWindow              :: IO ()
-foreign import ccall unsafe glfwSetWindowCloseCallback   :: FunPtr (IO CInt) -> IO ()
+foreign import ccall unsafe glfwSetWindowCloseCallback   :: FunPtr GlfwWindowCloseCallback -> IO ()
 foreign import ccall unsafe glfwSetWindowTitle           :: CString -> IO ()
 foreign import ccall unsafe glfwSetWindowSize            :: CInt -> CInt -> IO ()
 foreign import ccall unsafe glfwSetWindowPos             :: CInt -> CInt -> IO ()
 foreign import ccall unsafe glfwGetWindowSize            :: Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall unsafe glfwSetWindowSizeCallback    :: FunPtr (CInt -> CInt -> IO ()) -> IO ()
+foreign import ccall        glfwSetWindowSizeCallback    :: FunPtr GlfwWindowResizeCallback -> IO ()
 foreign import ccall unsafe glfwIconifyWindow            :: IO ()
 foreign import ccall unsafe glfwRestoreWindow            :: IO ()
 foreign import ccall unsafe glfwGetWindowParam           :: CInt -> IO CInt
-foreign import ccall unsafe glfwSwapBuffers              :: IO ()
+foreign import ccall        glfwSwapBuffers              :: IO ()
 foreign import ccall unsafe glfwSwapInterval             :: CInt -> IO ()
-foreign import ccall unsafe glfwSetWindowRefreshCallback :: FunPtr WindowRefreshCallback -> IO ()
+foreign import ccall unsafe glfwSetWindowRefreshCallback :: FunPtr GlfwWindowRefreshCallback -> IO ()
 
 foreign import ccall unsafe glfwGetVideoModes            :: Ptr VideoMode -> CInt -> IO CInt
 foreign import ccall unsafe glfwGetDesktopMode           :: Ptr VideoMode -> IO ()
@@ -140,11 +141,11 @@ foreign import ccall unsafe glfwGetMousePos              :: Ptr CInt -> Ptr CInt
 foreign import ccall unsafe glfwSetMousePos              :: CInt -> CInt -> IO ()
 foreign import ccall unsafe glfwGetMouseWheel            :: IO CInt
 foreign import ccall unsafe glfwSetMouseWheel            :: CInt -> IO ()
-foreign import ccall unsafe glfwSetKeyCallback           :: FunPtr (CInt -> CInt -> IO ()) -> IO ()
-foreign import ccall unsafe glfwSetCharCallback          :: FunPtr (CInt -> CInt -> IO ()) -> IO ()
-foreign import ccall unsafe glfwSetMouseButtonCallback   :: FunPtr (CInt -> CInt -> IO ()) -> IO ()
-foreign import ccall unsafe glfwSetMousePosCallback      :: FunPtr (CInt -> CInt -> IO ()) -> IO ()
-foreign import ccall unsafe glfwSetMouseWheelCallback    :: FunPtr (CInt -> IO ()) -> IO ()
+foreign import ccall        glfwSetKeyCallback           :: FunPtr GlfwKeyboardKeyCallback -> IO ()
+foreign import ccall        glfwSetCharCallback          :: FunPtr GlfwKeyboardCharCallback -> IO ()
+foreign import ccall        glfwSetMouseButtonCallback   :: FunPtr GlfwMouseButtonCallback -> IO ()
+foreign import ccall        glfwSetMousePosCallback      :: FunPtr GlfwMousePositionCallback -> IO ()
+foreign import ccall        glfwSetMouseWheelCallback    :: FunPtr GlfwMouseWheelCallback -> IO ()
 foreign import ccall unsafe glfwGetJoystickParam         :: CInt -> CInt -> IO CInt
 foreign import ccall unsafe glfwGetJoystickPos           :: CInt -> Ptr CFloat -> CInt -> IO CInt
 foreign import ccall unsafe glfwGetJoystickButtons       :: CInt -> Ptr CUChar -> CInt -> IO CInt
@@ -154,6 +155,33 @@ foreign import ccall unsafe glfwSetTime                  :: CDouble -> IO ()
 foreign import ccall unsafe glfwSleep                    :: CDouble -> IO ()
 
 foreign import ccall unsafe glfwGetGLVersion             :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
+
+type GlfwKeyboardCharCallback  = CInt -> CInt -> IO ()
+type GlfwKeyboardKeyCallback   = CInt -> CInt -> IO ()
+type GlfwMouseButtonCallback   = CInt -> CInt -> IO ()
+type GlfwMousePositionCallback = CInt -> CInt -> IO ()
+type GlfwMouseWheelCallback    = CInt         -> IO ()
+type GlfwWindowCloseCallback   =                 IO CInt
+type GlfwWindowRefreshCallback =                 IO ()
+type GlfwWindowResizeCallback  = CInt -> CInt -> IO ()
+
+type KeyboardCharCallback  = Char -> Bool        -> IO ()
+type KeyboardKeyCallback   = KeyboardKey -> Bool -> IO ()
+type MouseButtonCallback   = MouseButton -> Bool -> IO ()
+type MousePositionCallback = Int -> Int          -> IO ()
+type MouseWheelCallback    = Int                 -> IO ()
+type WindowCloseCallback   =                        IO Bool
+type WindowRefreshCallback =                        IO ()
+type WindowResizeCallback  = Int -> Int          -> IO ()
+
+foreign import ccall unsafe "wrapper" wrapKeyboardCharCallback  :: GlfwKeyboardCharCallback  -> IO (FunPtr GlfwKeyboardCharCallback)
+foreign import ccall unsafe "wrapper" wrapKeyboardKeyCallback   :: GlfwKeyboardKeyCallback   -> IO (FunPtr GlfwKeyboardKeyCallback)
+foreign import ccall unsafe "wrapper" wrapMouseButtonCallback   :: GlfwMouseButtonCallback   -> IO (FunPtr GlfwMouseButtonCallback)
+foreign import ccall unsafe "wrapper" wrapMousePositionCallback :: GlfwMousePositionCallback -> IO (FunPtr GlfwMousePositionCallback)
+foreign import ccall unsafe "wrapper" wrapMouseWheelCallback    :: GlfwMouseWheelCallback    -> IO (FunPtr GlfwMouseWheelCallback)
+foreign import ccall unsafe "wrapper" wrapWindowCloseCallback   :: GlfwWindowCloseCallback   -> IO (FunPtr GlfwWindowCloseCallback)
+foreign import ccall unsafe "wrapper" wrapWindowRefreshCallback :: GlfwWindowRefreshCallback -> IO (FunPtr GlfwWindowRefreshCallback)
+foreign import ccall unsafe "wrapper" wrapWindowResizeCallback  :: GlfwWindowResizeCallback  -> IO (FunPtr GlfwWindowResizeCallback)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Initialization and termination
@@ -307,7 +335,7 @@ instance C DisplayMode CInt where
   fromC i = case i of
       (#const GLFW_WINDOW    ) -> Window
       (#const GLFW_FULLSCREEN) -> Fullscreen
-      _ -> makeFromCError "DisplayMode" i
+      _                        -> makeFromCError "DisplayMode" i
 
 -- -- -- -- -- -- -- -- -- --
 
@@ -400,25 +428,22 @@ getWindowValue wn =
     fromC `fmap` glfwGetWindowParam (toC wn)
 
 setWindowCloseCallback :: WindowCloseCallback -> IO ()
-setWindowCloseCallback cb =
-    bracket
-      (wrapWindowCloseCallback (toC `fmap` cb))
-      freeHaskellFunPtr
-      glfwSetWindowCloseCallback
+setWindowCloseCallback cb = do
+    ccb <- wrapWindowCloseCallback (toC `fmap` cb)
+    glfwSetWindowCloseCallback ccb
+    storeCallback windowCloseCallback ccb
 
 setWindowResizeCallback :: WindowResizeCallback -> IO ()
-setWindowResizeCallback cb =
-    bracket
-      (wrapWindowResizeCallback (\w h -> cb (fromC w) (fromC h)))
-      freeHaskellFunPtr
-      glfwSetWindowSizeCallback
+setWindowResizeCallback cb = do
+    ccb <- wrapWindowResizeCallback (\w h -> cb (fromC w) (fromC h))
+    glfwSetWindowSizeCallback ccb
+    storeCallback windowResizeCallback ccb
 
 setWindowRefreshCallback :: WindowRefreshCallback -> IO ()
-setWindowRefreshCallback cb =
-    bracket
-      (wrapWindowRefreshCallback cb)
-      freeHaskellFunPtr
-      glfwSetWindowRefreshCallback
+setWindowRefreshCallback cb = do
+    ccb <- wrapWindowRefreshCallback cb
+    glfwSetWindowRefreshCallback ccb
+    storeCallback windowRefreshCallback ccb
 
 -- -- -- -- -- -- -- -- -- --
 
@@ -452,18 +477,6 @@ instance C WindowValue CInt where
       NumAuxBuffers     -> #const GLFW_AUX_BUFFERS
       NumFsaaSamples    -> #const GLFW_FSAA_SAMPLES
 
--- -- -- -- -- -- -- -- -- --
-
-type WindowCloseCallback   = IO Bool
-type WindowResizeCallback  = Int -> Int -> IO ()
-type WindowRefreshCallback = IO ()
-
--- -- -- -- -- -- -- -- -- --
-
-foreign import ccall "wrapper" wrapWindowCloseCallback   :: IO CInt -> IO (FunPtr (IO CInt))
-foreign import ccall "wrapper" wrapWindowResizeCallback  :: (CInt -> CInt -> IO ()) -> IO (FunPtr (CInt -> CInt -> IO ()))
-foreign import ccall "wrapper" wrapWindowRefreshCallback :: IO () -> IO (FunPtr (IO ()))
-
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Input
 
@@ -483,18 +496,16 @@ keyboardKeyIsPressed k =
     fromC `fmap` glfwGetKey (toC k)
 
 setKeyboardKeyCallback :: KeyboardKeyCallback -> IO ()
-setKeyboardKeyCallback cb =
-    bracket
-      (wrapKeyboardKeyCallback (\k b -> cb (fromC k) (fromC b)))
-      freeHaskellFunPtr
-      glfwSetKeyCallback
+setKeyboardKeyCallback cb = do
+    ccb <- wrapKeyboardKeyCallback (\k b -> cb (fromC k) (fromC b))
+    glfwSetKeyCallback ccb
+    storeCallback keyboardKeyCallback ccb
 
 setKeyboardCharCallback :: KeyboardCharCallback -> IO ()
-setKeyboardCharCallback cb =
-    bracket
-      (wrapKeyboardCharCallback (\c b -> cb (fromC c) (fromC b)))
-      freeHaskellFunPtr
-      glfwSetCharCallback
+setKeyboardCharCallback cb = do
+    ccb <- wrapKeyboardCharCallback (\c b -> cb (fromC c) (fromC b))
+    glfwSetCharCallback ccb
+    storeCallback keyboardCharCallback ccb
 
 -- -- -- -- -- -- -- -- -- --
 
@@ -702,16 +713,6 @@ instance C KeyboardKey CInt where
       (#const GLFW_KEY_KP_ENTER   ) -> KeyboardKeyKP_Enter
       _                             -> KeyboardKeyUnknown
 
--- -- -- -- -- -- -- -- -- --
-
-type KeyboardKeyCallback  = KeyboardKey -> Bool -> IO ()
-type KeyboardCharCallback = Char -> Bool -> IO ()
-
--- -- -- -- -- -- -- -- -- --
-
-foreign import ccall "wrapper" wrapKeyboardKeyCallback  :: (CInt -> CInt -> IO ()) -> IO (FunPtr (CInt -> CInt -> IO ()))
-foreign import ccall "wrapper" wrapKeyboardCharCallback :: (CInt -> CInt -> IO ()) -> IO (FunPtr (CInt -> CInt -> IO ()))
-
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Mouse
 
@@ -741,25 +742,22 @@ setMouseWheel =
     glfwSetMouseWheel . toC
 
 setMouseButtonCallback :: MouseButtonCallback -> IO ()
-setMouseButtonCallback cb =
-    bracket
-      (wrapMouseButtonCallback (\b p -> cb (fromC b) (fromC p)))
-      freeHaskellFunPtr
-      glfwSetMouseButtonCallback
+setMouseButtonCallback cb = do
+    ccb <- wrapMouseButtonCallback (\b p -> cb (fromC b) (fromC p))
+    glfwSetMouseButtonCallback ccb
+    storeCallback mouseButtonCallback ccb
 
 setMousePositionCallback :: MousePositionCallback -> IO ()
-setMousePositionCallback cb =
-    bracket
-      (wrapMousePositionCallback (\x y -> cb (fromC x) (fromC y)))
-      freeHaskellFunPtr
-      glfwSetMousePosCallback
+setMousePositionCallback cb = do
+    ccb <- wrapMousePositionCallback (\x y -> cb (fromC x) (fromC y))
+    glfwSetMousePosCallback ccb
+    storeCallback mousePositionCallback ccb
 
 setMouseWheelCallback :: MouseWheelCallback -> IO ()
-setMouseWheelCallback cb =
-    bracket
-      (wrapMouseWheelCallback (cb . fromC))
-      freeHaskellFunPtr
-      glfwSetMouseWheelCallback
+setMouseWheelCallback cb = do
+    ccb <- wrapMouseWheelCallback (cb . fromC)
+    glfwSetMouseWheelCallback ccb
+    storeCallback mouseWheelCallback ccb
 
 -- -- -- -- -- -- -- -- -- --
 
@@ -788,19 +786,7 @@ instance C MouseButton CInt where
       (#const GLFW_MOUSE_BUTTON_6) -> MouseButton5
       (#const GLFW_MOUSE_BUTTON_7) -> MouseButton6
       (#const GLFW_MOUSE_BUTTON_8) -> MouseButton7
-      _ -> makeFromCError "MouseButton" i
-
--- -- -- -- -- -- -- -- -- --
-
-type MouseButtonCallback   = MouseButton -> Bool -> IO ()
-type MousePositionCallback = Int -> Int -> IO ()
-type MouseWheelCallback    = Int -> IO ()
-
--- -- -- -- -- -- -- -- -- --
-
-foreign import ccall "wrapper" wrapMouseButtonCallback   :: (CInt -> CInt -> IO ()) -> IO (FunPtr (CInt -> CInt -> IO ()))
-foreign import ccall "wrapper" wrapMousePositionCallback :: (CInt -> CInt -> IO ()) -> IO (FunPtr (CInt -> CInt -> IO ()))
-foreign import ccall "wrapper" wrapMouseWheelCallback    :: (CInt -> IO ()) -> IO (FunPtr (CInt -> IO ()))
+      _                            -> makeFromCError "MouseButton" i
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Joystick
@@ -880,7 +866,7 @@ instance C Joystick CInt where
       (#const GLFW_JOYSTICK_14) -> Joystick13
       (#const GLFW_JOYSTICK_15) -> Joystick14
       (#const GLFW_JOYSTICK_16) -> Joystick15
-      _ -> makeFromCError "Joystick" i
+      _                         -> makeFromCError "Joystick" i
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Time
@@ -951,7 +937,7 @@ instance C Bool CInt where
 
   fromC (#const GL_FALSE) = False
   fromC (#const GL_TRUE)  = True
-  fromC i = makeFromCError "Bool" i
+  fromC i                 = makeFromCError "Bool" i
 
 -- -- -- -- -- -- -- -- -- --
 
@@ -970,3 +956,27 @@ instance C Float CFloat where
 instance C Int CInt where
   toC   = fromIntegral
   fromC = fromIntegral
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+keyboardCharCallback  :: IORef (Maybe (FunPtr GlfwKeyboardCharCallback))
+keyboardKeyCallback   :: IORef (Maybe (FunPtr GlfwKeyboardKeyCallback))
+mouseButtonCallback   :: IORef (Maybe (FunPtr GlfwMouseButtonCallback))
+mousePositionCallback :: IORef (Maybe (FunPtr GlfwMousePositionCallback))
+mouseWheelCallback    :: IORef (Maybe (FunPtr GlfwMouseWheelCallback))
+windowCloseCallback   :: IORef (Maybe (FunPtr GlfwWindowCloseCallback))
+windowRefreshCallback :: IORef (Maybe (FunPtr GlfwWindowRefreshCallback))
+windowResizeCallback  :: IORef (Maybe (FunPtr GlfwWindowResizeCallback))
+
+keyboardCharCallback  = unsafePerformIO (newIORef Nothing)
+keyboardKeyCallback   = unsafePerformIO (newIORef Nothing)
+mouseButtonCallback   = unsafePerformIO (newIORef Nothing)
+mousePositionCallback = unsafePerformIO (newIORef Nothing)
+mouseWheelCallback    = unsafePerformIO (newIORef Nothing)
+windowCloseCallback   = unsafePerformIO (newIORef Nothing)
+windowRefreshCallback = unsafePerformIO (newIORef Nothing)
+windowResizeCallback  = unsafePerformIO (newIORef Nothing)
+
+storeCallback :: IORef (Maybe (FunPtr a)) -> FunPtr a -> IO ()
+storeCallback ior cb =
+    atomicModifyIORef ior (\mcb -> (Just cb, mcb)) >>= maybe (return ()) freeHaskellFunPtr

@@ -1131,6 +1131,8 @@ static GLboolean createWindow( int width, int height,
         XFree( sizehints );
     }
 
+    _glfwPlatformSetWindowTitle( "GLFW Window" );
+
     XMapWindow( _glfwLibrary.display, _glfwWin.window );
 
     // Wait for map notification
@@ -1295,8 +1297,6 @@ int _glfwPlatformOpenWindow( int width, int height,
         _glfwInput.MousePosX = windowX;
         _glfwInput.MousePosY = windowY;
     }
-
-    _glfwPlatformSetWindowTitle( "GLFW Window" );
 
     // Connect the context to the window
     glXMakeCurrent( _glfwLibrary.display, _glfwWin.window, _glfwWin.context );

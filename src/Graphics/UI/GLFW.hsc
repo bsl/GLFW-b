@@ -21,7 +21,7 @@ module Graphics.UI.GLFW
   , setWindowPosition
   , iconifyWindow
   , restoreWindow
-  , swapWindowBuffers
+  , swapBuffers
   , setWindowBufferSwapInterval
     --
   , DisplayMode(..)
@@ -313,8 +313,8 @@ restoreWindow :: IO ()
 restoreWindow =
     glfwRestoreWindow
 
-swapWindowBuffers :: IO ()
-swapWindowBuffers =
+swapBuffers :: IO ()
+swapBuffers =
     glfwSwapBuffers
 
 setWindowBufferSwapInterval :: Int -> IO ()

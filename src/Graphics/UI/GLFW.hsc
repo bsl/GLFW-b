@@ -41,7 +41,7 @@ module Graphics.UI.GLFW
   , setWindowResizeCallback
   , setWindowRefreshCallback
     --
-  , WindowValue
+  , WindowValue(..)
   , WindowCloseCallback
   , WindowResizeCallback
   , WindowRefreshCallback

@@ -50,7 +50,7 @@ module Graphics.UI.GLFW
   , pollEvents
   , waitEvents
     -- **  Keyboard
-  , keyboardKeyIsPressed
+  , keyIsPressed
   , setCharCallback
   , setKeyCallback
     --
@@ -492,8 +492,8 @@ waitEvents =
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Keyboard
 
-keyboardKeyIsPressed :: Key -> IO Bool
-keyboardKeyIsPressed k =
+keyIsPressed :: Key -> IO Bool
+keyIsPressed k =
     fromC `fmap` glfwGetKey (toC k)
 
 setCharCallback :: CharCallback -> IO ()

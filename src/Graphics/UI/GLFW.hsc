@@ -38,12 +38,12 @@ module Graphics.UI.GLFW
   , getWindowDimensions
   , getWindowValue
   , setWindowCloseCallback
-  , setWindowResizeCallback
+  , setWindowSizeCallback
   , setWindowRefreshCallback
     --
   , WindowValue(..)
   , WindowCloseCallback
-  , WindowResizeCallback
+  , WindowSizeCallback
   , WindowRefreshCallback
 
     -- *   Input
@@ -51,12 +51,12 @@ module Graphics.UI.GLFW
   , waitEvents
     -- **  Keyboard
   , keyboardKeyIsPressed
-  , setKeyboardKeyCallback
-  , setKeyboardCharCallback
+  , setCharCallback
+  , setKeyCallback
     --
-  , KeyboardKey(..)
-  , KeyboardKeyCallback
-  , KeyboardCharCallback
+  , Key(..)
+  , CharCallback
+  , KeyCallback
     -- **  Mouse
   , mouseButtonIsPressed
   , getMousePosition
@@ -122,7 +122,7 @@ foreign import ccall unsafe glfwSetWindowTitle           :: CString -> IO ()
 foreign import ccall unsafe glfwSetWindowSize            :: CInt -> CInt -> IO ()
 foreign import ccall unsafe glfwSetWindowPos             :: CInt -> CInt -> IO ()
 foreign import ccall unsafe glfwGetWindowSize            :: Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall        glfwSetWindowSizeCallback    :: FunPtr GlfwWindowResizeCallback -> IO ()
+foreign import ccall        glfwSetWindowSizeCallback    :: FunPtr GlfwWindowSizeCallback -> IO ()
 foreign import ccall unsafe glfwIconifyWindow            :: IO ()
 foreign import ccall unsafe glfwRestoreWindow            :: IO ()
 foreign import ccall unsafe glfwGetWindowParam           :: CInt -> IO CInt
@@ -141,8 +141,8 @@ foreign import ccall unsafe glfwGetMousePos              :: Ptr CInt -> Ptr CInt
 foreign import ccall unsafe glfwSetMousePos              :: CInt -> CInt -> IO ()
 foreign import ccall unsafe glfwGetMouseWheel            :: IO CInt
 foreign import ccall unsafe glfwSetMouseWheel            :: CInt -> IO ()
-foreign import ccall        glfwSetKeyCallback           :: FunPtr GlfwKeyboardKeyCallback -> IO ()
-foreign import ccall        glfwSetCharCallback          :: FunPtr GlfwKeyboardCharCallback -> IO ()
+foreign import ccall        glfwSetKeyCallback           :: FunPtr GlfwKeyCallback -> IO ()
+foreign import ccall        glfwSetCharCallback          :: FunPtr GlfwCharCallback -> IO ()
 foreign import ccall        glfwSetMouseButtonCallback   :: FunPtr GlfwMouseButtonCallback -> IO ()
 foreign import ccall        glfwSetMousePosCallback      :: FunPtr GlfwMousePositionCallback -> IO ()
 foreign import ccall        glfwSetMouseWheelCallback    :: FunPtr GlfwMouseWheelCallback -> IO ()
@@ -156,32 +156,32 @@ foreign import ccall unsafe glfwSleep                    :: CDouble -> IO ()
 
 foreign import ccall unsafe glfwGetGLVersion             :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
 
-type GlfwKeyboardCharCallback  = CInt -> CInt -> IO ()
-type GlfwKeyboardKeyCallback   = CInt -> CInt -> IO ()
+type GlfwCharCallback          = CInt -> CInt -> IO ()
+type GlfwKeyCallback           = CInt -> CInt -> IO ()
 type GlfwMouseButtonCallback   = CInt -> CInt -> IO ()
 type GlfwMousePositionCallback = CInt -> CInt -> IO ()
 type GlfwMouseWheelCallback    = CInt         -> IO ()
 type GlfwWindowCloseCallback   =                 IO CInt
 type GlfwWindowRefreshCallback =                 IO ()
-type GlfwWindowResizeCallback  = CInt -> CInt -> IO ()
+type GlfwWindowSizeCallback    = CInt -> CInt -> IO ()
 
-type KeyboardCharCallback  = Char -> Bool        -> IO ()
-type KeyboardKeyCallback   = KeyboardKey -> Bool -> IO ()
+type CharCallback          = Char -> Bool        -> IO ()
+type KeyCallback           = Key -> Bool         -> IO ()
 type MouseButtonCallback   = MouseButton -> Bool -> IO ()
 type MousePositionCallback = Int -> Int          -> IO ()
 type MouseWheelCallback    = Int                 -> IO ()
 type WindowCloseCallback   =                        IO Bool
 type WindowRefreshCallback =                        IO ()
-type WindowResizeCallback  = Int -> Int          -> IO ()
+type WindowSizeCallback    = Int -> Int          -> IO ()
 
-foreign import ccall unsafe "wrapper" wrapKeyboardCharCallback  :: GlfwKeyboardCharCallback  -> IO (FunPtr GlfwKeyboardCharCallback)
-foreign import ccall unsafe "wrapper" wrapKeyboardKeyCallback   :: GlfwKeyboardKeyCallback   -> IO (FunPtr GlfwKeyboardKeyCallback)
+foreign import ccall unsafe "wrapper" wrapCharCallback          :: GlfwCharCallback          -> IO (FunPtr GlfwCharCallback)
+foreign import ccall unsafe "wrapper" wrapKeyCallback           :: GlfwKeyCallback           -> IO (FunPtr GlfwKeyCallback)
 foreign import ccall unsafe "wrapper" wrapMouseButtonCallback   :: GlfwMouseButtonCallback   -> IO (FunPtr GlfwMouseButtonCallback)
 foreign import ccall unsafe "wrapper" wrapMousePositionCallback :: GlfwMousePositionCallback -> IO (FunPtr GlfwMousePositionCallback)
 foreign import ccall unsafe "wrapper" wrapMouseWheelCallback    :: GlfwMouseWheelCallback    -> IO (FunPtr GlfwMouseWheelCallback)
 foreign import ccall unsafe "wrapper" wrapWindowCloseCallback   :: GlfwWindowCloseCallback   -> IO (FunPtr GlfwWindowCloseCallback)
 foreign import ccall unsafe "wrapper" wrapWindowRefreshCallback :: GlfwWindowRefreshCallback -> IO (FunPtr GlfwWindowRefreshCallback)
-foreign import ccall unsafe "wrapper" wrapWindowResizeCallback  :: GlfwWindowResizeCallback  -> IO (FunPtr GlfwWindowResizeCallback)
+foreign import ccall unsafe "wrapper" wrapWindowSizeCallback    :: GlfwWindowSizeCallback    -> IO (FunPtr GlfwWindowSizeCallback)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Initialization and termination
@@ -434,11 +434,11 @@ setWindowCloseCallback cb = do
     glfwSetWindowCloseCallback ccb
     storeCallback windowCloseCallback ccb
 
-setWindowResizeCallback :: WindowResizeCallback -> IO ()
-setWindowResizeCallback cb = do
-    ccb <- wrapWindowResizeCallback (\w h -> cb (fromC w) (fromC h))
+setWindowSizeCallback :: WindowSizeCallback -> IO ()
+setWindowSizeCallback cb = do
+    ccb <- wrapWindowSizeCallback (\w h -> cb (fromC w) (fromC h))
     glfwSetWindowSizeCallback ccb
-    storeCallback windowResizeCallback ccb
+    storeCallback windowSizeCallback ccb
 
 setWindowRefreshCallback :: WindowRefreshCallback -> IO ()
 setWindowRefreshCallback cb = do
@@ -492,227 +492,232 @@ waitEvents =
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Keyboard
 
-keyboardKeyIsPressed :: KeyboardKey -> IO Bool
+keyboardKeyIsPressed :: Key -> IO Bool
 keyboardKeyIsPressed k =
     fromC `fmap` glfwGetKey (toC k)
 
-setKeyboardKeyCallback :: KeyboardKeyCallback -> IO ()
-setKeyboardKeyCallback cb = do
-    ccb <- wrapKeyboardKeyCallback (\k b -> cb (fromC k) (fromC b))
-    glfwSetKeyCallback ccb
-    storeCallback keyboardKeyCallback ccb
-
-setKeyboardCharCallback :: KeyboardCharCallback -> IO ()
-setKeyboardCharCallback cb = do
-    ccb <- wrapKeyboardCharCallback (\c b -> cb (fromC c) (fromC b))
+setCharCallback :: CharCallback -> IO ()
+setCharCallback cb = do
+    ccb <- wrapCharCallback (\c b -> cb (fromC c) (fromC b))
     glfwSetCharCallback ccb
-    storeCallback keyboardCharCallback ccb
+    storeCallback charCallback ccb
+
+setKeyCallback :: KeyCallback -> IO ()
+setKeyCallback cb = do
+    ccb <- wrapKeyCallback (\k b -> cb (fromC k) (fromC b))
+    glfwSetKeyCallback ccb
+    storeCallback keyCallback ccb
 
 -- -- -- -- -- -- -- -- -- --
 
-data KeyboardKey
-  = KeyboardKeyUnknown
-  | KeyboardKeySpace
-  | KeyboardKeySpecial
-  | KeyboardKeyEsc
-  | KeyboardKeyF1
-  | KeyboardKeyF2
-  | KeyboardKeyF3
-  | KeyboardKeyF4
-  | KeyboardKeyF5
-  | KeyboardKeyF6
-  | KeyboardKeyF7
-  | KeyboardKeyF8
-  | KeyboardKeyF9
-  | KeyboardKeyF10
-  | KeyboardKeyF11
-  | KeyboardKeyF12
-  | KeyboardKeyF13
-  | KeyboardKeyF14
-  | KeyboardKeyF15
-  | KeyboardKeyF16
-  | KeyboardKeyF17
-  | KeyboardKeyF18
-  | KeyboardKeyF19
-  | KeyboardKeyF20
-  | KeyboardKeyF21
-  | KeyboardKeyF22
-  | KeyboardKeyF23
-  | KeyboardKeyF24
-  | KeyboardKeyF25
-  | KeyboardKeyUp
-  | KeyboardKeyDown
-  | KeyboardKeyLeft
-  | KeyboardKeyRight
-  | KeyboardKeyLeftShift
-  | KeyboardKeyRightShift
-  | KeyboardKeyLeftCtrl
-  | KeyboardKeyRightCtrl
-  | KeyboardKeyLeftAlt
-  | KeyboardKeyRightAlt
-  | KeyboardKeyTab
-  | KeyboardKeyEnter
-  | KeyboardKeyBackspace
-  | KeyboardKeyInsert
-  | KeyboardKeyDel
-  | KeyboardKeyPageup
-  | KeyboardKeyPagedown
-  | KeyboardKeyHome
-  | KeyboardKeyEnd
-  | KeyboardKeyKP_0
-  | KeyboardKeyKP_1
-  | KeyboardKeyKP_2
-  | KeyboardKeyKP_3
-  | KeyboardKeyKP_4
-  | KeyboardKeyKP_5
-  | KeyboardKeyKP_6
-  | KeyboardKeyKP_7
-  | KeyboardKeyKP_8
-  | KeyboardKeyKP_9
-  | KeyboardKeyKP_Divide
-  | KeyboardKeyKP_Multiply
-  | KeyboardKeyKP_Subtract
-  | KeyboardKeyKP_Add
-  | KeyboardKeyKP_Decimal
-  | KeyboardKeyKP_Equal
-  | KeyboardKeyKP_Enter
-  deriving (Bounded, Enum, Eq, Show)
+data Key
+  = CharKey Char
+  | KeyUnknown
+  | KeySpace
+  | KeySpecial
+  | KeyEsc
+  | KeyF1
+  | KeyF2
+  | KeyF3
+  | KeyF4
+  | KeyF5
+  | KeyF6
+  | KeyF7
+  | KeyF8
+  | KeyF9
+  | KeyF10
+  | KeyF11
+  | KeyF12
+  | KeyF13
+  | KeyF14
+  | KeyF15
+  | KeyF16
+  | KeyF17
+  | KeyF18
+  | KeyF19
+  | KeyF20
+  | KeyF21
+  | KeyF22
+  | KeyF23
+  | KeyF24
+  | KeyF25
+  | KeyUp
+  | KeyDown
+  | KeyLeft
+  | KeyRight
+  | KeyLeftShift
+  | KeyRightShift
+  | KeyLeftCtrl
+  | KeyRightCtrl
+  | KeyLeftAlt
+  | KeyRightAlt
+  | KeyTab
+  | KeyEnter
+  | KeyBackspace
+  | KeyInsert
+  | KeyDel
+  | KeyPageup
+  | KeyPagedown
+  | KeyHome
+  | KeyEnd
+  | KeyPad0
+  | KeyPad1
+  | KeyPad2
+  | KeyPad3
+  | KeyPad4
+  | KeyPad5
+  | KeyPad6
+  | KeyPad7
+  | KeyPad8
+  | KeyPad9
+  | KeyPadDivide
+  | KeyPadMultiply
+  | KeyPadSubtract
+  | KeyPadAdd
+  | KeyPadDecimal
+  | KeyPadEqual
+  | KeyPadEnter
+  deriving (Eq, Show)
 
-instance C KeyboardKey CInt where
+instance C Key CInt where
   toC k = case k of
-      KeyboardKeyUnknown     -> #const GLFW_KEY_UNKNOWN
-      KeyboardKeySpace       -> #const GLFW_KEY_SPACE
-      KeyboardKeySpecial     -> #const GLFW_KEY_SPECIAL
-      KeyboardKeyEsc         -> #const GLFW_KEY_ESC
-      KeyboardKeyF1          -> #const GLFW_KEY_F1
-      KeyboardKeyF2          -> #const GLFW_KEY_F2
-      KeyboardKeyF3          -> #const GLFW_KEY_F3
-      KeyboardKeyF4          -> #const GLFW_KEY_F4
-      KeyboardKeyF5          -> #const GLFW_KEY_F5
-      KeyboardKeyF6          -> #const GLFW_KEY_F6
-      KeyboardKeyF7          -> #const GLFW_KEY_F7
-      KeyboardKeyF8          -> #const GLFW_KEY_F8
-      KeyboardKeyF9          -> #const GLFW_KEY_F9
-      KeyboardKeyF10         -> #const GLFW_KEY_F10
-      KeyboardKeyF11         -> #const GLFW_KEY_F11
-      KeyboardKeyF12         -> #const GLFW_KEY_F12
-      KeyboardKeyF13         -> #const GLFW_KEY_F13
-      KeyboardKeyF14         -> #const GLFW_KEY_F14
-      KeyboardKeyF15         -> #const GLFW_KEY_F15
-      KeyboardKeyF16         -> #const GLFW_KEY_F16
-      KeyboardKeyF17         -> #const GLFW_KEY_F17
-      KeyboardKeyF18         -> #const GLFW_KEY_F18
-      KeyboardKeyF19         -> #const GLFW_KEY_F19
-      KeyboardKeyF20         -> #const GLFW_KEY_F20
-      KeyboardKeyF21         -> #const GLFW_KEY_F21
-      KeyboardKeyF22         -> #const GLFW_KEY_F22
-      KeyboardKeyF23         -> #const GLFW_KEY_F23
-      KeyboardKeyF24         -> #const GLFW_KEY_F24
-      KeyboardKeyF25         -> #const GLFW_KEY_F25
-      KeyboardKeyUp          -> #const GLFW_KEY_UP
-      KeyboardKeyDown        -> #const GLFW_KEY_DOWN
-      KeyboardKeyLeft        -> #const GLFW_KEY_LEFT
-      KeyboardKeyRight       -> #const GLFW_KEY_RIGHT
-      KeyboardKeyLeftShift   -> #const GLFW_KEY_LSHIFT
-      KeyboardKeyRightShift  -> #const GLFW_KEY_RSHIFT
-      KeyboardKeyLeftCtrl    -> #const GLFW_KEY_LCTRL
-      KeyboardKeyRightCtrl   -> #const GLFW_KEY_RCTRL
-      KeyboardKeyLeftAlt     -> #const GLFW_KEY_LALT
-      KeyboardKeyRightAlt    -> #const GLFW_KEY_RALT
-      KeyboardKeyTab         -> #const GLFW_KEY_TAB
-      KeyboardKeyEnter       -> #const GLFW_KEY_ENTER
-      KeyboardKeyBackspace   -> #const GLFW_KEY_BACKSPACE
-      KeyboardKeyInsert      -> #const GLFW_KEY_INSERT
-      KeyboardKeyDel         -> #const GLFW_KEY_DEL
-      KeyboardKeyPageup      -> #const GLFW_KEY_PAGEUP
-      KeyboardKeyPagedown    -> #const GLFW_KEY_PAGEDOWN
-      KeyboardKeyHome        -> #const GLFW_KEY_HOME
-      KeyboardKeyEnd         -> #const GLFW_KEY_END
-      KeyboardKeyKP_0        -> #const GLFW_KEY_KP_0
-      KeyboardKeyKP_1        -> #const GLFW_KEY_KP_1
-      KeyboardKeyKP_2        -> #const GLFW_KEY_KP_2
-      KeyboardKeyKP_3        -> #const GLFW_KEY_KP_3
-      KeyboardKeyKP_4        -> #const GLFW_KEY_KP_4
-      KeyboardKeyKP_5        -> #const GLFW_KEY_KP_5
-      KeyboardKeyKP_6        -> #const GLFW_KEY_KP_6
-      KeyboardKeyKP_7        -> #const GLFW_KEY_KP_7
-      KeyboardKeyKP_8        -> #const GLFW_KEY_KP_8
-      KeyboardKeyKP_9        -> #const GLFW_KEY_KP_9
-      KeyboardKeyKP_Divide   -> #const GLFW_KEY_KP_DIVIDE
-      KeyboardKeyKP_Multiply -> #const GLFW_KEY_KP_MULTIPLY
-      KeyboardKeyKP_Subtract -> #const GLFW_KEY_KP_SUBTRACT
-      KeyboardKeyKP_Add      -> #const GLFW_KEY_KP_ADD
-      KeyboardKeyKP_Decimal  -> #const GLFW_KEY_KP_DECIMAL
-      KeyboardKeyKP_Equal    -> #const GLFW_KEY_KP_EQUAL
-      KeyboardKeyKP_Enter    -> #const GLFW_KEY_KP_ENTER
+      CharKey c      -> fromIntegral (ord c)
+      KeyUnknown     -> #const GLFW_KEY_UNKNOWN
+      KeySpace       -> #const GLFW_KEY_SPACE
+      KeySpecial     -> #const GLFW_KEY_SPECIAL
+      KeyEsc         -> #const GLFW_KEY_ESC
+      KeyF1          -> #const GLFW_KEY_F1
+      KeyF2          -> #const GLFW_KEY_F2
+      KeyF3          -> #const GLFW_KEY_F3
+      KeyF4          -> #const GLFW_KEY_F4
+      KeyF5          -> #const GLFW_KEY_F5
+      KeyF6          -> #const GLFW_KEY_F6
+      KeyF7          -> #const GLFW_KEY_F7
+      KeyF8          -> #const GLFW_KEY_F8
+      KeyF9          -> #const GLFW_KEY_F9
+      KeyF10         -> #const GLFW_KEY_F10
+      KeyF11         -> #const GLFW_KEY_F11
+      KeyF12         -> #const GLFW_KEY_F12
+      KeyF13         -> #const GLFW_KEY_F13
+      KeyF14         -> #const GLFW_KEY_F14
+      KeyF15         -> #const GLFW_KEY_F15
+      KeyF16         -> #const GLFW_KEY_F16
+      KeyF17         -> #const GLFW_KEY_F17
+      KeyF18         -> #const GLFW_KEY_F18
+      KeyF19         -> #const GLFW_KEY_F19
+      KeyF20         -> #const GLFW_KEY_F20
+      KeyF21         -> #const GLFW_KEY_F21
+      KeyF22         -> #const GLFW_KEY_F22
+      KeyF23         -> #const GLFW_KEY_F23
+      KeyF24         -> #const GLFW_KEY_F24
+      KeyF25         -> #const GLFW_KEY_F25
+      KeyUp          -> #const GLFW_KEY_UP
+      KeyDown        -> #const GLFW_KEY_DOWN
+      KeyLeft        -> #const GLFW_KEY_LEFT
+      KeyRight       -> #const GLFW_KEY_RIGHT
+      KeyLeftShift   -> #const GLFW_KEY_LSHIFT
+      KeyRightShift  -> #const GLFW_KEY_RSHIFT
+      KeyLeftCtrl    -> #const GLFW_KEY_LCTRL
+      KeyRightCtrl   -> #const GLFW_KEY_RCTRL
+      KeyLeftAlt     -> #const GLFW_KEY_LALT
+      KeyRightAlt    -> #const GLFW_KEY_RALT
+      KeyTab         -> #const GLFW_KEY_TAB
+      KeyEnter       -> #const GLFW_KEY_ENTER
+      KeyBackspace   -> #const GLFW_KEY_BACKSPACE
+      KeyInsert      -> #const GLFW_KEY_INSERT
+      KeyDel         -> #const GLFW_KEY_DEL
+      KeyPageup      -> #const GLFW_KEY_PAGEUP
+      KeyPagedown    -> #const GLFW_KEY_PAGEDOWN
+      KeyHome        -> #const GLFW_KEY_HOME
+      KeyEnd         -> #const GLFW_KEY_END
+      KeyPad0        -> #const GLFW_KEY_KP_0
+      KeyPad1        -> #const GLFW_KEY_KP_1
+      KeyPad2        -> #const GLFW_KEY_KP_2
+      KeyPad3        -> #const GLFW_KEY_KP_3
+      KeyPad4        -> #const GLFW_KEY_KP_4
+      KeyPad5        -> #const GLFW_KEY_KP_5
+      KeyPad6        -> #const GLFW_KEY_KP_6
+      KeyPad7        -> #const GLFW_KEY_KP_7
+      KeyPad8        -> #const GLFW_KEY_KP_8
+      KeyPad9        -> #const GLFW_KEY_KP_9
+      KeyPadDivide   -> #const GLFW_KEY_KP_DIVIDE
+      KeyPadMultiply -> #const GLFW_KEY_KP_MULTIPLY
+      KeyPadSubtract -> #const GLFW_KEY_KP_SUBTRACT
+      KeyPadAdd      -> #const GLFW_KEY_KP_ADD
+      KeyPadDecimal  -> #const GLFW_KEY_KP_DECIMAL
+      KeyPadEqual    -> #const GLFW_KEY_KP_EQUAL
+      KeyPadEnter    -> #const GLFW_KEY_KP_ENTER
 
-  fromC i = case i of
-      (#const GLFW_KEY_UNKNOWN    ) -> KeyboardKeyUnknown
-      (#const GLFW_KEY_SPACE      ) -> KeyboardKeySpace
-      (#const GLFW_KEY_SPECIAL    ) -> KeyboardKeySpecial
-      (#const GLFW_KEY_ESC        ) -> KeyboardKeyEsc
-      (#const GLFW_KEY_F1         ) -> KeyboardKeyF1
-      (#const GLFW_KEY_F2         ) -> KeyboardKeyF2
-      (#const GLFW_KEY_F3         ) -> KeyboardKeyF3
-      (#const GLFW_KEY_F4         ) -> KeyboardKeyF4
-      (#const GLFW_KEY_F5         ) -> KeyboardKeyF5
-      (#const GLFW_KEY_F6         ) -> KeyboardKeyF6
-      (#const GLFW_KEY_F7         ) -> KeyboardKeyF7
-      (#const GLFW_KEY_F8         ) -> KeyboardKeyF8
-      (#const GLFW_KEY_F9         ) -> KeyboardKeyF9
-      (#const GLFW_KEY_F10        ) -> KeyboardKeyF10
-      (#const GLFW_KEY_F11        ) -> KeyboardKeyF11
-      (#const GLFW_KEY_F12        ) -> KeyboardKeyF12
-      (#const GLFW_KEY_F13        ) -> KeyboardKeyF13
-      (#const GLFW_KEY_F14        ) -> KeyboardKeyF14
-      (#const GLFW_KEY_F15        ) -> KeyboardKeyF15
-      (#const GLFW_KEY_F16        ) -> KeyboardKeyF16
-      (#const GLFW_KEY_F17        ) -> KeyboardKeyF17
-      (#const GLFW_KEY_F18        ) -> KeyboardKeyF18
-      (#const GLFW_KEY_F19        ) -> KeyboardKeyF19
-      (#const GLFW_KEY_F20        ) -> KeyboardKeyF20
-      (#const GLFW_KEY_F21        ) -> KeyboardKeyF21
-      (#const GLFW_KEY_F22        ) -> KeyboardKeyF22
-      (#const GLFW_KEY_F23        ) -> KeyboardKeyF23
-      (#const GLFW_KEY_F24        ) -> KeyboardKeyF24
-      (#const GLFW_KEY_F25        ) -> KeyboardKeyF25
-      (#const GLFW_KEY_UP         ) -> KeyboardKeyUp
-      (#const GLFW_KEY_DOWN       ) -> KeyboardKeyDown
-      (#const GLFW_KEY_LEFT       ) -> KeyboardKeyLeft
-      (#const GLFW_KEY_RIGHT      ) -> KeyboardKeyRight
-      (#const GLFW_KEY_LSHIFT     ) -> KeyboardKeyLeftShift
-      (#const GLFW_KEY_RSHIFT     ) -> KeyboardKeyRightShift
-      (#const GLFW_KEY_LCTRL      ) -> KeyboardKeyLeftCtrl
-      (#const GLFW_KEY_RCTRL      ) -> KeyboardKeyRightCtrl
-      (#const GLFW_KEY_LALT       ) -> KeyboardKeyLeftAlt
-      (#const GLFW_KEY_RALT       ) -> KeyboardKeyRightAlt
-      (#const GLFW_KEY_TAB        ) -> KeyboardKeyTab
-      (#const GLFW_KEY_ENTER      ) -> KeyboardKeyEnter
-      (#const GLFW_KEY_BACKSPACE  ) -> KeyboardKeyBackspace
-      (#const GLFW_KEY_INSERT     ) -> KeyboardKeyInsert
-      (#const GLFW_KEY_DEL        ) -> KeyboardKeyDel
-      (#const GLFW_KEY_PAGEUP     ) -> KeyboardKeyPageup
-      (#const GLFW_KEY_PAGEDOWN   ) -> KeyboardKeyPagedown
-      (#const GLFW_KEY_HOME       ) -> KeyboardKeyHome
-      (#const GLFW_KEY_END        ) -> KeyboardKeyEnd
-      (#const GLFW_KEY_KP_0       ) -> KeyboardKeyKP_0
-      (#const GLFW_KEY_KP_1       ) -> KeyboardKeyKP_1
-      (#const GLFW_KEY_KP_2       ) -> KeyboardKeyKP_2
-      (#const GLFW_KEY_KP_3       ) -> KeyboardKeyKP_3
-      (#const GLFW_KEY_KP_4       ) -> KeyboardKeyKP_4
-      (#const GLFW_KEY_KP_5       ) -> KeyboardKeyKP_5
-      (#const GLFW_KEY_KP_6       ) -> KeyboardKeyKP_6
-      (#const GLFW_KEY_KP_7       ) -> KeyboardKeyKP_7
-      (#const GLFW_KEY_KP_8       ) -> KeyboardKeyKP_8
-      (#const GLFW_KEY_KP_9       ) -> KeyboardKeyKP_9
-      (#const GLFW_KEY_KP_DIVIDE  ) -> KeyboardKeyKP_Divide
-      (#const GLFW_KEY_KP_MULTIPLY) -> KeyboardKeyKP_Multiply
-      (#const GLFW_KEY_KP_SUBTRACT) -> KeyboardKeyKP_Subtract
-      (#const GLFW_KEY_KP_ADD     ) -> KeyboardKeyKP_Add
-      (#const GLFW_KEY_KP_DECIMAL ) -> KeyboardKeyKP_Decimal
-      (#const GLFW_KEY_KP_EQUAL   ) -> KeyboardKeyKP_Equal
-      (#const GLFW_KEY_KP_ENTER   ) -> KeyboardKeyKP_Enter
-      _                             -> KeyboardKeyUnknown
+  fromC i =
+      if i < #const GLFW_KEY_SPECIAL
+        then CharKey (chr (fromIntegral i))
+        else case i of
+               (#const GLFW_KEY_UNKNOWN    ) -> KeyUnknown
+               (#const GLFW_KEY_SPACE      ) -> KeySpace
+               (#const GLFW_KEY_SPECIAL    ) -> KeySpecial
+               (#const GLFW_KEY_ESC        ) -> KeyEsc
+               (#const GLFW_KEY_F1         ) -> KeyF1
+               (#const GLFW_KEY_F2         ) -> KeyF2
+               (#const GLFW_KEY_F3         ) -> KeyF3
+               (#const GLFW_KEY_F4         ) -> KeyF4
+               (#const GLFW_KEY_F5         ) -> KeyF5
+               (#const GLFW_KEY_F6         ) -> KeyF6
+               (#const GLFW_KEY_F7         ) -> KeyF7
+               (#const GLFW_KEY_F8         ) -> KeyF8
+               (#const GLFW_KEY_F9         ) -> KeyF9
+               (#const GLFW_KEY_F10        ) -> KeyF10
+               (#const GLFW_KEY_F11        ) -> KeyF11
+               (#const GLFW_KEY_F12        ) -> KeyF12
+               (#const GLFW_KEY_F13        ) -> KeyF13
+               (#const GLFW_KEY_F14        ) -> KeyF14
+               (#const GLFW_KEY_F15        ) -> KeyF15
+               (#const GLFW_KEY_F16        ) -> KeyF16
+               (#const GLFW_KEY_F17        ) -> KeyF17
+               (#const GLFW_KEY_F18        ) -> KeyF18
+               (#const GLFW_KEY_F19        ) -> KeyF19
+               (#const GLFW_KEY_F20        ) -> KeyF20
+               (#const GLFW_KEY_F21        ) -> KeyF21
+               (#const GLFW_KEY_F22        ) -> KeyF22
+               (#const GLFW_KEY_F23        ) -> KeyF23
+               (#const GLFW_KEY_F24        ) -> KeyF24
+               (#const GLFW_KEY_F25        ) -> KeyF25
+               (#const GLFW_KEY_UP         ) -> KeyUp
+               (#const GLFW_KEY_DOWN       ) -> KeyDown
+               (#const GLFW_KEY_LEFT       ) -> KeyLeft
+               (#const GLFW_KEY_RIGHT      ) -> KeyRight
+               (#const GLFW_KEY_LSHIFT     ) -> KeyLeftShift
+               (#const GLFW_KEY_RSHIFT     ) -> KeyRightShift
+               (#const GLFW_KEY_LCTRL      ) -> KeyLeftCtrl
+               (#const GLFW_KEY_RCTRL      ) -> KeyRightCtrl
+               (#const GLFW_KEY_LALT       ) -> KeyLeftAlt
+               (#const GLFW_KEY_RALT       ) -> KeyRightAlt
+               (#const GLFW_KEY_TAB        ) -> KeyTab
+               (#const GLFW_KEY_ENTER      ) -> KeyEnter
+               (#const GLFW_KEY_BACKSPACE  ) -> KeyBackspace
+               (#const GLFW_KEY_INSERT     ) -> KeyInsert
+               (#const GLFW_KEY_DEL        ) -> KeyDel
+               (#const GLFW_KEY_PAGEUP     ) -> KeyPageup
+               (#const GLFW_KEY_PAGEDOWN   ) -> KeyPagedown
+               (#const GLFW_KEY_HOME       ) -> KeyHome
+               (#const GLFW_KEY_END        ) -> KeyEnd
+               (#const GLFW_KEY_KP_0       ) -> KeyPad0
+               (#const GLFW_KEY_KP_1       ) -> KeyPad1
+               (#const GLFW_KEY_KP_2       ) -> KeyPad2
+               (#const GLFW_KEY_KP_3       ) -> KeyPad3
+               (#const GLFW_KEY_KP_4       ) -> KeyPad4
+               (#const GLFW_KEY_KP_5       ) -> KeyPad5
+               (#const GLFW_KEY_KP_6       ) -> KeyPad6
+               (#const GLFW_KEY_KP_7       ) -> KeyPad7
+               (#const GLFW_KEY_KP_8       ) -> KeyPad8
+               (#const GLFW_KEY_KP_9       ) -> KeyPad9
+               (#const GLFW_KEY_KP_DIVIDE  ) -> KeyPadDivide
+               (#const GLFW_KEY_KP_MULTIPLY) -> KeyPadMultiply
+               (#const GLFW_KEY_KP_SUBTRACT) -> KeyPadSubtract
+               (#const GLFW_KEY_KP_ADD     ) -> KeyPadAdd
+               (#const GLFW_KEY_KP_DECIMAL ) -> KeyPadDecimal
+               (#const GLFW_KEY_KP_EQUAL   ) -> KeyPadEqual
+               (#const GLFW_KEY_KP_ENTER   ) -> KeyPadEnter
+               _                             -> KeyUnknown
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Mouse
@@ -960,23 +965,23 @@ instance C Int CInt where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
-keyboardCharCallback  :: IORef (Maybe (FunPtr GlfwKeyboardCharCallback))
-keyboardKeyCallback   :: IORef (Maybe (FunPtr GlfwKeyboardKeyCallback))
+charCallback          :: IORef (Maybe (FunPtr GlfwCharCallback))
+keyCallback           :: IORef (Maybe (FunPtr GlfwKeyCallback))
 mouseButtonCallback   :: IORef (Maybe (FunPtr GlfwMouseButtonCallback))
 mousePositionCallback :: IORef (Maybe (FunPtr GlfwMousePositionCallback))
 mouseWheelCallback    :: IORef (Maybe (FunPtr GlfwMouseWheelCallback))
 windowCloseCallback   :: IORef (Maybe (FunPtr GlfwWindowCloseCallback))
 windowRefreshCallback :: IORef (Maybe (FunPtr GlfwWindowRefreshCallback))
-windowResizeCallback  :: IORef (Maybe (FunPtr GlfwWindowResizeCallback))
+windowSizeCallback    :: IORef (Maybe (FunPtr GlfwWindowSizeCallback))
 
-keyboardCharCallback  = unsafePerformIO (newIORef Nothing)
-keyboardKeyCallback   = unsafePerformIO (newIORef Nothing)
+charCallback          = unsafePerformIO (newIORef Nothing)
+keyCallback           = unsafePerformIO (newIORef Nothing)
 mouseButtonCallback   = unsafePerformIO (newIORef Nothing)
 mousePositionCallback = unsafePerformIO (newIORef Nothing)
 mouseWheelCallback    = unsafePerformIO (newIORef Nothing)
 windowCloseCallback   = unsafePerformIO (newIORef Nothing)
 windowRefreshCallback = unsafePerformIO (newIORef Nothing)
-windowResizeCallback  = unsafePerformIO (newIORef Nothing)
+windowSizeCallback    = unsafePerformIO (newIORef Nothing)
 
 storeCallback :: IORef (Maybe (FunPtr a)) -> FunPtr a -> IO ()
 storeCallback ior cb =

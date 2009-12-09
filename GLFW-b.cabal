@@ -77,7 +77,7 @@ library
 --    -D_GLFW_HAS_DLOPEN
 --    -D_GLFW_HAS_SYSCONF
 --    -pthread
-      -O2
+      -Os
     extra-libraries:
       GL
       GLU

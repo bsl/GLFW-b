@@ -234,7 +234,7 @@ int _glfwPlatformInit( void )
     initLibraries();
 
     // Install atexit() routine
-    atexit( glfw_atexit );
+    // atexit( glfw_atexit );
 
     // Initialize joysticks
     _glfwInitJoysticks();

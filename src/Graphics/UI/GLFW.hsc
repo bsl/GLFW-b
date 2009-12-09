@@ -273,8 +273,9 @@ openWindow displayOptions = do
     when (isJust _displayOptions_accumNumAlphaBits)   $ glfwOpenWindowHint (#const GLFW_ACCUM_ALPHA_BITS) (toC (fromJust _displayOptions_accumNumAlphaBits))
     when (isJust _displayOptions_numAuxiliaryBuffers) $ glfwOpenWindowHint (#const GLFW_AUX_BUFFERS)      (toC (fromJust _displayOptions_numAuxiliaryBuffers))
     when (isJust _displayOptions_numFsaaSamples)      $ glfwOpenWindowHint (#const GLFW_FSAA_SAMPLES)     (toC (fromJust _displayOptions_numFsaaSamples))
-    when         _displayOptions_windowIsResizable    $ glfwOpenWindowHint (#const GLFW_WINDOW_NO_RESIZE) (toC           _displayOptions_windowIsResizable)
-    when         _displayOptions_stereoRendering      $ glfwOpenWindowHint (#const GLFW_STEREO)           (toC           _displayOptions_stereoRendering)
+
+    glfwOpenWindowHint (#const GLFW_WINDOW_NO_RESIZE) (toC (not _displayOptions_windowIsResizable))
+    glfwOpenWindowHint (#const GLFW_STEREO)           (toC      _displayOptions_stereoRendering)
 
     -- Open the window.
     fromC `fmap` glfwOpenWindow
@@ -379,7 +380,7 @@ defaultDisplayOptions =
       , displayOptions_accumNumAlphaBits   = Nothing
       , displayOptions_numAuxiliaryBuffers = Nothing
       , displayOptions_numFsaaSamples      = Nothing
-      , displayOptions_windowIsResizable   = False
+      , displayOptions_windowIsResizable   = True
       , displayOptions_stereoRendering     = False
       }
 

@@ -123,26 +123,6 @@
 // One day, this will most likely move into glfw.h
 typedef intptr_t GLFWintptr;
 
-void (*glXGetProcAddress(const GLubyte *procName))();
-void (*glXGetProcAddressARB(const GLubyte *procName))();
-void (*glXGetProcAddressEXT(const GLubyte *procName))();
-
-// We support four different ways for getting addresses for GL/GLX
-// extension functions: glXGetProcAddress, glXGetProcAddressARB,
-// glXGetProcAddressEXT, and dlsym
-#if   defined( _GLFW_HAS_GLXGETPROCADDRESSARB )
- #define _glfw_glXGetProcAddress(x) glXGetProcAddressARB(x)
-#elif defined( _GLFW_HAS_GLXGETPROCADDRESS )
- #define _glfw_glXGetProcAddress(x) glXGetProcAddress(x)
-#elif defined( _GLFW_HAS_GLXGETPROCADDRESSEXT )
- #define _glfw_glXGetProcAddress(x) glXGetProcAddressEXT(x)
-#elif defined( _GLFW_HAS_DLOPEN )
- #define _glfw_glXGetProcAddress(x) dlsym(_glfwLibs.libGL,x)
- #define _GLFW_DLOPEN_LIBGL
-#else
-#define _glfw_glXGetProcAddress(x) NULL
-#endif
-
 
 #ifndef GLX_SGI_swap_control
 

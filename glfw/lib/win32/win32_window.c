@@ -244,6 +244,12 @@ static _GLFWfbconfig *getFBConfigs( unsigned int *found )
                 continue;
             }
 
+            if( !( pfd.dwFlags & PFD_GENERIC_ACCELERATED ) &&
+                ( pfd.dwFlags & PFD_GENERIC_FORMAT ) )
+            {
+                continue;
+            }
+
             if( pfd.iPixelType != PFD_TYPE_RGBA )
             {
                 // Only RGBA pixel formats considered
@@ -363,6 +369,33 @@ static int translateKey( WPARAM wParam, LPARAM lParam )
     MSG next_msg;
     DWORD msg_time;
     DWORD scan_code;
+
+    // Check for numeric keypad keys
+    // Note: This way we always force "NumLock = ON", which at least
+    // enables GLFW users to detect numeric keypad keys
+    int hiFlags = HIWORD( lParam );
+
+    if ( !( hiFlags & 0x100 ) )
+    {
+        switch( MapVirtualKey( hiFlags & 0xFF, 1 ) )
+        {
+            case VK_INSERT:   return GLFW_KEY_KP_0;
+            case VK_END:      return GLFW_KEY_KP_1;
+            case VK_DOWN:     return GLFW_KEY_KP_2;
+            case VK_NEXT:     return GLFW_KEY_KP_3;
+            case VK_LEFT:     return GLFW_KEY_KP_4;
+            case VK_CLEAR:    return GLFW_KEY_KP_5;
+            case VK_RIGHT:    return GLFW_KEY_KP_6;
+            case VK_HOME:     return GLFW_KEY_KP_7;
+            case VK_UP:       return GLFW_KEY_KP_8;
+            case VK_PRIOR:    return GLFW_KEY_KP_9;
+            case VK_DIVIDE:   return GLFW_KEY_KP_DIVIDE;
+            case VK_MULTIPLY: return GLFW_KEY_KP_MULTIPLY;
+            case VK_SUBTRACT: return GLFW_KEY_KP_SUBTRACT;
+            case VK_ADD:      return GLFW_KEY_KP_ADD;
+            case VK_DELETE:   return GLFW_KEY_KP_DECIMAL;
+        }
+    }
 
     // Check which key was pressed or released
     switch( wParam )

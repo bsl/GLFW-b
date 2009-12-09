@@ -986,23 +986,32 @@ static void initGLXExtensions( void )
     if( _glfwPlatformExtensionSupported( "GLX_SGI_swap_control" ) )
     {
         _glfwWin.SwapIntervalSGI = (PFNGLXSWAPINTERVALSGIPROC)
-            _glfw_glXGetProcAddress( (GLubyte*) "glXSwapIntervalSGI" );
+            _glfwPlatformGetProcAddress( "glXSwapIntervalSGI" );
 
-        _glfwWin.has_GLX_SGI_swap_control = GL_TRUE;
+        if( _glfwWin.SwapIntervalSGI )
+        {
+            _glfwWin.has_GLX_SGI_swap_control = GL_TRUE;
+        }
     }
 
     if( _glfwPlatformExtensionSupported( "GLX_SGIX_fbconfig" ) )
     {
         _glfwWin.GetFBConfigAttribSGIX = (PFNGLXGETFBCONFIGATTRIBSGIXPROC)
-            _glfw_glXGetProcAddress( (GLubyte*) "glXGetFBConfigAttribSGIX" );
+            _glfwPlatformGetProcAddress( "glXGetFBConfigAttribSGIX" );
         _glfwWin.ChooseFBConfigSGIX = (PFNGLXCHOOSEFBCONFIGSGIXPROC)
-            _glfw_glXGetProcAddress( (GLubyte*) "glXChooseFBConfigSGIX" );
+            _glfwPlatformGetProcAddress( "glXChooseFBConfigSGIX" );
         _glfwWin.CreateContextWithConfigSGIX = (PFNGLXCREATECONTEXTWITHCONFIGSGIXPROC)
-            _glfw_glXGetProcAddress( (GLubyte*) "glXCreateContextWithConfigSGIX" );
+            _glfwPlatformGetProcAddress( "glXCreateContextWithConfigSGIX" );
         _glfwWin.GetVisualFromFBConfigSGIX = (PFNGLXGETVISUALFROMFBCONFIGSGIXPROC)
-            _glfw_glXGetProcAddress( (GLubyte*) "glXGetVisualFromFBConfigSGIX" );
+            _glfwPlatformGetProcAddress( "glXGetVisualFromFBConfigSGIX" );
 
-        _glfwWin.has_GLX_SGIX_fbconfig = GL_TRUE;
+        if( _glfwWin.GetFBConfigAttribSGIX &&
+            _glfwWin.ChooseFBConfigSGIX &&
+            _glfwWin.CreateContextWithConfigSGIX &&
+            _glfwWin.GetVisualFromFBConfigSGIX )
+        {
+            _glfwWin.has_GLX_SGIX_fbconfig = GL_TRUE;
+        }
     }
 
     if( _glfwPlatformExtensionSupported( "GLX_ARB_multisample" ) )
@@ -1013,9 +1022,12 @@ static void initGLXExtensions( void )
     if( _glfwPlatformExtensionSupported( "GLX_ARB_create_context" ) )
     {
         _glfwWin.CreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC)
-            _glfw_glXGetProcAddress( (GLubyte*) "glXCreateContextAttribsARB" );
+            _glfwPlatformGetProcAddress( "glXCreateContextAttribsARB" );
 
-        _glfwWin.has_GLX_ARB_create_context = GL_TRUE;
+        if( _glfwWin.CreateContextAttribsARB )
+        {
+            _glfwWin.has_GLX_ARB_create_context = GL_TRUE;
+        }
     }
 
     if( _glfwPlatformExtensionSupported( "GLX_ARB_create_context_profile" ) )
@@ -1414,8 +1426,6 @@ void _glfwPlatformCloseWindow( void )
                          _glfwWin.Saver.exposure );
         _glfwWin.Saver.changed = GL_FALSE;
     }
-
-    //XSync( _glfwLibrary.display, True );
 }
 
 
@@ -1438,8 +1448,6 @@ void _glfwPlatformSetWindowTitle( const char *title )
 void _glfwPlatformSetWindowSize( int width, int height )
 {
     int     mode = 0, rate, sizeChanged = GL_FALSE;
-    GLint   drawbuffer;
-    GLfloat clearcolor[4];
     XSizeHints *sizehints;
 
     rate = _glfwWin.refreshRate;
@@ -1475,19 +1483,6 @@ void _glfwPlatformSetWindowSize( int width, int height )
     {
         // Change video mode (keeping current rate)
         _glfwSetVideoModeMODE( _glfwWin.screen, mode, _glfwWin.refreshRate );
-
-        // Clear the front buffer to black (avoid ugly desktop remains in
-        // our OpenGL window)
-        glGetIntegerv( GL_DRAW_BUFFER, &drawbuffer );
-        glGetFloatv( GL_COLOR_CLEAR_VALUE, clearcolor );
-        glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-        glClear( GL_COLOR_BUFFER_BIT );
-        if( drawbuffer == GL_BACK )
-        {
-            glXSwapBuffers( _glfwLibrary.display, _glfwWin.window );
-        }
-        glClearColor( clearcolor[0], clearcolor[1], clearcolor[2],
-                      clearcolor[3] );
     }
 
     // Set window size (if not already changed)
@@ -1525,7 +1520,10 @@ void _glfwPlatformIconifyWindow( void )
     if( _glfwWin.fullscreen )
     {
 #if defined( _GLFW_HAS_XRANDR )
-    // TODO: The code.
+        if( _glfwLibrary.XRandR.available )
+        {
+            // TODO: The code.
+        }
 #elif defined( _GLFW_HAS_XF86VIDMODE )
         if( _glfwLibrary.XF86VidMode.available )
         {
@@ -1772,14 +1770,6 @@ void _glfwPlatformPollEvents( void )
     _glfwWin.mapNotifyCount = 0;
     _glfwWin.focusInCount = 0;
 
-    // Use XSync to synchronise events to the X display.
-    // I don't know if this can have a serious performance impact. My
-    // benchmarks with a GeForce card under Linux shows no difference with
-    // or without XSync, but when the GL window is rendered over a slow
-    // network I have noticed bad event syncronisation problems when XSync
-    // is not used, so I decided to use it.
-    //XSync( _glfwLibrary.display, False );
-
     // Empty the window event queue
     while( XPending( _glfwLibrary.display ) )
     {
@@ -1808,7 +1798,6 @@ void _glfwPlatformPollEvents( void )
             // does not wander off...
             _glfwPlatformSetMouseCursorPos( _glfwWin.width/2,
                                             _glfwWin.height/2 );
-            //XSync( _glfwLibrary.display, False );
         }
     }
 

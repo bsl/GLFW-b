@@ -83,33 +83,42 @@ library
       X11
       Xrandr
   else
---  if os(darwin)
---    include-dirs:
---      ...
---    c-sources:
---      ...
---    cc-options:
---      ...
---    frameworks:
---      ...
---  else
-    if os(mingw32)
+    if os(darwin)
       include-dirs:
-        glfw/lib/win32
+        glfw/lib/cocoa
       c-sources:
-        glfw/lib/win32/win32_dllmain.c
-        glfw/lib/win32/win32_enable.c
-        glfw/lib/win32/win32_fullscreen.c
-        glfw/lib/win32/win32_glext.c
-        glfw/lib/win32/win32_init.c
-        glfw/lib/win32/win32_joystick.c
-        glfw/lib/win32/win32_thread.c
-        glfw/lib/win32/win32_time.c
-        glfw/lib/win32/win32_window.c
+        glfw/lib/cocoa/cocoa_enable.m
+        glfw/lib/cocoa/cocoa_fullscreen.m
+        glfw/lib/cocoa/cocoa_glext.m
+        glfw/lib/cocoa/cocoa_init.m
+        glfw/lib/cocoa/cocoa_joystick.m
+        glfw/lib/cocoa/cocoa_thread.c
+        glfw/lib/cocoa/cocoa_time.m
+        glfw/lib/cocoa/cocoa_window.m
       cc-options:
         -O2
-      extra-libraries:
-        opengl32
+      frameworks:
+        AGL
+        Cocoa
+        OpenGL
+    else
+      if os(mingw32)
+        include-dirs:
+          glfw/lib/win32
+        c-sources:
+          glfw/lib/win32/win32_dllmain.c
+          glfw/lib/win32/win32_enable.c
+          glfw/lib/win32/win32_fullscreen.c
+          glfw/lib/win32/win32_glext.c
+          glfw/lib/win32/win32_init.c
+          glfw/lib/win32/win32_joystick.c
+          glfw/lib/win32/win32_thread.c
+          glfw/lib/win32/win32_time.c
+          glfw/lib/win32/win32_window.c
+        cc-options:
+          -O2
+        extra-libraries:
+          opengl32
 
   ghc-options: -Wall -O2
   if impl(ghc >= 6.8)

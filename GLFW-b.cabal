@@ -83,40 +83,31 @@ library
       X11
       Xrandr
   else
-    if os(darwin)
+--  if os(darwin)
+--    include-dirs:
+--      ...
+--    c-sources:
+--      ...
+--    cc-options:
+--      ...
+--    frameworks:
+--      ...
+--  else
+    if os(mingw32)
       include-dirs:
-        glfw/lib/carbon
+        glfw/lib/win32
       c-sources:
-        glfw/lib/carbon/carbon_enable.c
-        glfw/lib/carbon/carbon_fullscreen.c
-        glfw/lib/carbon/carbon_glext.c
-        glfw/lib/carbon/carbon_init.c
-        glfw/lib/carbon/carbon_joystick.c
-        glfw/lib/carbon/carbon_thread.c
-        glfw/lib/carbon/carbon_time.c
-        glfw/lib/carbon/carbon_window.c
-      cc-options:
-        -march=apple
-      frameworks:
-        AGL
-        Carbon
-        OpenGL
-    else
-      if os(mingw32)
-        include-dirs:
-          glfw/lib/win32
-        c-sources:
-          glfw/lib/win32/win32_dllmain.c
-          glfw/lib/win32/win32_enable.c
-          glfw/lib/win32/win32_fullscreen.c
-          glfw/lib/win32/win32_glext.c
-          glfw/lib/win32/win32_init.c
-          glfw/lib/win32/win32_joystick.c
-          glfw/lib/win32/win32_thread.c
-          glfw/lib/win32/win32_time.c
-          glfw/lib/win32/win32_window.c
-        extra-libraries:
-          opengl32
+        glfw/lib/win32/win32_dllmain.c
+        glfw/lib/win32/win32_enable.c
+        glfw/lib/win32/win32_fullscreen.c
+        glfw/lib/win32/win32_glext.c
+        glfw/lib/win32/win32_init.c
+        glfw/lib/win32/win32_joystick.c
+        glfw/lib/win32/win32_thread.c
+        glfw/lib/win32/win32_time.c
+        glfw/lib/win32/win32_window.c
+      extra-libraries:
+        opengl32
 
   ghc-options: -Wall -O2
   if impl(ghc >= 6.8)

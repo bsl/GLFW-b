@@ -4,10 +4,13 @@ version:      0.0.1
 category:     Graphics
 
 synopsis:     GLFW bindings
-description:  Bindings to GLFW, a free, Open Source, multi-platform library for
+description:  Bindings to GLFW, a free, open source, multi-platform library for
               creating OpenGL contexts and managing input, including keyboard,
               mouse, joystick and time.
-
+              .
+              Please see README.md for information about how these bindings
+              differ from the ones in the GLFW package.
+              .
               For more information about the library on which these bindings
               are based, please see <http://glfw.sourceforge.net>.
 
@@ -33,10 +36,6 @@ library
 
   hs-source-dirs:
     src
-
-  ghc-options: -Wall -O2
-  if impl(ghc >= 6.8)
-    ghc-options: -fwarn-tabs
 
   include-dirs:
     glfw/include
@@ -118,6 +117,10 @@ library
         glfw/lib/win32/win32_window.c
       extra-libraries:
         opengl32
+
+  ghc-options: -Wall -O2
+  if impl(ghc >= 6.8)
+    ghc-options: -fwarn-tabs
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 

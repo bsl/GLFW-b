@@ -95,6 +95,8 @@ library
         glfw/lib/carbon/carbon_thread.c
         glfw/lib/carbon/carbon_time.c
         glfw/lib/carbon/carbon_window.c
+      cc-options:
+        -march=apple
       frameworks:
         AGL
         Carbon

@@ -76,7 +76,7 @@ library
 --    -D_GLFW_HAS_DLOPEN
 --    -D_GLFW_HAS_SYSCONF
 --    -pthread
-      -Os
+      -O2
     extra-libraries:
       GL
       GLU
@@ -106,6 +106,8 @@ library
         glfw/lib/win32/win32_thread.c
         glfw/lib/win32/win32_time.c
         glfw/lib/win32/win32_window.c
+      cc-options:
+        -O2
       extra-libraries:
         opengl32
 

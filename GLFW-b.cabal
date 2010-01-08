@@ -33,6 +33,7 @@ build-type:    Simple
 
 extra-source-files:
   README.md
+  glfw/include/GL/glfw.h
 
 -- -- -- -- -- -- -- -- -- --
 

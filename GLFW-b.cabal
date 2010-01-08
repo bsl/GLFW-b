@@ -8,7 +8,7 @@ description:  Bindings to GLFW, a free, open source, multi-platform library for
               creating OpenGL contexts and managing input, including keyboard,
               mouse, joystick and time.
               .
-              /GLFW-b currently does not work on Mac OS X./ Sorry.
+              /GLFW-b does not currently work on Mac OS X./ Sorry.
               .
               Please see README.md for information about how these bindings
               differ from the ones in the GLFW package

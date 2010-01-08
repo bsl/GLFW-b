@@ -1,5 +1,5 @@
 name:         GLFW-b
-version:      0.0.1
+version:      0.0.2
 
 category:     Graphics
 
@@ -34,6 +34,10 @@ build-type:    Simple
 extra-source-files:
   README.md
   glfw/include/GL/glfw.h
+  glfw/lib/internal.h
+  glfw/lib/cocoa/platform.h
+  glfw/lib/win32/platform.h
+  glfw/lib/x11/platform.h
 
 -- -- -- -- -- -- -- -- -- --
 

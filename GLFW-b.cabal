@@ -10,9 +10,10 @@ description:  Bindings to GLFW, a free, open source, multi-platform library for
               .
               /GLFW-b does not currently work on Mac OS X./ Sorry.
               .
-              Please see README.md for information about how these bindings
-              differ from the ones in the GLFW package
-              (<http://hackage.haskell.org/package/GLFW>).
+              Please see README.md
+              (<http://github.com/bsl/GLFW-b/blob/master/README.md>) for
+              information about how these bindings differ from the ones in the
+              GLFW package (<http://hackage.haskell.org/package/GLFW>).
               .
               For more information about the library on which these bindings
               are based, please see <http://glfw.sourceforge.net>.

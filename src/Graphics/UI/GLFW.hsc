@@ -117,7 +117,7 @@ foreign import ccall unsafe glfwGetVersion               :: Ptr CInt -> Ptr CInt
 foreign import ccall unsafe glfwOpenWindow               :: CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> IO CInt
 foreign import ccall unsafe glfwOpenWindowHint           :: CInt -> CInt -> IO ()
 foreign import ccall unsafe glfwCloseWindow              :: IO ()
-foreign import ccall unsafe glfwSetWindowCloseCallback   :: FunPtr GlfwWindowCloseCallback -> IO ()
+foreign import ccall        glfwSetWindowCloseCallback   :: FunPtr GlfwWindowCloseCallback -> IO ()
 foreign import ccall unsafe glfwSetWindowTitle           :: CString -> IO ()
 foreign import ccall unsafe glfwSetWindowSize            :: CInt -> CInt -> IO ()
 foreign import ccall unsafe glfwSetWindowPos             :: CInt -> CInt -> IO ()
@@ -128,13 +128,13 @@ foreign import ccall unsafe glfwRestoreWindow            :: IO ()
 foreign import ccall unsafe glfwGetWindowParam           :: CInt -> IO CInt
 foreign import ccall        glfwSwapBuffers              :: IO ()
 foreign import ccall unsafe glfwSwapInterval             :: CInt -> IO ()
-foreign import ccall unsafe glfwSetWindowRefreshCallback :: FunPtr GlfwWindowRefreshCallback -> IO ()
+foreign import ccall        glfwSetWindowRefreshCallback :: FunPtr GlfwWindowRefreshCallback -> IO ()
 
 foreign import ccall unsafe glfwGetVideoModes            :: Ptr VideoMode -> CInt -> IO CInt
 foreign import ccall unsafe glfwGetDesktopMode           :: Ptr VideoMode -> IO ()
 
-foreign import ccall unsafe glfwPollEvents               :: IO ()
-foreign import ccall unsafe glfwWaitEvents               :: IO ()
+foreign import ccall        glfwPollEvents               :: IO ()
+foreign import ccall        glfwWaitEvents               :: IO ()
 foreign import ccall unsafe glfwGetKey                   :: CInt -> IO CInt
 foreign import ccall unsafe glfwGetMouseButton           :: CInt -> IO CInt
 foreign import ccall unsafe glfwGetMousePos              :: Ptr CInt -> Ptr CInt -> IO ()

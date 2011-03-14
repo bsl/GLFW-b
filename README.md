@@ -1,9 +1,7 @@
-Differences between GLFW and GLFW-b 2010.01
+Differences between GLFW and GLFW-b 2011.03
 ===========================================
 
-* GLFW binds to version 2.6 of the GLFW C library. GLFW-b binds to 2.7. GLFW
-  2.7 is partially written in Objective C. This is a problem for Cabal, so
-  _GLFW-b does not currently work on Mac OS X._
+* GLFW binds to version 2.6 of the GLFW C library. GLFW-b binds to 2.7.
 
 * Some GLFW functions return OpenGL {Gettable,Settable}StateVars. I don't like
   this because it adds an extra step to extract a value and causes GLFW to be

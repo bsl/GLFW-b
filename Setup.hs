@@ -73,7 +73,7 @@ postInstGlfw :: Args -> InstallFlags -> PackageDescription
              -> LocalBuildInfo -> IO ()
 postInstGlfw _ flags pkgDesc lbi =
   case buildOS of
-    OSX -> do 
+    OSX -> do
       let copyflags = defaultCopyFlags
                     { copyDistPref  = installDistPref flags
                     , copyDest      = toFlag NoCopyDest

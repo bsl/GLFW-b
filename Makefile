@@ -18,7 +18,7 @@ $(BUILD_DIR)/libglfw.a: $(OBJS)
 	ar -r -s $@ $(OBJS)
 
 $(BUILD_DIR)/$(SRC_DIR)/.build-tag:
-	mkdir -p $(BUILD_DIR)/$(SRC_DIR) 
+	mkdir -p $(BUILD_DIR)/$(SRC_DIR)
 	touch $@
 
 $(OBJS): $(BUILD_DIR)/$(SRC_DIR)/.build-tag
@@ -26,8 +26,8 @@ $(OBJS): $(BUILD_DIR)/$(SRC_DIR)/.build-tag
 $(BUILD_DIR)/%.o : %.c
 	$(CC) -c $(CFLAGS) $< -o $@
 $(BUILD_DIR)/%.o : %.m
-	$(CC) -c $(CFLAGS) $< -o $@ 
+	$(CC) -c $(CFLAGS) $< -o $@
 
 .PHONY: clean
 clean:
-	$(RM) -rf $(BUILD_DIR) 
+	$(RM) -rf $(BUILD_DIR)

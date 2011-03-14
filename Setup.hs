@@ -45,7 +45,7 @@ makeGlfw _ flags = do
   case buildOS of
     OSX -> do
       let make = rawSystemExit verbosity "env" $
-           ["make"] ++ (if verbosity >= verbose then [] else ["--quiet"])
+           "make" : (if verbosity >= verbose then [] else ["--quiet"])
       make
     _ -> return ()
 

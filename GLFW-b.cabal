@@ -33,6 +33,7 @@ build-type:    Custom
 -- -- -- -- -- -- -- -- -- --
 
 extra-source-files:
+  Makefile
   README.md
   glfw/include/GL/glfw.h
   glfw/lib/internal.h

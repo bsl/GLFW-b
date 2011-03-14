@@ -1,5 +1,5 @@
 name:         GLFW-b
-version:      0.0.2.1
+version:      0.0.2.2
 
 category:     Graphics
 
@@ -27,7 +27,7 @@ license-file: LICENSE
 -- -- -- -- -- -- -- -- -- --
 
 cabal-version: >= 1.6
-build-type:    Simple
+build-type:    Custom 
 
 -- -- -- -- -- -- -- -- -- --
 
@@ -100,21 +100,12 @@ library
     if os(darwin)
       include-dirs:
         glfw/lib/cocoa
-      c-sources:
-        glfw/lib/cocoa/cocoa_enable.m
-        glfw/lib/cocoa/cocoa_fullscreen.m
-        glfw/lib/cocoa/cocoa_glext.m
-        glfw/lib/cocoa/cocoa_init.m
-        glfw/lib/cocoa/cocoa_joystick.m
-        glfw/lib/cocoa/cocoa_thread.c
-        glfw/lib/cocoa/cocoa_time.m
-        glfw/lib/cocoa/cocoa_window.m
-      cc-options:
-        -O2
       frameworks:
         AGL
         Cocoa
         OpenGL
+      extra-libraries: glfw
+      extra-lib-dirs: dist/build
     else
       if os(mingw32)
         include-dirs:

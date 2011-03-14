@@ -47,6 +47,7 @@ makeGlfw _ flags = do
       let make = rawSystemExit verbosity "env" $
            ["make"] ++ (if verbosity >= verbose then [] else ["--quiet"])
       make
+    _ -> return ()
 
 makeClean :: Args -> CleanFlags -> IO ()
 makeClean _ flags = do
@@ -57,8 +58,12 @@ makeClean _ flags = do
            ["make"] ++ (if verbosity >= verbose then [] else ["--quiet"])
             ++ ["clean"]
       make
+    _ -> return ()
 
-glfwPkgDesc pkgDesc = updatePackageDescription libDirGlfw pkgDesc
+glfwPkgDesc pkgDesc =
+  case buildOS of
+    OSX -> updatePackageDescription libDirGlfw pkgDesc
+    _   -> pkgDesc
 
 libDirGlfw :: HookedBuildInfo
 libDirGlfw = (Just buildinfo, [])
@@ -66,26 +71,32 @@ libDirGlfw = (Just buildinfo, [])
 
 postInstGlfw :: Args -> InstallFlags -> PackageDescription
              -> LocalBuildInfo -> IO ()
-postInstGlfw _ flags pkgDesc lbi = do
-  let copyflags = defaultCopyFlags
+postInstGlfw _ flags pkgDesc lbi =
+  case buildOS of
+    OSX -> do 
+      let copyflags = defaultCopyFlags
                     { copyDistPref  = installDistPref flags
                     , copyDest      = toFlag NoCopyDest
                     , copyVerbosity = installVerbosity flags
                     }
-  postCopyGlfw undefined copyflags pkgDesc lbi
+      postCopyGlfw undefined copyflags pkgDesc lbi
+    _ -> return ()
 
 postCopyGlfw :: Args -> CopyFlags -> PackageDescription
              -> LocalBuildInfo -> IO ()
-postCopyGlfw _ flags pkgDesc lbi = do
-  let installDirs = absoluteInstallDirs pkgDesc lbi
-        . fromFlag . copyDest $ flags
-      libPref = libdir installDirs
-      binPref = bindir installDirs
-      verbosity = fromFlag $ copyVerbosity flags
-      outDir = libPref
-      copy dest f = installOrdinaryFile verbosity (extraLibDir</>f) (dest</>f)
-  maybe (return ()) (copy libPref) (Just libName)
-  maybe (return ()) (copy libPref) (Just sharedName)
+postCopyGlfw _ flags pkgDesc lbi =
+  case buildOS of
+    OSX -> do
+      let installDirs = absoluteInstallDirs pkgDesc lbi
+            . fromFlag . copyDest $ flags
+          libPref = libdir installDirs
+          binPref = bindir installDirs
+          verbosity = fromFlag $ copyVerbosity flags
+          outDir = libPref
+          copy dest f = installOrdinaryFile verbosity (extraLibDir</>f) (dest</>f)
+      maybe (return ()) (copy libPref) (Just libName)
+      maybe (return ()) (copy libPref) (Just sharedName)
+    _ -> return ()
 
 libName = "libglfw.a"
 sharedName = "libglfw.dylib"

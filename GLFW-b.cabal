@@ -106,6 +106,7 @@ library
         Cocoa
         OpenGL
       extra-libraries: glfw
+      extra-lib-dirs: build
     else
       if os(mingw32)
         include-dirs:

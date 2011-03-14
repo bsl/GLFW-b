@@ -1,7 +1,7 @@
 FRAMEWORK = -framework AGL -framework Cocoa -framework OpenGL
 CFLAGS    = -O2 -Iglfw/include -Iglfw/lib -Iglfw/lib/cocoa
 SRC_DIR   = glfw/lib/cocoa
-BUILD_DIR = dist/build
+BUILD_DIR = build
 
 OBJ_C_SRC = $(shell find $(SRC_DIR) -name "*.m")
 C_SRC     = $(shell find $(SRC_DIR) -name "*.c")

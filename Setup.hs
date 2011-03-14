@@ -27,7 +27,7 @@ import Distribution.PackageDescription ( emptyBuildInfo
 import System.Cmd ( system )
 import System.FilePath ( (</>) )
 
-extraLibDir = "dist"</>"build"
+extraLibDir = "build"
 
 main :: IO ()
 main = defaultMainWithHooks simpleUserHooks

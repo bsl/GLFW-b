@@ -41,7 +41,16 @@ extra-source-files:
   glfw/lib/cocoa/platform.h
   glfw/lib/win32/platform.h
   glfw/lib/x11/platform.h
-
+  -- We can't explicitly list these as
+  -- C sources so we list them here.
+  glfw/lib/cocoa/cocoa_enable.m
+  glfw/lib/cocoa/cocoa_joystick.m
+  glfw/lib/cocoa/cocoa_fullscreen.m
+  glfw/lib/cocoa/cocoa_time.m
+  glfw/lib/cocoa/cocoa_glext.m
+  glfw/lib/cocoa/cocoa_window.m
+  glfw/lib/cocoa/cocoa_init.m
+  glfw/lib/cocoa/cocoa_thread.c
 -- -- -- -- -- -- -- -- -- --
 
 library

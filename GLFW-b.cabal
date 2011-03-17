@@ -35,6 +35,7 @@ build-type:    Custom
 extra-source-files:
   Makefile
   README.md
+  ./build/glfw/lib/cocoa/.build-tag
   glfw/include/GL/glfw.h
   glfw/lib/internal.h
   glfw/lib/cocoa/platform.h

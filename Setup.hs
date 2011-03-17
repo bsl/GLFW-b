@@ -97,9 +97,7 @@ postCopyGlfw _ flags pkgDesc lbi =
           verbosity = fromFlag $ copyVerbosity flags
           copy dest f = installOrdinaryFile verbosity (extraLibDir</>f) (dest</>f)
       maybe (return ()) (copy libPref) (Just libName)
-      maybe (return ()) (copy libPref) (Just sharedName)
     _ -> return ()
 
-libName, sharedName :: FilePath
+libName :: FilePath
 libName = "libglfw.a"
-sharedName = "libglfw.dylib"

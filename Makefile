@@ -9,10 +9,11 @@ C_SRC     := $(wildcard $(SRC_DIR)/*.c)
 GLFW_SRC  := $(wildcard $(GLFW_DIR)/*.c)
 OBJS      := $(addprefix $(BUILD_DIR)/, $(OBJ_C_SRC:.m=.o) $(C_SRC:.c=.o))
 
-all: $(BUILD_DIR)/libglfw.a $(BUILD_DIR)/libglfw.dylib
+all: $(BUILD_DIR)/libglfw.a
 
-$(BUILD_DIR)/libglfw.dylib: $(OBJS)
-	$(CC) -dynamiclib $(GLFW_FLAG) -o $@ $(OBJS) $(GLFW_SRC) $(FRAMEWORK)
+# The .dylib was creating more problems than it solved.
+#$(BUILD_DIR)/libglfw.dylib: $(OBJS)
+#	$(CC) -dynamiclib $(GLFW_FLAG) -o $@ $(OBJS) $(GLFW_SRC) $(FRAMEWORK)
 
 $(BUILD_DIR)/libglfw.a: $(OBJS)
 	ar -r -s $@ $(OBJS)

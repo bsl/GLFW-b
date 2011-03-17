@@ -1,5 +1,5 @@
 FRAMEWORK := -framework AGL -framework Cocoa -framework OpenGL
-CFLAGS    := -O2 -Iglfw/include -Iglfw/lib -Iglfw/lib/cocoa
+GLFW_FLAG := -m32 -O2 -Iglfw/include -Iglfw/lib -Iglfw/lib/cocoa $(CFLAGS)
 SRC_DIR   := glfw/lib/cocoa
 GLFW_DIR  := glfw/lib
 BUILD_DIR := build
@@ -24,9 +24,9 @@ $(BUILD_DIR)/$(SRC_DIR)/.build-tag:
 $(OBJS): $(BUILD_DIR)/$(SRC_DIR)/.build-tag
 
 $(BUILD_DIR)/%.o : %.c
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -c $(GLFW_FLAG) $< -o $@
 $(BUILD_DIR)/%.o : %.m
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -c $(GLFW_FLAG) $< -o $@
 
 .PHONY: clean
 clean:

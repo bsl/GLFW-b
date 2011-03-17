@@ -12,7 +12,7 @@ OBJS      := $(addprefix $(BUILD_DIR)/, $(OBJ_C_SRC:.m=.o) $(C_SRC:.c=.o))
 all: $(BUILD_DIR)/libglfw.a $(BUILD_DIR)/libglfw.dylib
 
 $(BUILD_DIR)/libglfw.dylib: $(OBJS)
-	$(CC) -dynamiclib $(CFLAGS) -o $@ $(OBJS) $(GLFW_SRC) $(FRAMEWORK)
+	$(CC) -dynamiclib $(GLFW_FLAG) -o $@ $(OBJS) $(GLFW_SRC) $(FRAMEWORK)
 
 $(BUILD_DIR)/libglfw.a: $(OBJS)
 	ar -r -s $@ $(OBJS)

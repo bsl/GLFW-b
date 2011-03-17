@@ -1,0 +1,4 @@
+*.[oa]
+*.dylib
+cabal-dev/
+dist/

@@ -116,7 +116,7 @@ foreign import ccall unsafe glfwGetVersion               :: Ptr CInt -> Ptr CInt
 
 foreign import ccall unsafe glfwOpenWindow               :: CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> IO CInt
 foreign import ccall unsafe glfwOpenWindowHint           :: CInt -> CInt -> IO ()
-foreign import ccall unsafe glfwCloseWindow              :: IO ()
+foreign import ccall        glfwCloseWindow              :: IO ()
 foreign import ccall        glfwSetWindowCloseCallback   :: FunPtr GlfwWindowCloseCallback -> IO ()
 foreign import ccall unsafe glfwSetWindowTitle           :: CString -> IO ()
 foreign import ccall unsafe glfwSetWindowSize            :: CInt -> CInt -> IO ()

@@ -975,13 +975,21 @@ windowRefreshCallback :: IORef (Maybe (FunPtr GlfwWindowRefreshCallback))
 windowSizeCallback    :: IORef (Maybe (FunPtr GlfwWindowSizeCallback))
 
 charCallback          = unsafePerformIO (newIORef Nothing)
+{-# NOINLINE charCallback #-}
 keyCallback           = unsafePerformIO (newIORef Nothing)
+{-# NOINLINE keyCallback #-}
 mouseButtonCallback   = unsafePerformIO (newIORef Nothing)
+{-# NOINLINE mouseButtonCallback #-}
 mousePositionCallback = unsafePerformIO (newIORef Nothing)
+{-# NOINLINE mousePositionCallback #-}
 mouseWheelCallback    = unsafePerformIO (newIORef Nothing)
+{-# NOINLINE mouseWheelCallback #-}
 windowCloseCallback   = unsafePerformIO (newIORef Nothing)
+{-# NOINLINE windowCloseCallback #-}
 windowRefreshCallback = unsafePerformIO (newIORef Nothing)
+{-# NOINLINE windowRefreshCallback #-}
 windowSizeCallback    = unsafePerformIO (newIORef Nothing)
+{-# NOINLINE windowSizeCallback #-}
 
 storeCallback :: IORef (Maybe (FunPtr a)) -> FunPtr a -> IO ()
 storeCallback ior cb =

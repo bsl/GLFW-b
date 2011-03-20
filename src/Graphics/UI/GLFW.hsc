@@ -110,51 +110,51 @@ import System.IO.Unsafe      (unsafePerformIO)
 
 #include <GL/glfw.h>
 
-foreign import ccall unsafe glfwInit                     :: IO CInt
-foreign import ccall unsafe glfwTerminate                :: IO ()
-foreign import ccall unsafe glfwGetVersion               :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwInit                     :: IO CInt
+foreign import ccall glfwTerminate                :: IO ()
+foreign import ccall glfwGetVersion               :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
 
-foreign import ccall unsafe glfwOpenWindow               :: CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> IO CInt
-foreign import ccall unsafe glfwOpenWindowHint           :: CInt -> CInt -> IO ()
-foreign import ccall        glfwCloseWindow              :: IO ()
-foreign import ccall        glfwSetWindowCloseCallback   :: FunPtr GlfwWindowCloseCallback -> IO ()
-foreign import ccall unsafe glfwSetWindowTitle           :: CString -> IO ()
-foreign import ccall unsafe glfwSetWindowSize            :: CInt -> CInt -> IO ()
-foreign import ccall unsafe glfwSetWindowPos             :: CInt -> CInt -> IO ()
-foreign import ccall unsafe glfwGetWindowSize            :: Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall        glfwSetWindowSizeCallback    :: FunPtr GlfwWindowSizeCallback -> IO ()
-foreign import ccall unsafe glfwIconifyWindow            :: IO ()
-foreign import ccall unsafe glfwRestoreWindow            :: IO ()
-foreign import ccall unsafe glfwGetWindowParam           :: CInt -> IO CInt
-foreign import ccall        glfwSwapBuffers              :: IO ()
-foreign import ccall unsafe glfwSwapInterval             :: CInt -> IO ()
-foreign import ccall        glfwSetWindowRefreshCallback :: FunPtr GlfwWindowRefreshCallback -> IO ()
+foreign import ccall glfwOpenWindow               :: CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> IO CInt
+foreign import ccall glfwOpenWindowHint           :: CInt -> CInt -> IO ()
+foreign import ccall glfwCloseWindow              :: IO ()
+foreign import ccall glfwSetWindowCloseCallback   :: FunPtr GlfwWindowCloseCallback -> IO ()
+foreign import ccall glfwSetWindowTitle           :: CString -> IO ()
+foreign import ccall glfwSetWindowSize            :: CInt -> CInt -> IO ()
+foreign import ccall glfwSetWindowPos             :: CInt -> CInt -> IO ()
+foreign import ccall glfwGetWindowSize            :: Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwSetWindowSizeCallback    :: FunPtr GlfwWindowSizeCallback -> IO ()
+foreign import ccall glfwIconifyWindow            :: IO ()
+foreign import ccall glfwRestoreWindow            :: IO ()
+foreign import ccall glfwGetWindowParam           :: CInt -> IO CInt
+foreign import ccall glfwSwapBuffers              :: IO ()
+foreign import ccall glfwSwapInterval             :: CInt -> IO ()
+foreign import ccall glfwSetWindowRefreshCallback :: FunPtr GlfwWindowRefreshCallback -> IO ()
 
-foreign import ccall unsafe glfwGetVideoModes            :: Ptr VideoMode -> CInt -> IO CInt
-foreign import ccall unsafe glfwGetDesktopMode           :: Ptr VideoMode -> IO ()
+foreign import ccall glfwGetVideoModes            :: Ptr VideoMode -> CInt -> IO CInt
+foreign import ccall glfwGetDesktopMode           :: Ptr VideoMode -> IO ()
 
-foreign import ccall        glfwPollEvents               :: IO ()
-foreign import ccall        glfwWaitEvents               :: IO ()
-foreign import ccall unsafe glfwGetKey                   :: CInt -> IO CInt
-foreign import ccall unsafe glfwGetMouseButton           :: CInt -> IO CInt
-foreign import ccall unsafe glfwGetMousePos              :: Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall unsafe glfwSetMousePos              :: CInt -> CInt -> IO ()
-foreign import ccall unsafe glfwGetMouseWheel            :: IO CInt
-foreign import ccall unsafe glfwSetMouseWheel            :: CInt -> IO ()
-foreign import ccall        glfwSetKeyCallback           :: FunPtr GlfwKeyCallback -> IO ()
-foreign import ccall        glfwSetCharCallback          :: FunPtr GlfwCharCallback -> IO ()
-foreign import ccall        glfwSetMouseButtonCallback   :: FunPtr GlfwMouseButtonCallback -> IO ()
-foreign import ccall        glfwSetMousePosCallback      :: FunPtr GlfwMousePositionCallback -> IO ()
-foreign import ccall        glfwSetMouseWheelCallback    :: FunPtr GlfwMouseWheelCallback -> IO ()
-foreign import ccall unsafe glfwGetJoystickParam         :: CInt -> CInt -> IO CInt
-foreign import ccall unsafe glfwGetJoystickPos           :: CInt -> Ptr CFloat -> CInt -> IO CInt
-foreign import ccall unsafe glfwGetJoystickButtons       :: CInt -> Ptr CUChar -> CInt -> IO CInt
+foreign import ccall glfwPollEvents               :: IO ()
+foreign import ccall glfwWaitEvents               :: IO ()
+foreign import ccall glfwGetKey                   :: CInt -> IO CInt
+foreign import ccall glfwGetMouseButton           :: CInt -> IO CInt
+foreign import ccall glfwGetMousePos              :: Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwSetMousePos              :: CInt -> CInt -> IO ()
+foreign import ccall glfwGetMouseWheel            :: IO CInt
+foreign import ccall glfwSetMouseWheel            :: CInt -> IO ()
+foreign import ccall glfwSetKeyCallback           :: FunPtr GlfwKeyCallback -> IO ()
+foreign import ccall glfwSetCharCallback          :: FunPtr GlfwCharCallback -> IO ()
+foreign import ccall glfwSetMouseButtonCallback   :: FunPtr GlfwMouseButtonCallback -> IO ()
+foreign import ccall glfwSetMousePosCallback      :: FunPtr GlfwMousePositionCallback -> IO ()
+foreign import ccall glfwSetMouseWheelCallback    :: FunPtr GlfwMouseWheelCallback -> IO ()
+foreign import ccall glfwGetJoystickParam         :: CInt -> CInt -> IO CInt
+foreign import ccall glfwGetJoystickPos           :: CInt -> Ptr CFloat -> CInt -> IO CInt
+foreign import ccall glfwGetJoystickButtons       :: CInt -> Ptr CUChar -> CInt -> IO CInt
 
-foreign import ccall unsafe glfwGetTime                  :: IO CDouble
-foreign import ccall unsafe glfwSetTime                  :: CDouble -> IO ()
-foreign import ccall unsafe glfwSleep                    :: CDouble -> IO ()
+foreign import ccall glfwGetTime                  :: IO CDouble
+foreign import ccall glfwSetTime                  :: CDouble -> IO ()
+foreign import ccall glfwSleep                    :: CDouble -> IO ()
 
-foreign import ccall unsafe glfwGetGLVersion             :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwGetGLVersion             :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
 
 type GlfwCharCallback          = CInt -> CInt -> IO ()
 type GlfwKeyCallback           = CInt -> CInt -> IO ()
@@ -174,14 +174,14 @@ type WindowCloseCallback   =                        IO Bool
 type WindowRefreshCallback =                        IO ()
 type WindowSizeCallback    = Int -> Int          -> IO ()
 
-foreign import ccall unsafe "wrapper" wrapCharCallback          :: GlfwCharCallback          -> IO (FunPtr GlfwCharCallback)
-foreign import ccall unsafe "wrapper" wrapKeyCallback           :: GlfwKeyCallback           -> IO (FunPtr GlfwKeyCallback)
-foreign import ccall unsafe "wrapper" wrapMouseButtonCallback   :: GlfwMouseButtonCallback   -> IO (FunPtr GlfwMouseButtonCallback)
-foreign import ccall unsafe "wrapper" wrapMousePositionCallback :: GlfwMousePositionCallback -> IO (FunPtr GlfwMousePositionCallback)
-foreign import ccall unsafe "wrapper" wrapMouseWheelCallback    :: GlfwMouseWheelCallback    -> IO (FunPtr GlfwMouseWheelCallback)
-foreign import ccall unsafe "wrapper" wrapWindowCloseCallback   :: GlfwWindowCloseCallback   -> IO (FunPtr GlfwWindowCloseCallback)
-foreign import ccall unsafe "wrapper" wrapWindowRefreshCallback :: GlfwWindowRefreshCallback -> IO (FunPtr GlfwWindowRefreshCallback)
-foreign import ccall unsafe "wrapper" wrapWindowSizeCallback    :: GlfwWindowSizeCallback    -> IO (FunPtr GlfwWindowSizeCallback)
+foreign import ccall "wrapper" wrapCharCallback          :: GlfwCharCallback          -> IO (FunPtr GlfwCharCallback)
+foreign import ccall "wrapper" wrapKeyCallback           :: GlfwKeyCallback           -> IO (FunPtr GlfwKeyCallback)
+foreign import ccall "wrapper" wrapMouseButtonCallback   :: GlfwMouseButtonCallback   -> IO (FunPtr GlfwMouseButtonCallback)
+foreign import ccall "wrapper" wrapMousePositionCallback :: GlfwMousePositionCallback -> IO (FunPtr GlfwMousePositionCallback)
+foreign import ccall "wrapper" wrapMouseWheelCallback    :: GlfwMouseWheelCallback    -> IO (FunPtr GlfwMouseWheelCallback)
+foreign import ccall "wrapper" wrapWindowCloseCallback   :: GlfwWindowCloseCallback   -> IO (FunPtr GlfwWindowCloseCallback)
+foreign import ccall "wrapper" wrapWindowRefreshCallback :: GlfwWindowRefreshCallback -> IO (FunPtr GlfwWindowRefreshCallback)
+foreign import ccall "wrapper" wrapWindowSizeCallback    :: GlfwWindowSizeCallback    -> IO (FunPtr GlfwWindowSizeCallback)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Initialization and termination

@@ -25,8 +25,11 @@ import Distribution.PackageDescription ( emptyBuildInfo
                                        , PackageDescription )
 import System.FilePath ( (</>) )
 
-extraLibDir :: FilePath
-extraLibDir = "build"
+staticLibDir :: FilePath
+staticLibDir = "build"</>"static"
+
+dynamicLibDir :: FilePath
+dynamicLibDir = "build"</>"dynamic"
 
 main :: IO ()
 main = defaultMainWithHooks simpleUserHooks
@@ -71,7 +74,8 @@ glfwPkgDesc pkgDesc =
 
 libDirGlfw :: HookedBuildInfo
 libDirGlfw = (Just buildinfo, [])
-  where buildinfo = emptyBuildInfo { extraLibDirs = [ extraLibDir ] }
+  where buildinfo = emptyBuildInfo
+                     { extraLibDirs = [ staticLibDir, dynamicLibDir ] }
 
 postInstGlfw :: Args -> InstallFlags -> PackageDescription
              -> LocalBuildInfo -> IO ()
@@ -95,9 +99,14 @@ postCopyGlfw _ flags pkgDesc lbi =
             . fromFlag . copyDest $ flags
           libPref = libdir installDirs
           verbosity = fromFlag $ copyVerbosity flags
-          copy dest f = installOrdinaryFile verbosity (extraLibDir</>f) (dest</>f)
-      maybe (return ()) (copy libPref) (Just libName)
+          copyStatic dest f  = installOrdinaryFile verbosity (staticLibDir</>f) (dest</>f)
+          copyDynamic dest f = installOrdinaryFile verbosity (dynamicLibDir</>f) (dest</>f)
+      maybe (return ()) (copyStatic libPref) (Just staticLibName)
+      maybe (return ()) (copyDynamic libPref) (Just dynamicLibName)
     _ -> return ()
 
-libName :: FilePath
-libName = "libglfw.a"
+staticLibName :: FilePath
+staticLibName = "libglfw.a"
+
+dynamicLibName :: FilePath
+dynamicLibName = "libglfw.dylib"

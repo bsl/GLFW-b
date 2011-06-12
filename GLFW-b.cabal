@@ -116,7 +116,7 @@ library
         Cocoa
         OpenGL
       extra-libraries: glfw
-      extra-lib-dirs: build
+      extra-lib-dirs: build/static build/dynamic
     else
       if os(mingw32)
         include-dirs:
@@ -134,7 +134,7 @@ library
         extra-libraries:
           opengl32
 
-  ghc-options: -Wall -O2
+  ghc-options: -Wall -O2 -fPIC
   if impl(ghc >= 6.8)
     ghc-options: -fwarn-tabs
 

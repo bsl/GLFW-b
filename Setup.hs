@@ -10,7 +10,7 @@ import Distribution.Simple.Setup ( ConfigFlags, fromFlag, configVerbosity
                                  , CopyFlags(..)
                                  , configProgramArgs )
 import Distribution.Simple.Utils ( rawSystemExit, installOrdinaryFile )
-import Distribution.Verbosity ( verbose )
+import Distribution.Verbosity ( verbose, Verbosity )
 import Distribution.Simple ( defaultMainWithHooks
                            , simpleUserHooks
                            , buildHook, Args, confHook
@@ -25,11 +25,8 @@ import Distribution.PackageDescription ( emptyBuildInfo
                                        , PackageDescription )
 import System.FilePath ( (</>) )
 
-staticLibDir :: FilePath
-staticLibDir = "build"</>"static"
-
 dynamicLibDir :: FilePath
-dynamicLibDir = "build"</>"dynamic"
+dynamicLibDir = "build"
 
 main :: IO ()
 main = defaultMainWithHooks simpleUserHooks
@@ -75,7 +72,7 @@ glfwPkgDesc pkgDesc =
 libDirGlfw :: HookedBuildInfo
 libDirGlfw = (Just buildinfo, [])
   where buildinfo = emptyBuildInfo
-                     { extraLibDirs = [ staticLibDir, dynamicLibDir ] }
+                     { extraLibDirs = [ dynamicLibDir ] }
 
 postInstGlfw :: Args -> InstallFlags -> PackageDescription
              -> LocalBuildInfo -> IO ()
@@ -99,14 +96,14 @@ postCopyGlfw _ flags pkgDesc lbi =
             . fromFlag . copyDest $ flags
           libPref = libdir installDirs
           verbosity = fromFlag $ copyVerbosity flags
-          copyStatic dest f  = installOrdinaryFile verbosity (staticLibDir</>f) (dest</>f)
           copyDynamic dest f = installOrdinaryFile verbosity (dynamicLibDir</>f) (dest</>f)
-      maybe (return ()) (copyStatic libPref) (Just staticLibName)
       maybe (return ()) (copyDynamic libPref) (Just dynamicLibName)
+      install_name_tool verbosity (libPref</>dynamicLibName)
     _ -> return ()
 
-staticLibName :: FilePath
-staticLibName = "libglfw.a"
+install_name_tool :: Verbosity -> FilePath -> IO ()
+install_name_tool v fp = rawSystemExit v "env" $
+  ["install_name_tool"] ++ ["-id"] ++ [fp] ++ [fp]
 
 dynamicLibName :: FilePath
 dynamicLibName = "libglfw.dylib"

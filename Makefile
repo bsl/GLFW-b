@@ -13,22 +13,17 @@ C_SRC     := $(wildcard $(SRC_DIR)/*.c)
 GLFW_SRC  := $(wildcard $(GLFW_DIR)/*.c)
 OBJS      := $(addprefix $(BUILD_DIR)/, $(OBJ_C_SRC:.m=.o) $(C_SRC:.c=.o))
 
-all: $(BUILD_DIR)/static/libglfw.a $(BUILD_DIR)/dynamic/libglfw.dylib
+all: $(BUILD_DIR)/libglfw.dylib
 
-$(BUILD_DIR)/dynamic/libglfw.dylib: $(OBJS)
+$(BUILD_DIR)/libglfw.dylib: $(OBJS)
 	$(CC) -dynamiclib -Wl,-single_module -compatibility_version 1       \
         -current_version 1                                            \
         $(GLFW_FLAG) -o $@ $(OBJS) $(GLFW_SRC) $(FRAMEWORK)
-
-$(BUILD_DIR)/static/libglfw.a: $(OBJS)
-	ar -rcs $@ $(OBJS)
 
 .PHONY: $(BUILD_DIR)/$(SRC_DIR)/.build-tag
 
 $(BUILD_DIR)/$(SRC_DIR)/.build-tag:
 	mkdir -p $(BUILD_DIR)/$(SRC_DIR)
-	mkdir -p $(BUILD_DIR)/static
-	mkdir -p $(BUILD_DIR)/dynamic
 	touch $@
 
 $(OBJS): $(BUILD_DIR)/$(SRC_DIR)/.build-tag

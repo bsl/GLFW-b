@@ -10,7 +10,7 @@ import Distribution.Simple.Setup ( ConfigFlags, fromFlag, configVerbosity
                                  , CopyFlags(..)
                                  , configProgramArgs )
 import Distribution.Simple.Utils ( rawSystemExit, installOrdinaryFile )
-import Distribution.Verbosity ( verbose )
+import Distribution.Verbosity ( verbose, Verbosity )
 import Distribution.Simple ( defaultMainWithHooks
                            , simpleUserHooks
                            , buildHook, Args, confHook
@@ -25,8 +25,8 @@ import Distribution.PackageDescription ( emptyBuildInfo
                                        , PackageDescription )
 import System.FilePath ( (</>) )
 
-extraLibDir :: FilePath
-extraLibDir = "build"
+dynamicLibDir :: FilePath
+dynamicLibDir = "build"
 
 main :: IO ()
 main = defaultMainWithHooks simpleUserHooks
@@ -71,7 +71,8 @@ glfwPkgDesc pkgDesc =
 
 libDirGlfw :: HookedBuildInfo
 libDirGlfw = (Just buildinfo, [])
-  where buildinfo = emptyBuildInfo { extraLibDirs = [ extraLibDir ] }
+  where buildinfo = emptyBuildInfo
+                     { extraLibDirs = [ dynamicLibDir ] }
 
 postInstGlfw :: Args -> InstallFlags -> PackageDescription
              -> LocalBuildInfo -> IO ()
@@ -95,9 +96,14 @@ postCopyGlfw _ flags pkgDesc lbi =
             . fromFlag . copyDest $ flags
           libPref = libdir installDirs
           verbosity = fromFlag $ copyVerbosity flags
-          copy dest f = installOrdinaryFile verbosity (extraLibDir</>f) (dest</>f)
-      maybe (return ()) (copy libPref) (Just libName)
+          copyDynamic dest f = installOrdinaryFile verbosity (dynamicLibDir</>f) (dest</>f)
+      maybe (return ()) (copyDynamic libPref) (Just dynamicLibName)
+      install_name_tool verbosity (libPref</>dynamicLibName)
     _ -> return ()
 
-libName :: FilePath
-libName = "libglfw.a"
+install_name_tool :: Verbosity -> FilePath -> IO ()
+install_name_tool v fp = rawSystemExit v "env" $
+  ["install_name_tool"] ++ ["-id"] ++ [fp] ++ [fp]
+
+dynamicLibName :: FilePath
+dynamicLibName = "libglfw.dylib"

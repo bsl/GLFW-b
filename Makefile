@@ -1,6 +1,9 @@
-GCCFLAGS  := $(shell ghc --info | ghc -e "fmap read getContents >>= putStrLn . unwords . read . Data.Maybe.fromJust . lookup \"Gcc Linker flags\"")
-FRAMEWORK := -framework AGL -framework Cocoa -framework OpenGL
-GLFW_FLAG := $(GCCFLAGS) -msse2 -O2 -Iglfw/include -Iglfw/lib -Iglfw/lib/cocoa $(CFLAGS)
+GCCFLAGS  := $(shell ghc --info | ghc -e "fmap read getContents >>=   \
+             putStrLn . unwords . read . Data.Maybe.fromJust . lookup \
+             \"Gcc Linker flags\"")
+FRAMEWORK := -framework Cocoa -framework OpenGL
+GLFW_FLAG := $(GCCFLAGS) -O2 -fno-common -Iglfw/include -Iglfw/lib    \
+             -Iglfw/lib/cocoa $(CFLAGS)
 SRC_DIR   := glfw/lib/cocoa
 GLFW_DIR  := glfw/lib
 BUILD_DIR := build
@@ -10,14 +13,14 @@ C_SRC     := $(wildcard $(SRC_DIR)/*.c)
 GLFW_SRC  := $(wildcard $(GLFW_DIR)/*.c)
 OBJS      := $(addprefix $(BUILD_DIR)/, $(OBJ_C_SRC:.m=.o) $(C_SRC:.c=.o))
 
-all: $(BUILD_DIR)/libglfw.a
+all: $(BUILD_DIR)/libglfw.dylib
 
-# The .dylib was creating more problems than it solved.
-#$(BUILD_DIR)/libglfw.dylib: $(OBJS)
-#	$(CC) -dynamiclib $(GLFW_FLAG) -o $@ $(OBJS) $(GLFW_SRC) $(FRAMEWORK)
+$(BUILD_DIR)/libglfw.dylib: $(OBJS)
+	$(CC) -dynamiclib -Wl,-single_module -compatibility_version 1       \
+        -current_version 1                                            \
+        $(GLFW_FLAG) -o $@ $(OBJS) $(GLFW_SRC) $(FRAMEWORK)
 
-$(BUILD_DIR)/libglfw.a: $(OBJS)
-	ar -r -s $@ $(OBJS)
+.PHONY: $(BUILD_DIR)/$(SRC_DIR)/.build-tag
 
 $(BUILD_DIR)/$(SRC_DIR)/.build-tag:
 	mkdir -p $(BUILD_DIR)/$(SRC_DIR)

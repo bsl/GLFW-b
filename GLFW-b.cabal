@@ -81,7 +81,7 @@ library
       glfw/lib/time.c
       glfw/lib/window.c
 
-  if os(linux)
+  if os(linux) || os(freebsd)
     include-dirs:
       glfw/lib/x11
     c-sources:

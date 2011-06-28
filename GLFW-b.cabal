@@ -112,6 +112,7 @@ library
     if os(darwin)
       extra-libraries: glfw
       extra-lib-dirs: build
+      ghc-options: -fPIC
     else
       if os(mingw32)
         include-dirs:
@@ -129,7 +130,7 @@ library
         extra-libraries:
           opengl32
 
-  ghc-options: -Wall -O2 -fPIC
+  ghc-options: -Wall -O2
   if impl(ghc >= 6.8)
     ghc-options: -fwarn-tabs
 

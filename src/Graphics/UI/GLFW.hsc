@@ -12,6 +12,13 @@ module Graphics.UI.GLFW
     --
   , VideoMode(..)
 
+    -- * OpenGL context
+  , OpenGLProfile(..)
+    -- ** Information
+  , openGLContextIsForwardCompatible
+  , openGLContextIsDebugContext
+  , openGLProfile
+
     -- *   Windows
     -- **  Management
   , openWindow
@@ -239,43 +246,87 @@ instance Storable VideoMode where
         , videoMode_numBlueBits  = fromC b
         }
 
+-- -- -- -- -- -- -- -- -- --
+-- OpenGL Context
+
+data OpenGLProfile
+  = DefaultProfile
+  | CoreProfile
+  | CompatibilityProfile
+  deriving (Show)
+
+instance C OpenGLProfile CInt where
+  toC op = case op of
+      DefaultProfile       -> 0
+      CoreProfile          -> #const GLFW_OPENGL_CORE_PROFILE
+      CompatibilityProfile -> #const GLFW_OPENGL_COMPAT_PROFILE
+  fromC i = case i of
+      (#const GLFW_OPENGL_CORE_PROFILE)   -> CoreProfile
+      (#const GLFW_OPENGL_COMPAT_PROFILE) -> CompatibilityProfile
+      (0)                                 -> DefaultProfile
+      _                                   -> makeFromCError "OpenGLProfile" i
+
+-- -- -- -- -- -- -- -- -- --
+-- OpenGL information
+
+openGLContextIsForwardCompatible :: IO Bool
+openGLContextIsForwardCompatible =
+    fromC `fmap` glfwGetWindowParam (#const GLFW_OPENGL_FORWARD_COMPAT)
+
+openGLContextIsDebugContext :: IO Bool
+openGLContextIsDebugContext =
+    fromC `fmap` glfwGetWindowParam (#const GLFW_OPENGL_DEBUG_CONTEXT)
+
+openGLProfile :: IO OpenGLProfile
+openGLProfile =
+    fromC `fmap` glfwGetWindowParam (#const GLFW_OPENGL_PROFILE)
+
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Window management
 
 openWindow :: DisplayOptions -> IO Bool
 openWindow displayOptions = do
     let DisplayOptions
-          { displayOptions_width               = _displayOptions_width
-          , displayOptions_height              = _displayOptions_height
-          , displayOptions_numRedBits          = _displayOptions_numRedBits
-          , displayOptions_numGreenBits        = _displayOptions_numGreenBits
-          , displayOptions_numBlueBits         = _displayOptions_numBlueBits
-          , displayOptions_numAlphaBits        = _displayOptions_numAlphaBits
-          , displayOptions_numDepthBits        = _displayOptions_numDepthBits
-          , displayOptions_numStencilBits      = _displayOptions_numStencilBits
-          , displayOptions_displayMode         = _displayOptions_displayMode
-          , displayOptions_refreshRate         = _displayOptions_refreshRate
-          , displayOptions_accumNumRedBits     = _displayOptions_accumNumRedBits
-          , displayOptions_accumNumGreenBits   = _displayOptions_accumNumGreenBits
-          , displayOptions_accumNumBlueBits    = _displayOptions_accumNumBlueBits
-          , displayOptions_accumNumAlphaBits   = _displayOptions_accumNumAlphaBits
-          , displayOptions_numAuxiliaryBuffers = _displayOptions_numAuxiliaryBuffers
-          , displayOptions_numFsaaSamples      = _displayOptions_numFsaaSamples
-          , displayOptions_windowIsResizable   = _displayOptions_windowIsResizable
-          , displayOptions_stereoRendering     = _displayOptions_stereoRendering
+          { displayOptions_width                   = _displayOptions_width
+          , displayOptions_height                  = _displayOptions_height
+          , displayOptions_numRedBits              = _displayOptions_numRedBits
+          , displayOptions_numGreenBits            = _displayOptions_numGreenBits
+          , displayOptions_numBlueBits             = _displayOptions_numBlueBits
+          , displayOptions_numAlphaBits            = _displayOptions_numAlphaBits
+          , displayOptions_numDepthBits            = _displayOptions_numDepthBits
+          , displayOptions_numStencilBits          = _displayOptions_numStencilBits
+          , displayOptions_displayMode             = _displayOptions_displayMode
+          , displayOptions_refreshRate             = _displayOptions_refreshRate
+          , displayOptions_accumNumRedBits         = _displayOptions_accumNumRedBits
+          , displayOptions_accumNumGreenBits       = _displayOptions_accumNumGreenBits
+          , displayOptions_accumNumBlueBits        = _displayOptions_accumNumBlueBits
+          , displayOptions_accumNumAlphaBits       = _displayOptions_accumNumAlphaBits
+          , displayOptions_numAuxiliaryBuffers     = _displayOptions_numAuxiliaryBuffers
+          , displayOptions_numFsaaSamples          = _displayOptions_numFsaaSamples
+          , displayOptions_windowIsResizable       = _displayOptions_windowIsResizable
+          , displayOptions_stereoRendering         = _displayOptions_stereoRendering
+          , displayOptions_openGLVersion           = _displayOptions_openGLVersion
+          , displayOptions_openGLForwardCompatible = _displayOptions_openGLForwardCompatible
+          , displayOptions_openGLDebugContext      = _displayOptions_openGLDebugContext
+          , displayOptions_openGLProfile           = _displayOptions_openGLProfile
           } = displayOptions
 
     -- Add hints.
-    when (isJust _displayOptions_refreshRate)         $ glfwOpenWindowHint (#const GLFW_REFRESH_RATE)     (toC (fromJust _displayOptions_refreshRate))
-    when (isJust _displayOptions_accumNumRedBits)     $ glfwOpenWindowHint (#const GLFW_ACCUM_RED_BITS)   (toC (fromJust _displayOptions_accumNumRedBits))
-    when (isJust _displayOptions_accumNumGreenBits)   $ glfwOpenWindowHint (#const GLFW_ACCUM_GREEN_BITS) (toC (fromJust _displayOptions_accumNumGreenBits))
-    when (isJust _displayOptions_accumNumBlueBits)    $ glfwOpenWindowHint (#const GLFW_ACCUM_BLUE_BITS)  (toC (fromJust _displayOptions_accumNumBlueBits))
-    when (isJust _displayOptions_accumNumAlphaBits)   $ glfwOpenWindowHint (#const GLFW_ACCUM_ALPHA_BITS) (toC (fromJust _displayOptions_accumNumAlphaBits))
-    when (isJust _displayOptions_numAuxiliaryBuffers) $ glfwOpenWindowHint (#const GLFW_AUX_BUFFERS)      (toC (fromJust _displayOptions_numAuxiliaryBuffers))
-    when (isJust _displayOptions_numFsaaSamples)      $ glfwOpenWindowHint (#const GLFW_FSAA_SAMPLES)     (toC (fromJust _displayOptions_numFsaaSamples))
+    when (isJust _displayOptions_refreshRate)              $ glfwOpenWindowHint (#const GLFW_REFRESH_RATE)     (toC (fromJust _displayOptions_refreshRate))
+    when (isJust _displayOptions_accumNumRedBits)          $ glfwOpenWindowHint (#const GLFW_ACCUM_RED_BITS)   (toC (fromJust _displayOptions_accumNumRedBits))
+    when (isJust _displayOptions_accumNumGreenBits)        $ glfwOpenWindowHint (#const GLFW_ACCUM_GREEN_BITS) (toC (fromJust _displayOptions_accumNumGreenBits))
+    when (isJust _displayOptions_accumNumBlueBits)         $ glfwOpenWindowHint (#const GLFW_ACCUM_BLUE_BITS)  (toC (fromJust _displayOptions_accumNumBlueBits))
+    when (isJust _displayOptions_accumNumAlphaBits)        $ glfwOpenWindowHint (#const GLFW_ACCUM_ALPHA_BITS) (toC (fromJust _displayOptions_accumNumAlphaBits))
+    when (isJust _displayOptions_numAuxiliaryBuffers)      $ glfwOpenWindowHint (#const GLFW_AUX_BUFFERS)      (toC (fromJust _displayOptions_numAuxiliaryBuffers))
+    when (isJust _displayOptions_numFsaaSamples)           $ glfwOpenWindowHint (#const GLFW_FSAA_SAMPLES)     (toC (fromJust _displayOptions_numFsaaSamples))
 
-    glfwOpenWindowHint (#const GLFW_WINDOW_NO_RESIZE) (toC (not _displayOptions_windowIsResizable))
-    glfwOpenWindowHint (#const GLFW_STEREO)           (toC      _displayOptions_stereoRendering)
+    glfwOpenWindowHint (#const GLFW_WINDOW_NO_RESIZE)      (toC (not _displayOptions_windowIsResizable))
+    glfwOpenWindowHint (#const GLFW_STEREO)                (toC      _displayOptions_stereoRendering)
+    glfwOpenWindowHint (#const GLFW_OPENGL_VERSION_MAJOR)  (toC (fst _displayOptions_openGLVersion))
+    glfwOpenWindowHint (#const GLFW_OPENGL_VERSION_MINOR)  (toC (snd _displayOptions_openGLVersion))
+    glfwOpenWindowHint (#const GLFW_OPENGL_FORWARD_COMPAT) (toC _displayOptions_openGLForwardCompatible)
+    glfwOpenWindowHint (#const GLFW_OPENGL_DEBUG_CONTEXT)  (toC _displayOptions_openGLDebugContext)
+    glfwOpenWindowHint (#const GLFW_OPENGL_PROFILE)        (toC _displayOptions_openGLProfile)
 
     -- Open the window.
     fromC `fmap` glfwOpenWindow
@@ -341,47 +392,56 @@ instance C DisplayMode CInt where
 -- -- -- -- -- -- -- -- -- --
 
 data DisplayOptions = DisplayOptions
-  { displayOptions_width               :: Int
-  , displayOptions_height              :: Int
-  , displayOptions_numRedBits          :: Int
-  , displayOptions_numGreenBits        :: Int
-  , displayOptions_numBlueBits         :: Int
-  , displayOptions_numAlphaBits        :: Int
-  , displayOptions_numDepthBits        :: Int
-  , displayOptions_numStencilBits      :: Int
-  , displayOptions_displayMode         :: DisplayMode
-  , displayOptions_refreshRate         :: Maybe Int
-  , displayOptions_accumNumRedBits     :: Maybe Int
-  , displayOptions_accumNumGreenBits   :: Maybe Int
-  , displayOptions_accumNumBlueBits    :: Maybe Int
-  , displayOptions_accumNumAlphaBits   :: Maybe Int
-  , displayOptions_numAuxiliaryBuffers :: Maybe Int
-  , displayOptions_numFsaaSamples      :: Maybe Int
-  , displayOptions_windowIsResizable   :: Bool
-  , displayOptions_stereoRendering     :: Bool
+  { displayOptions_width                   :: Int
+  , displayOptions_height                  :: Int
+  , displayOptions_numRedBits              :: Int
+  , displayOptions_numGreenBits            :: Int
+  , displayOptions_numBlueBits             :: Int
+  , displayOptions_numAlphaBits            :: Int
+  , displayOptions_numDepthBits            :: Int
+  , displayOptions_numStencilBits          :: Int
+  , displayOptions_displayMode             :: DisplayMode
+  , displayOptions_refreshRate             :: Maybe Int
+  , displayOptions_accumNumRedBits         :: Maybe Int
+  , displayOptions_accumNumGreenBits       :: Maybe Int
+  , displayOptions_accumNumBlueBits        :: Maybe Int
+  , displayOptions_accumNumAlphaBits       :: Maybe Int
+  , displayOptions_numAuxiliaryBuffers     :: Maybe Int
+  , displayOptions_numFsaaSamples          :: Maybe Int
+  , displayOptions_windowIsResizable       :: Bool
+  , displayOptions_stereoRendering         :: Bool
+  , displayOptions_openGLVersion           :: (Int, Int)
+  , displayOptions_openGLForwardCompatible :: Bool
+  , displayOptions_openGLDebugContext      :: Bool
+  , displayOptions_openGLProfile           :: OpenGLProfile
+
   } deriving (Show)
 
 defaultDisplayOptions :: DisplayOptions
 defaultDisplayOptions =
     DisplayOptions
-      { displayOptions_width               = 0
-      , displayOptions_height              = 0
-      , displayOptions_numRedBits          = 0
-      , displayOptions_numGreenBits        = 0
-      , displayOptions_numBlueBits         = 0
-      , displayOptions_numAlphaBits        = 0
-      , displayOptions_numDepthBits        = 0
-      , displayOptions_numStencilBits      = 0
-      , displayOptions_displayMode         = Window
-      , displayOptions_refreshRate         = Nothing
-      , displayOptions_accumNumRedBits     = Nothing
-      , displayOptions_accumNumGreenBits   = Nothing
-      , displayOptions_accumNumBlueBits    = Nothing
-      , displayOptions_accumNumAlphaBits   = Nothing
-      , displayOptions_numAuxiliaryBuffers = Nothing
-      , displayOptions_numFsaaSamples      = Nothing
-      , displayOptions_windowIsResizable   = True
-      , displayOptions_stereoRendering     = False
+      { displayOptions_width                   = 0
+      , displayOptions_height                  = 0
+      , displayOptions_numRedBits              = 0
+      , displayOptions_numGreenBits            = 0
+      , displayOptions_numBlueBits             = 0
+      , displayOptions_numAlphaBits            = 0
+      , displayOptions_numDepthBits            = 0
+      , displayOptions_numStencilBits          = 0
+      , displayOptions_displayMode             = Window
+      , displayOptions_refreshRate             = Nothing
+      , displayOptions_accumNumRedBits         = Nothing
+      , displayOptions_accumNumGreenBits       = Nothing
+      , displayOptions_accumNumBlueBits        = Nothing
+      , displayOptions_accumNumAlphaBits       = Nothing
+      , displayOptions_numAuxiliaryBuffers     = Nothing
+      , displayOptions_numFsaaSamples          = Nothing
+      , displayOptions_windowIsResizable       = True
+      , displayOptions_stereoRendering         = False
+      , displayOptions_openGLVersion           = (1,1)
+      , displayOptions_openGLForwardCompatible = False
+      , displayOptions_openGLDebugContext      = False
+      , displayOptions_openGLProfile           = DefaultProfile
       }
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --

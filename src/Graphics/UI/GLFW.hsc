@@ -12,9 +12,9 @@ module Graphics.UI.GLFW
     --
   , VideoMode(..)
 
-    -- * OpenGL context
+    -- *   OpenGL context
   , OpenGLProfile(..)
-    -- ** Information
+    -- **  Information
   , openGLContextIsForwardCompatible
   , openGLContextIsDebugContext
   , openGLProfile
@@ -246,8 +246,8 @@ instance Storable VideoMode where
         , videoMode_numBlueBits  = fromC b
         }
 
--- -- -- -- -- -- -- -- -- --
--- OpenGL Context
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- OpenGL context
 
 data OpenGLProfile
   = DefaultProfile
@@ -266,7 +266,7 @@ instance C OpenGLProfile CInt where
       (0)                                 -> DefaultProfile
       _                                   -> makeFromCError "OpenGLProfile" i
 
--- -- -- -- -- -- -- -- -- --
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- OpenGL information
 
 openGLContextIsForwardCompatible :: IO Bool

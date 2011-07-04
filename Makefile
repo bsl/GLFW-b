@@ -2,7 +2,7 @@ GCCFLAGS  := $(shell ghc --info | ghc -e "fmap read getContents >>=   \
              putStrLn . unwords . read . Data.Maybe.fromJust . lookup \
              \"Gcc Linker flags\"")
 FRAMEWORK := -framework Cocoa -framework OpenGL
-GLFW_FLAG := $(GCCFLAGS) -O2 -fno-common -Iglfw/include -Iglfw/lib    \
+GLFW_FLAG := $(GCCFLAGS) -O2 -msse2 -fno-common -Iglfw/include -Iglfw/lib    \
              -Iglfw/lib/cocoa $(CFLAGS)
 SRC_DIR   := glfw/lib/cocoa
 GLFW_DIR  := glfw/lib

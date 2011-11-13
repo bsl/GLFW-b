@@ -226,7 +226,7 @@ data VideoMode = VideoMode
   , videoMode_numRedBits   :: Int
   , videoMode_numGreenBits :: Int
   , videoMode_numBlueBits  :: Int
-  } deriving Show
+  } deriving (Eq, Ord, Read, Show)
 
 instance Storable VideoMode where
   sizeOf    _ = (#const sizeof(GLFWvidmode))
@@ -253,7 +253,7 @@ data OpenGLProfile
   = DefaultProfile
   | CoreProfile
   | CompatibilityProfile
-  deriving (Show)
+  deriving (Eq, Ord, Bounded, Enum, Read, Show)
 
 instance C OpenGLProfile CInt where
   toC op = case op of
@@ -377,7 +377,7 @@ setWindowBufferSwapInterval =
 data DisplayMode
   = Window
   | Fullscreen
-  deriving (Show)
+  deriving (Eq, Ord, Bounded, Enum, Read, Show)
 
 instance C DisplayMode CInt where
   toC dm = case dm of
@@ -415,7 +415,7 @@ data DisplayOptions = DisplayOptions
   , displayOptions_openGLDebugContext      :: Bool
   , displayOptions_openGLProfile           :: OpenGLProfile
 
-  } deriving (Show)
+  } deriving (Eq, Ord, Read, Show)
 
 defaultDisplayOptions :: DisplayOptions
 defaultDisplayOptions =
@@ -521,7 +521,7 @@ data WindowValue
   | NumAccumAlphaBits
   | NumAuxBuffers
   | NumFsaaSamples
-  deriving (Bounded, Enum, Eq, Show)
+  deriving (Eq, Ord, Bounded, Enum, Read, Show)
 
 instance C WindowValue CInt where
   toC wn = case wn of
@@ -637,7 +637,7 @@ data Key
   | KeyPadDecimal
   | KeyPadEqual
   | KeyPadEnter
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Read, Show)
 
 instance C Key CInt where
   toC k = case k of
@@ -830,7 +830,7 @@ setMouseWheelCallback cb = do
 data MouseButton
   = MouseButton0 | MouseButton1 | MouseButton2 | MouseButton3
   | MouseButton4 | MouseButton5 | MouseButton6 | MouseButton7
-  deriving (Bounded, Enum, Eq, Show)
+  deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 instance C MouseButton CInt where
   toC mb = case mb of
@@ -894,7 +894,7 @@ data Joystick
   | Joystick4  | Joystick5  | Joystick6  | Joystick7
   | Joystick8  | Joystick9  | Joystick10 | Joystick11
   | Joystick12 | Joystick13 | Joystick14 | Joystick15
-  deriving (Bounded, Enum, Eq, Show)
+  deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 instance C Joystick CInt where
   toC j = case j of

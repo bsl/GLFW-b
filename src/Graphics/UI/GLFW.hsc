@@ -73,6 +73,8 @@ module Graphics.UI.GLFW
   , setMouseButtonCallback
   , setMousePositionCallback
   , setMouseWheelCallback
+  , enableMouseCursor
+  , disableMouseCursor
     --
   , MouseButton(..)
   , MouseButtonCallback
@@ -162,6 +164,9 @@ foreign import ccall glfwSetTime                  :: CDouble -> IO ()
 foreign import ccall glfwSleep                    :: CDouble -> IO ()
 
 foreign import ccall glfwGetGLVersion             :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
+
+foreign import ccall glfwEnable                   :: CInt -> IO ()
+foreign import ccall glfwDisable                  :: CInt -> IO ()
 
 type GlfwCharCallback          = CInt -> CInt -> IO ()
 type GlfwKeyCallback           = CInt -> CInt -> IO ()
@@ -824,6 +829,14 @@ setMouseWheelCallback cb = do
     ccb <- wrapMouseWheelCallback (cb . fromC)
     glfwSetMouseWheelCallback ccb
     storeCallback mouseWheelCallback ccb
+
+-- |Make the mouse cursor visible.
+enableMouseCursor :: IO ()
+enableMouseCursor = glfwEnable (#const GLFW_MOUSE_CURSOR)
+
+-- |Make the mouse cursor invisible.
+disableMouseCursor :: IO ()
+disableMouseCursor = glfwDisable (#const GLFW_MOUSE_CURSOR)
 
 -- -- -- -- -- -- -- -- -- --
 

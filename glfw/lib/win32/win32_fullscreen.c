@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        win32_fullscreen.c
-// Platform:    Windows
+// Platform:    Win32/WGL
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -206,7 +206,7 @@ void _glfwSetVideoModeMODE( int mode )
 
 
 //========================================================================
-// _glfwSetVideoMode() - Change the current video mode
+// Change the current video mode
 //========================================================================
 
 void _glfwSetVideoMode( int *w, int *h, int r, int g, int b, int refresh )
@@ -226,7 +226,7 @@ void _glfwSetVideoMode( int *w, int *h, int r, int g, int b, int refresh )
 //************************************************************************
 
 //========================================================================
-// _glfwPlatformGetVideoModes() - Get a list of available video modes
+// Get a list of available video modes
 //========================================================================
 
 int _glfwPlatformGetVideoModes( GLFWvidmode *list, int maxcount )

@@ -62,6 +62,8 @@ module Graphics.UI.GLFW
   , keyIsPressed
   , setCharCallback
   , setKeyCallback
+  , enableKeyRepeat
+  , disableKeyRepeat
     --
   , Key(..)
   , CharCallback
@@ -583,6 +585,14 @@ setKeyCallback cb = do
     ccb <- wrapKeyCallback (\k b -> cb (fromC k) (fromC b))
     glfwSetKeyCallback ccb
     storeCallback keyCallback ccb
+
+-- Key and Character callbacks are called repeatedly when a key is held down long enough
+enableKeyRepeat :: IO ()
+enableKeyRepeat = glfwEnable (#const GLFW_KEY_REPEAT)
+
+-- Key and Character callbacks are called only once when a key is pressed (Default)
+disableKeyRepeat :: IO ()
+disableKeyRepeat = glfwDisable (#const GLFW_KEY_REPEAT)
 
 -- -- -- -- -- -- -- -- -- --
 

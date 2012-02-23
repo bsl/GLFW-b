@@ -56,6 +56,8 @@ module Graphics.UI.GLFW
     -- *   Input
   , pollEvents
   , waitEvents
+  , enableAutoPoll
+  , disableAutoPoll
     -- **  Keyboard
   , keyIsPressed
   , setCharCallback
@@ -553,6 +555,15 @@ pollEvents =
 waitEvents :: IO ()
 waitEvents =
     glfwWaitEvents
+
+
+-- Make 'swapBuffers' implicitly call 'pollEvents' (Default)
+enableAutoPoll :: IO ()
+enableAutoPoll = glfwEnable (#const GLFW_AUTO_POLL_EVENTS)
+
+-- Disable 'swapBuffers' implicitly calling 'pollEvents'
+disableAutoPoll :: IO ()
+disableAutoPoll = glfwDisable (#const GLFW_AUTO_POLL_EVENTS)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Keyboard

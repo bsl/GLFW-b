@@ -1,11 +1,10 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        platform.h
-// Platform:    Mac OS X
+// Platform:    Cocoa/NSOpenGL
 // API Version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -44,6 +43,14 @@ typedef void *id;
 #include <pthread.h>
 
 #include "../../include/GL/glfw.h"
+
+
+#ifndef GL_VERSION_3_0
+
+typedef const GLubyte * (APIENTRY *PFNGLGETSTRINGIPROC) (GLenum, GLuint);
+
+#endif /*GL_VERSION_3_0*/
+
 
 //========================================================================
 // GLFW platform specific types
@@ -108,6 +115,8 @@ struct _GLFWwin_struct {
     int       has_GL_ARB_texture_non_power_of_two;
     int       glMajor, glMinor, glRevision;
     int       glForward, glDebug, glProfile;
+
+    PFNGLGETSTRINGIPROC GetStringi;
 
 // ========= PLATFORM SPECIFIC PART ======================================
 

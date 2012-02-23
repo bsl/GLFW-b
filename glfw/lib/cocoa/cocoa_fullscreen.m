@@ -1,11 +1,10 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        macosx_fullscreen.m
-// Platform:    Mac OS X
+// Platform:    Cocoa/NSOpenGL
 // API Version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -80,7 +79,7 @@ int _glfwPlatformGetVideoModes( GLFWvidmode *list, int maxcount )
     NSArray *modes = (NSArray *)CGDisplayAvailableModes( CGMainDisplayID() );
 
     unsigned int i, j = 0, n = [modes count];
-    for( i = 0; i < n && i < (unsigned)maxcount; i++ )
+    for( i = 0; i < n && j < (unsigned)maxcount; i++ )
     {
         NSDictionary *mode = [modes objectAtIndex:i];
         if( modeIsGood( mode ) )

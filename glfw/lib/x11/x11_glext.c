@@ -1,11 +1,11 @@
-//========================================================================
+//==================
 // GLFW - An OpenGL framework
-// File:        x11_glext.c
-// Platform:    X11 (Unix)
+// Platform:    X11/GLX
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -45,8 +45,7 @@ void (*glXGetProcAddressEXT(const GLubyte *procName))();
 #elif defined( _GLFW_HAS_GLXGETPROCADDRESSEXT )
  #define _glfw_glXGetProcAddress(x) glXGetProcAddressEXT(x)
 #elif defined( _GLFW_HAS_DLOPEN )
- #define _glfw_glXGetProcAddress(x) dlsym(_glfwLibs.libGL,x)
- #define _GLFW_DLOPEN_LIBGL
+ #define _glfw_glXGetProcAddress(x) dlsym(_glfwLibrary.Libs.libGL,x)
 #else
 #define _glfw_glXGetProcAddress(x) NULL
 #endif

@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        platform.h
-// Platform:    X11 (Unix)
+// Platform:    X11/GLX
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -56,6 +56,10 @@
 // support version 1.3
 #ifndef GLX_VERSION_1_3
  #error "GLX header version 1.3 or above is required"
+#endif
+
+#if defined( _GLFW_HAS_XF86VIDMODE ) && defined( _GLFW_HAS_XRANDR )
+ #error "Xf86VidMode and RandR extensions cannot both be enabled"
 #endif
 
 // With XFree86, we can use the XF86VidMode extension
@@ -189,6 +193,14 @@ typedef GLXContext (*PFNGLXCREATECONTEXTATTRIBSARBPROC)( Display *display, GLXFB
 #endif /*GLX_ARB_create_context_profile*/
 
 
+#ifndef GL_VERSION_3_0
+
+typedef const GLubyte * (APIENTRY *PFNGLGETSTRINGIPROC) (GLenum, GLuint);
+
+#endif /*GL_VERSION_3_0*/
+
+
+
 //========================================================================
 // Global variables (GLFW internals)
 //========================================================================
@@ -248,18 +260,25 @@ struct _GLFWwin_struct {
     int       glMajor, glMinor, glRevision;
     int       glForward, glDebug, glProfile;
 
+    PFNGLGETSTRINGIPROC GetStringi;
+
 
 // ========= PLATFORM SPECIFIC PART ======================================
 
     // Platform specific window resources
-    Colormap      colormap;        // Window colormap:
-    Window        window;          // Window
-    int           screen;          // Screen ID
-    XVisualInfo  *visual;          // Visual
-    GLXFBConfigID fbconfigID;      // ID of the selected GLXFBConfig
-    GLXContext    context;         // OpenGL rendering context
-    Atom          WMDeleteWindow;  // For WM close detection
-    Atom          WMPing;          // For WM ping response
+    Colormap      colormap;          // Window colormap
+    Window        window;            // Window
+    Window        root;              // Root window for screen
+    int           screen;            // Screen ID
+    XVisualInfo  *visual;            // Visual for selected GLXFBConfig
+    GLXFBConfigID fbconfigID;        // ID of selected GLXFBConfig
+    GLXContext    context;           // OpenGL rendering context
+    Atom          wmDeleteWindow;    // WM_DELETE_WINDOW atom
+    Atom          wmPing;            // _NET_WM_PING atom
+    Atom          wmState;           // _NET_WM_STATE atom
+    Atom          wmStateFullscreen; // _NET_WM_STATE_FULLSCREEN atom
+    Atom          wmActiveWindow;    // _NET_ACTIVE_WINDOW atom
+    Cursor        cursor;            // Invisible cursor for hidden cursor
 
     // GLX extensions
     PFNGLXSWAPINTERVALSGIPROC             SwapIntervalSGI;
@@ -275,12 +294,11 @@ struct _GLFWwin_struct {
     GLboolean   has_GLX_ARB_create_context_profile;
 
     // Various platform specific internal variables
-    int         overrideRedirect; // True if window is OverrideRedirect
-    int         keyboardGrabbed; // True if keyboard is currently grabbed
-    int         pointerGrabbed;  // True if pointer is currently grabbed
-    int         pointerHidden;   // True if pointer is currently hidden
-    int         mapNotifyCount;  // Used for during processing
-    int         focusInCount;    // Used for during processing
+    GLboolean   hasEWMH;          // True if window manager supports EWMH
+    GLboolean   overrideRedirect; // True if window is OverrideRedirect
+    GLboolean   keyboardGrabbed;  // True if keyboard is currently grabbed
+    GLboolean   pointerGrabbed;   // True if pointer is currently grabbed
+    GLboolean   pointerHidden;    // True if pointer is currently hidden
 
     // Screensaver data
     struct {
@@ -374,7 +392,7 @@ GLFWGLOBAL struct {
         long long   t0;
     } Timer;
 
-#if defined(_GLFW_DLOPEN_LIBGL)
+#if defined(_GLFW_HAS_DLOPEN)
     struct {
         void       *libGL;  // dlopen handle for libGL.so
     } Libs;
@@ -472,6 +490,7 @@ void _glfwInitTimer( void );
 int  _glfwGetClosestVideoMode( int screen, int *width, int *height, int *rate );
 void _glfwSetVideoModeMODE( int screen, int mode, int rate );
 void _glfwSetVideoMode( int screen, int *width, int *height, int *rate );
+void _glfwRestoreVideoMode( void );
 
 // Joystick input
 void _glfwInitJoysticks( void );

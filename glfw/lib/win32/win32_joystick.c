@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        win32_joystick.c
-// Platform:    Windows
+// Platform:    Win32/WGL
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -36,8 +36,7 @@
 //************************************************************************
 
 //========================================================================
-// _glfwJoystickPresent() - Return GL_TRUE if joystick is present,
-// else return GL_FALSE.
+// Return GL_TRUE if joystick is present, else return GL_FALSE.
 //========================================================================
 
 static int _glfwJoystickPresent( int joy )
@@ -68,7 +67,7 @@ static int _glfwJoystickPresent( int joy )
 
 
 //========================================================================
-// _glfwCalcJoystickPos() - Calculate joystick position
+// Calculate joystick position
 //========================================================================
 
 static float _glfwCalcJoystickPos( DWORD pos, DWORD min, DWORD max )
@@ -86,7 +85,7 @@ static float _glfwCalcJoystickPos( DWORD pos, DWORD min, DWORD max )
 //************************************************************************
 
 //========================================================================
-// _glfwPlatformGetJoystickParam() - Determine joystick capabilities
+// Determine joystick capabilities
 //========================================================================
 
 int _glfwPlatformGetJoystickParam( int joy, int param )
@@ -129,7 +128,7 @@ int _glfwPlatformGetJoystickParam( int joy, int param )
 
 
 //========================================================================
-// _glfwPlatformGetJoystickPos() - Get joystick axis positions
+// Get joystick axis positions
 //========================================================================
 
 int _glfwPlatformGetJoystickPos( int joy, float *pos, int numaxes )
@@ -194,7 +193,7 @@ int _glfwPlatformGetJoystickPos( int joy, float *pos, int numaxes )
 
 
 //========================================================================
-// _glfwPlatformGetJoystickButtons() - Get joystick button states
+// Get joystick button states
 //========================================================================
 
 int _glfwPlatformGetJoystickButtons( int joy, unsigned char *buttons,

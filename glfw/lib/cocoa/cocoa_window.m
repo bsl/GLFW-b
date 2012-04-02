@@ -1,11 +1,10 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        macosx_window.m
-// Platform:    Mac OS X
+// Platform:    Cocoa/NSOpenGL
 // API Version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -29,6 +28,8 @@
 //========================================================================
 
 #include "internal.h"
+
+#include <AvailabilityMacros.h>
 
 //========================================================================
 // Delegate for window related notifications
@@ -68,6 +69,27 @@
     {
         _glfwWin.windowSizeCallback( _glfwWin.width, _glfwWin.height );
     }
+}
+
+- (void)windowDidMiniaturize:(NSNotification *)notification
+{
+    _glfwWin.iconified = GL_TRUE;
+}
+
+- (void)windowDidDeminiaturize:(NSNotification *)notification
+{
+    _glfwWin.iconified = GL_FALSE;
+}
+
+- (void)windowDidBecomeKey:(NSNotification *)notification
+{
+    _glfwWin.active = GL_TRUE;
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification
+{
+    _glfwWin.active = GL_FALSE;
+    _glfwInputDeactivation();
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
@@ -114,7 +136,7 @@ static const unsigned int MAC_TO_GLFW_KEYCODE_MAPPING[128] =
     /* 15 */ '4',
     /* 16 */ '6',
     /* 17 */ '5',
-    /* 18 */ GLFW_KEY_KP_EQUAL,
+    /* 18 */ '=',
     /* 19 */ '9',
     /* 1a */ '7',
     /* 1b */ '-',
@@ -153,25 +175,25 @@ static const unsigned int MAC_TO_GLFW_KEYCODE_MAPPING[128] =
     /* 3c */ GLFW_KEY_RSHIFT,
     /* 3d */ GLFW_KEY_RALT,
     /* 3e */ GLFW_KEY_RCTRL,
-    /* 3f */ -1,
-    /* 40 */ -1,
+    /* 3f */ -1, /*Function*/
+    /* 40 */ GLFW_KEY_F17,
     /* 41 */ GLFW_KEY_KP_DECIMAL,
     /* 42 */ -1,
     /* 43 */ GLFW_KEY_KP_MULTIPLY,
     /* 44 */ -1,
     /* 45 */ GLFW_KEY_KP_ADD,
     /* 46 */ -1,
-    /* 47 */ -1,
-    /* 48 */ -1,
-    /* 49 */ -1,
-    /* 4a */ -1,
+    /* 47 */ -1, /*KeypadClear*/
+    /* 48 */ -1, /*VolumeUp*/
+    /* 49 */ -1, /*VolumeDown*/
+    /* 4a */ -1, /*Mute*/
     /* 4b */ GLFW_KEY_KP_DIVIDE,
     /* 4c */ GLFW_KEY_KP_ENTER,
     /* 4d */ -1,
     /* 4e */ GLFW_KEY_KP_SUBTRACT,
-    /* 4f */ -1,
-    /* 50 */ -1,
-    /* 51 */ -1,
+    /* 4f */ GLFW_KEY_F18,
+    /* 50 */ GLFW_KEY_F19,
+    /* 51 */ GLFW_KEY_KP_EQUAL,
     /* 52 */ GLFW_KEY_KP_0,
     /* 53 */ GLFW_KEY_KP_1,
     /* 54 */ GLFW_KEY_KP_2,
@@ -180,7 +202,7 @@ static const unsigned int MAC_TO_GLFW_KEYCODE_MAPPING[128] =
     /* 57 */ GLFW_KEY_KP_5,
     /* 58 */ GLFW_KEY_KP_6,
     /* 59 */ GLFW_KEY_KP_7,
-    /* 5a */ -1,
+    /* 5a */ GLFW_KEY_F20,
     /* 5b */ GLFW_KEY_KP_8,
     /* 5c */ GLFW_KEY_KP_9,
     /* 5d */ -1,
@@ -191,20 +213,20 @@ static const unsigned int MAC_TO_GLFW_KEYCODE_MAPPING[128] =
     /* 62 */ GLFW_KEY_F7,
     /* 63 */ GLFW_KEY_F3,
     /* 64 */ GLFW_KEY_F8,
-    /* 65 */ -1,
+    /* 65 */ GLFW_KEY_F9,
     /* 66 */ -1,
-    /* 67 */ -1,
+    /* 67 */ GLFW_KEY_F11,
     /* 68 */ -1,
     /* 69 */ GLFW_KEY_F13,
     /* 6a */ GLFW_KEY_F16,
-    /* 6b */ -1,
+    /* 6b */ GLFW_KEY_F14,
     /* 6c */ -1,
-    /* 6d */ -1,
+    /* 6d */ GLFW_KEY_F10,
     /* 6e */ -1,
-    /* 6f */ -1,
+    /* 6f */ GLFW_KEY_F12,
     /* 70 */ -1,
-    /* 71 */ -1,
-    /* 72 */ GLFW_KEY_INSERT,
+    /* 71 */ GLFW_KEY_F15,
+    /* 72 */ GLFW_KEY_INSERT, /*Help*/
     /* 73 */ GLFW_KEY_HOME,
     /* 74 */ GLFW_KEY_PAGEUP,
     /* 75 */ GLFW_KEY_DEL,
@@ -281,7 +303,7 @@ static int convertMacKeyCode( unsigned int macKeyCode )
     if( _glfwWin.mouseLock )
     {
         _glfwInput.MousePosX += [event deltaX];
-        _glfwInput.MousePosY -= [event deltaY];
+        _glfwInput.MousePosY += [event deltaY];
     }
     else
     {
@@ -360,7 +382,7 @@ static int convertMacKeyCode( unsigned int macKeyCode )
 
 - (void)flagsChanged:(NSEvent *)event
 {
-    unsigned int newModifierFlags = [event modifierFlags];
+    unsigned int newModifierFlags = [event modifierFlags] | NSDeviceIndependentModifierFlagsMask;
     int mode;
 
     if( newModifierFlags > _glfwWin.modifierFlags )
@@ -429,10 +451,32 @@ int  _glfwPlatformOpenWindow( int width, int height,
     _glfwWin.context = nil;
     _glfwWin.delegate = nil;
 
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+    // Fail if OpenGL 3.3 or above was requested
+    if( wndconfig->glMajor > 3 || wndconfig->glMajor == 3 && wndconfig->glMinor > 2 )
+    {
+        return GL_FALSE;
+    }
+
+    if( wndconfig->glProfile )
+    {
+        // Fail if a profile other than core was explicitly selected
+        if( wndconfig->glProfile != GLFW_OPENGL_CORE_PROFILE )
+        {
+            return GL_FALSE;
+        }
+    }
+#else
+    // Fail if OpenGL 3.0 or above was requested
+    if( wndconfig->glMajor > 2 )
+    {
+        return GL_FALSE;
+    }
+#endif /*MAC_OS_X_VERSION_MAX_ALLOWED*/
+
     _glfwWin.delegate = [[GLFWWindowDelegate alloc] init];
     if( _glfwWin.delegate == nil )
     {
-        _glfwPlatformCloseWindow();
         return GL_FALSE;
     }
 
@@ -450,8 +494,6 @@ int  _glfwPlatformOpenWindow( int width, int height,
     }
 
     // Ignored hints:
-    // OpenGLMajor, OpenGLMinor, OpenGLForward:
-    //     pending Mac OS X support for OpenGL 3.x
     // OpenGLDebug
     //     pending it meaning anything on Mac OS X
 
@@ -496,9 +538,9 @@ int  _glfwPlatformOpenWindow( int width, int height,
 
     _glfwWin.window = [[NSWindow alloc]
         initWithContentRect:NSMakeRect(0, 0, width, height)
-                      styleMask:styleMask
-                        backing:NSBackingStoreBuffered
-                          defer:NO];
+                  styleMask:styleMask
+                    backing:NSBackingStoreBuffered
+                      defer:NO];
     [_glfwWin.window setContentView:[[GLFWContentView alloc] init]];
     [_glfwWin.window setDelegate:_glfwWin.delegate];
     [_glfwWin.window setAcceptsMouseMovedEvents:YES];
@@ -513,7 +555,7 @@ int  _glfwPlatformOpenWindow( int width, int height,
     unsigned int attribute_count = 0;
 #define ADD_ATTR(x) attributes[attribute_count++] = x
 #define ADD_ATTR2(x, y) (void)({ ADD_ATTR(x); ADD_ATTR(y); })
-#define MAX_ATTRS 24 // urgh
+#define MAX_ATTRS 64 // urrgh
     NSOpenGLPixelFormatAttribute attributes[MAX_ATTRS];
 
     ADD_ATTR( NSOpenGLPFADoubleBuffer );
@@ -525,6 +567,13 @@ int  _glfwPlatformOpenWindow( int width, int height,
         ADD_ATTR2( NSOpenGLPFAScreenMask,
                    CGDisplayIDToOpenGLDisplayMask( CGMainDisplayID() ) );
     }
+
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+    if( wndconfig->glMajor > 2 )
+    {
+        ADD_ATTR2( NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core );
+    }
+#endif /*MAC_OS_X_VERSION_MAX_ALLOWED*/
 
     ADD_ATTR2( NSOpenGLPFAColorSize, colorBits );
 
@@ -572,7 +621,6 @@ int  _glfwPlatformOpenWindow( int width, int height,
     _glfwWin.pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
     if( _glfwWin.pixelFormat == nil )
     {
-        _glfwPlatformCloseWindow();
         return GL_FALSE;
     }
 
@@ -580,7 +628,6 @@ int  _glfwPlatformOpenWindow( int width, int height,
                                                   shareContext:nil];
     if( _glfwWin.context == nil )
     {
-        _glfwPlatformCloseWindow();
         return GL_FALSE;
     }
 
@@ -777,10 +824,7 @@ void _glfwPlatformRefreshWindowParams( void )
                    forVirtualScreen:0];
     _glfwWin.samples = value;
 
-    // These are forced to false as long as Mac OS X lacks support for OpenGL 3.0+
-    _glfwWin.glForward = GL_FALSE;
     _glfwWin.glDebug = GL_FALSE;
-    _glfwWin.glProfile = 0;
 }
 
 //========================================================================

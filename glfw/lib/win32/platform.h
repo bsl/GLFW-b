@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        platform.h
-// Platform:    Windows
+// Platform:    Win32/WGL
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -133,16 +133,31 @@ typedef struct tagKBDLLHOOKSTRUCT {
 #define XBUTTON2 2
 #endif
 
+#ifndef WGL_EXT_swap_control
+
+/* Entry points */
+typedef int (APIENTRY * PFNWGLSWAPINTERVALEXTPROC) (int);
+
+#endif /*WGL_EXT_swap_control*/
+
+#ifndef WGL_ARB_extensions_string
+
+/* Entry points */
+typedef const char *(APIENTRY * PFNWGLGETEXTENSIONSSTRINGARBPROC)( HDC );
+
+#endif /*WGL_ARB_extensions_string*/
+
+#ifndef WGL_EXT_extension_string
+
+/* Entry points */
+typedef const char *(APIENTRY * PFNWGLGETEXTENSIONSSTRINGEXTPROC)( void );
+
+#endif /*WGL_EXT_extension_string*/
+
 #ifndef WGL_ARB_pixel_format
 
-// wglSwapIntervalEXT typedef (Win32 buffer-swap interval control)
-typedef int (APIENTRY * WGLSWAPINTERVALEXT_T) (int);
-// wglGetPixelFormatAttribivARB typedef
-typedef BOOL (WINAPI * WGLGETPIXELFORMATATTRIBIVARB_T) (HDC, int, int, UINT, const int *, int *);
-// wglGetExtensionStringEXT typedef
-typedef const char *(APIENTRY * WGLGETEXTENSIONSSTRINGEXT_T)( void );
-// wglGetExtensionStringARB typedef
-typedef const char *(APIENTRY * WGLGETEXTENSIONSSTRINGARB_T)( HDC );
+/* Entry points */
+typedef BOOL (WINAPI * PFNWGLGETPIXELFORMATATTRIBIVARBPROC) (HDC, int, int, UINT, const int *, int *);
 
 /* Constants for wglGetPixelFormatAttribivARB */
 #define WGL_NUMBER_PIXEL_FORMATS_ARB    0x2000
@@ -182,7 +197,7 @@ typedef const char *(APIENTRY * WGLGETEXTENSIONSSTRINGARB_T)( HDC );
 
 #ifndef WGL_ARB_create_context
 
-/* wglCreateContextAttribsARB */
+/* Entry points */
 typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC, HGLRC, const int *);
 
 /* Tokens for wglCreateContextAttribsARB attributes */
@@ -201,6 +216,13 @@ typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC, HGLRC, const in
 #define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
 
 #endif /*WGL_ARB_create_context*/
+
+
+#ifndef GL_VERSION_3_0
+
+typedef const GLubyte * (APIENTRY *PFNGLGETSTRINGIPROC) (GLenum, GLuint);
+
+#endif /*GL_VERSION_3_0*/
 
 
 //========================================================================
@@ -319,6 +341,8 @@ struct _GLFWwin_struct {
     int       glMajor, glMinor, glRevision;
     int       glForward, glDebug, glProfile;
 
+    PFNGLGETSTRINGIPROC GetStringi;
+
 
 // ========= PLATFORM SPECIFIC PART ======================================
 
@@ -333,15 +357,16 @@ struct _GLFWwin_struct {
     DWORD     dwExStyle;       // --"--
 
     // Platform specific extensions (context specific)
-    WGLSWAPINTERVALEXT_T           SwapIntervalEXT;
-    WGLGETPIXELFORMATATTRIBIVARB_T GetPixelFormatAttribivARB;
-    WGLGETEXTENSIONSSTRINGEXT_T    GetExtensionsStringEXT;
-    WGLGETEXTENSIONSSTRINGARB_T    GetExtensionsStringARB;
+    PFNWGLSWAPINTERVALEXTPROC      SwapIntervalEXT;
+    PFNWGLGETPIXELFORMATATTRIBIVARBPROC GetPixelFormatAttribivARB;
+    PFNWGLGETEXTENSIONSSTRINGEXTPROC GetExtensionsStringEXT;
+    PFNWGLGETEXTENSIONSSTRINGARBPROC GetExtensionsStringARB;
     PFNWGLCREATECONTEXTATTRIBSARBPROC CreateContextAttribsARB;
     GLboolean                      has_WGL_EXT_swap_control;
     GLboolean                      has_WGL_ARB_multisample;
     GLboolean                      has_WGL_ARB_pixel_format;
     GLboolean                      has_WGL_ARB_create_context;
+    GLboolean                      has_WGL_ARB_create_context_profile;
 
     // Various platform specific internal variables
     int       oldMouseLock;    // Old mouse-lock flag (used for remembering

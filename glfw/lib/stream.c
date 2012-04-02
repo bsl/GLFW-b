@@ -1,11 +1,11 @@
 //========================================================================
 // GLFW - An OpenGL framework
-// File:        stream.c
 // Platform:    Any
 // API version: 2.7
-// WWW:         http://glfw.sourceforge.net
+// WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Camilla Berglund
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -28,6 +28,7 @@
 //
 //========================================================================
 
+#define _CRT_SECURE_NO_WARNINGS
 
 #include "internal.h"
 
@@ -72,7 +73,7 @@ long _glfwReadStream( _GLFWstream *stream, void *data, long size )
 {
     if( stream->file != NULL )
     {
-        return fread( data, 1, size, stream->file );
+        return (long) fread( data, 1, size, stream->file );
     }
 
     if( stream->data != NULL )

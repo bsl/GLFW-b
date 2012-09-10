@@ -1,5 +1,5 @@
 name:         GLFW-b
-version:      0.1.0.2
+version:      0.1.0.4
 
 category:     Graphics
 
@@ -19,7 +19,7 @@ description:  Bindings to GLFW, a free, open source, multi-platform library for
               For more information about the library on which these bindings
               are based, please see <http://glfw.sourceforge.net>.
 
-author:       Brian Lewis <brian@lorf.org>
+author:       Brian Lewis <brian@lorf.org>, Mike Ledger <eleventynine@gmail.com>
 maintainer:   Brian Lewis <brian@lorf.org>
 
 license:      BSD3
@@ -58,7 +58,8 @@ library
     Graphics.UI.GLFW
 
   build-depends:
-    base == 4.*
+    base == 4.*,
+    bytestring
 
   hs-source-dirs:
     src
@@ -130,7 +131,8 @@ library
         extra-libraries:
           opengl32
 
-  ghc-options: -Wall -O2
+  ghc-options: -Wall -O2 -ddump-rule-firings
+
   if impl(ghc >= 6.8)
     ghc-options: -fwarn-tabs
 

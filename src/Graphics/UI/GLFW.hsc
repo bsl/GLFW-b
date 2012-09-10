@@ -1092,6 +1092,7 @@ storeCallback ior cb =
 -- Image loading
 
 -- | Texture flag used in 'loadTexture2D' and 'loadMemoryTexture2D'.
+-- taken from 'GLFW'
 data TextureFlag
   -- | Do not rescale to the closest 2^m x 2^n resolution.
   = NoRescale

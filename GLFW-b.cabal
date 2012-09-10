@@ -131,7 +131,7 @@ library
         extra-libraries:
           opengl32
 
-  ghc-options: -Wall -O2 -ddump-rule-firings
+  ghc-options: -Wall -O2
 
   if impl(ghc >= 6.8)
     ghc-options: -fwarn-tabs

@@ -1,5 +1,6 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# LANGUAGE MultiParamTypeClasses    #-}
+{-# LANGUAGE OverloadedStrings        #-}
 
 module Graphics.UI.GLFW
   ( -- *   Initialization and termination
@@ -97,6 +98,9 @@ module Graphics.UI.GLFW
   , resetTime
   , sleep
 
+    -- *   Texture loading
+  , loadTexture2D
+
     -- *   Version information
   , getGlfwVersion
   , getGlVersion
@@ -106,6 +110,8 @@ module Graphics.UI.GLFW
 
 import Control.Monad         (when)
 import Data.Char             (chr, ord)
+import Data.Bits             ((.|.))
+import Data.List             (foldl')
 import Data.IORef            (IORef, atomicModifyIORef, newIORef)
 import Data.Maybe            (fromJust, isJust)
 import Data.Version          (Version(..))
@@ -116,6 +122,7 @@ import Foreign.Marshal.Array (allocaArray, peekArray)
 import Foreign.Ptr           (FunPtr, Ptr, freeHaskellFunPtr)
 import Foreign.Storable      (Storable(..))
 import System.IO.Unsafe      (unsafePerformIO)
+import Data.ByteString.Char8 (useAsCString, ByteString)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -169,6 +176,8 @@ foreign import ccall glfwGetGLVersion             :: Ptr CInt -> Ptr CInt -> Ptr
 
 foreign import ccall glfwEnable                   :: CInt -> IO ()
 foreign import ccall glfwDisable                  :: CInt -> IO ()
+
+foreign import ccall glfwLoadTexture2D            :: CString -> CInt -> IO CInt
 
 type GlfwCharCallback          = CInt -> CInt -> IO ()
 type GlfwKeyCallback           = CInt -> CInt -> IO ()
@@ -1078,3 +1087,63 @@ windowSizeCallback    = unsafePerformIO (newIORef Nothing)
 storeCallback :: IORef (Maybe (FunPtr a)) -> FunPtr a -> IO ()
 storeCallback ior cb =
     atomicModifyIORef ior (\mcb -> (Just cb, mcb)) >>= maybe (return ()) freeHaskellFunPtr
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- Image loading
+
+-- | Texture flag used in 'loadTexture2D' and 'loadMemoryTexture2D'.
+data TextureFlag
+  -- | Do not rescale to the closest 2^m x 2^n resolution.
+  = NoRescale
+  -- | Specifies that the origin of the loaded image should be in the upper left corner
+  --   (default is the lower left corner).
+  | OriginUL
+  -- | Automatically build and upload all mipmap levels.
+  | BuildMipmaps
+  -- | Treat single component images as alpha maps rather than luminance maps.
+  | AlphaMap
+  deriving (Eq, Show)
+
+instance C TextureFlag CInt where
+    toC x = case x of
+        NoRescale    -> #const GLFW_NO_RESCALE_BIT
+        OriginUL     -> #const GLFW_ORIGIN_UL_BIT
+        BuildMipmaps -> #const GLFW_BUILD_MIPMAPS_BIT
+        AlphaMap     -> #const GLFW_ALPHA_MAP_BIT
+    
+    fromC x = case x of
+        (#const GLFW_NO_RESCALE_BIT)    -> NoRescale
+        (#const GLFW_ORIGIN_UL_BIT)     -> OriginUL
+        (#const GLFW_BUILD_MIPMAPS_BIT) -> BuildMipmaps
+        (#const GLFW_ALPHA_MAP_BIT)     -> AlphaMap
+        _                               -> error "fromC: invalid CInt" 
+
+{-# RULES 
+"loadTexture2D/Remove list" 
+    forall n.
+    loadTexture2D n [] = loadTexture2D' n 0
+    
+"loadTexture2D/Remove list overhead 1"
+    forall n x.
+    loadTexture2D n [x] = loadTexture2D' n (toC x)
+    
+"loadTexture2D/Remove list overhead 2"
+    forall n x y.
+    loadTexture2D n [x, y] = loadTexture2D' n (toC x .|. toC y)
+  #-}
+
+-- | Load a TGA image.
+-- Note that because of a rewrite rule, if 'loadTexture2D name [flag]' is used, there is no
+-- overhead in the list - it never exists.
+{-# INLINE [0] loadTexture2D #-}
+loadTexture2D :: ByteString -> [TextureFlag] -> IO Bool
+loadTexture2D name flagList = fromC `fmap` useAsCString name (`glfwLoadTexture2D` flags)
+  where
+    flags :: CInt
+    flags = foldl' (\l r -> toC r .|. l) 0 flagList
+
+-- | Dumber but faster 'loadTexture2D'.
+{-# INLINE [0] loadTexture2D' #-}
+loadTexture2D' :: ByteString -> CInt -> IO Bool
+loadTexture2D' name flag = fromC `fmap` useAsCString name (`glfwLoadTexture2D` flag)
+

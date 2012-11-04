@@ -57,6 +57,8 @@ module Graphics.UI.GLFW
   , pollEvents
   , waitEvents
   , enableAutoPoll
+  , enableKeyRepeat
+  , disableKeyRepeat 
   , disableAutoPoll
     -- **  Keyboard
   , keyIsPressed
@@ -565,6 +567,11 @@ enableAutoPoll = glfwEnable (#const GLFW_AUTO_POLL_EVENTS)
 disableAutoPoll :: IO ()
 disableAutoPoll = glfwDisable (#const GLFW_AUTO_POLL_EVENTS)
 
+enableKeyRepeat :: IO ()
+enableKeyRepeat = glfwEnable (#const GLFW_KEY_REPEAT)
+
+disableKeyRepeat :: IO ()
+disableKeyRepeat = glfwDisable (#const GLFW_KEY_REPEAT)
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Keyboard
 

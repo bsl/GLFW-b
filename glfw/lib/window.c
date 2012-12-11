@@ -199,8 +199,8 @@ void _glfwInputChar( int character, int action )
         _glfwInput.LastChar = 0;
     }
 
-    if( action != GLFW_PRESS )
-    {
+    // if( action != GLFW_PRESS )
+    // {
         // This intentionally breaks release notifications for Unicode
         // characters, partly to see if anyone cares but mostly because it's
         // a nonsensical concept to begin with
@@ -214,8 +214,8 @@ void _glfwInputChar( int character, int action )
         //
         // However, if your particular application uses this misfeature for...
         // something, you can re-enable it by removing this if-statement
-        return;
-    }
+        // return;
+    // }
 
     if( _glfwWin.charCallback && (_glfwInput.KeyRepeat || !keyrepeat) )
     {

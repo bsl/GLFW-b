@@ -428,6 +428,7 @@ static _GLFWfbconfig *getFBConfigs( unsigned int *found )
     GLXFBConfig *fbconfigs;
     _GLFWfbconfig *result;
     int i, count = 0;
+    GLboolean trustWindowBit = GL_TRUE;
 
     *found = 0;
 
@@ -438,6 +439,14 @@ static _GLFWfbconfig *getFBConfigs( unsigned int *found )
             fprintf( stderr, "GLXFBConfigs are not supported by the X server\n" );
             return NULL;
         }
+    }
+
+    if( strcmp( glXGetClientString( _glfwLibrary.display, GLX_VENDOR ),
+                "Chromium" ) == 0 )
+    {
+        // This is a (hopefully temporary) workaround for Chromium (VirtualBox
+        // GL) not setting the window bit on any GLXFBConfigs
+        trustWindowBit = GL_FALSE;
     }
 
     if( _glfwWin.has_GLX_SGIX_fbconfig )
@@ -486,8 +495,11 @@ static _GLFWfbconfig *getFBConfigs( unsigned int *found )
 
         if( !( getFBConfigAttrib( fbconfigs[i], GLX_DRAWABLE_TYPE ) & GLX_WINDOW_BIT ) )
         {
-            // Only consider window GLXFBConfigs
-            continue;
+            if( trustWindowBit )
+            {
+                // Only consider window GLXFBConfigs
+                continue;
+            }
         }
 
         result[*found].redBits = getFBConfigAttrib( fbconfigs[i], GLX_RED_SIZE );
@@ -654,6 +666,11 @@ static int createContext( const _GLFWwndconfig *wndconfig, GLXFBConfigID fbconfi
 
         // We are done, so unset the error handler again (see above)
         XSetErrorHandler( NULL );
+
+        // Copy the debug context hint as there's no way of verifying it
+        // This is the only code path capable of creating a debug context,
+        // so leave it as false (from the earlier memset) otherwise
+        _glfwWin.glDebug = wndconfig->glDebug;
     }
     else
     {
@@ -698,6 +715,8 @@ static int createContext( const _GLFWwndconfig *wndconfig, GLXFBConfigID fbconfi
 static void initGLXExtensions( void )
 {
     // This needs to include every function pointer loaded below
+    _glfwWin.SwapIntervalEXT             = NULL;
+    _glfwWin.SwapIntervalMESA            = NULL;
     _glfwWin.SwapIntervalSGI             = NULL;
     _glfwWin.GetFBConfigAttribSGIX       = NULL;
     _glfwWin.ChooseFBConfigSGIX          = NULL;
@@ -707,10 +726,34 @@ static void initGLXExtensions( void )
 
     // This needs to include every extension used below
     _glfwWin.has_GLX_SGIX_fbconfig              = GL_FALSE;
+    _glfwWin.has_GLX_EXT_swap_control           = GL_FALSE;
+    _glfwWin.has_GLX_MESA_swap_control          = GL_FALSE;
     _glfwWin.has_GLX_SGI_swap_control           = GL_FALSE;
     _glfwWin.has_GLX_ARB_multisample            = GL_FALSE;
     _glfwWin.has_GLX_ARB_create_context         = GL_FALSE;
     _glfwWin.has_GLX_ARB_create_context_profile = GL_FALSE;
+
+    if( _glfwPlatformExtensionSupported( "GLX_EXT_swap_control" ) )
+    {
+        _glfwWin.SwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)
+            _glfwPlatformGetProcAddress( "glXSwapIntervalEXT" );
+
+        if( _glfwWin.SwapIntervalEXT )
+        {
+            _glfwWin.has_GLX_EXT_swap_control = GL_TRUE;
+        }
+    }
+
+    if( _glfwPlatformExtensionSupported( "GLX_MESA_swap_control" ) )
+    {
+        _glfwWin.SwapIntervalMESA = (PFNGLXSWAPINTERVALMESAPROC)
+            _glfwPlatformGetProcAddress( "glXSwapIntervalMESA" );
+
+        if( _glfwWin.SwapIntervalMESA )
+        {
+            _glfwWin.has_GLX_MESA_swap_control = GL_TRUE;
+        }
+    }
 
     if( _glfwPlatformExtensionSupported( "GLX_SGI_swap_control" ) )
     {
@@ -1388,24 +1431,8 @@ int _glfwPlatformOpenWindow( int width, int height,
     _GLFWfbconfig closest;
 
     // Clear platform specific GLFW window state
-    _glfwWin.visual           = (XVisualInfo*)NULL;
-    _glfwWin.colormap         = (Colormap)0;
-    _glfwWin.context          = (GLXContext)NULL;
-    _glfwWin.window           = (Window)0;
-    _glfwWin.pointerGrabbed   = GL_FALSE;
-    _glfwWin.pointerHidden    = GL_FALSE;
-    _glfwWin.keyboardGrabbed  = GL_FALSE;
-    _glfwWin.overrideRedirect = GL_FALSE;
-    _glfwWin.FS.modeChanged   = GL_FALSE;
-    _glfwWin.Saver.changed    = GL_FALSE;
     _glfwWin.refreshRate      = wndconfig->refreshRate;
     _glfwWin.windowNoResize   = wndconfig->windowNoResize;
-
-    _glfwWin.wmDeleteWindow    = None;
-    _glfwWin.wmPing            = None;
-    _glfwWin.wmState           = None;
-    _glfwWin.wmStateFullscreen = None;
-    _glfwWin.wmActiveWindow    = None;
 
     // As the 2.x API doesn't understand multiple display devices, we hardcode
     // this choice and hope for the best
@@ -1559,7 +1586,6 @@ void _glfwPlatformSetWindowTitle( const char *title )
 void _glfwPlatformSetWindowSize( int width, int height )
 {
     int     mode = 0, rate, sizeChanged = GL_FALSE;
-    XSizeHints *sizehints;
 
     rate = _glfwWin.refreshRate;
 
@@ -1573,14 +1599,14 @@ void _glfwPlatformSetWindowSize( int width, int height )
     {
         // Update window size restrictions to match new window size
 
-        sizehints = XAllocSizeHints();
-        sizehints->flags = 0;
+        XSizeHints *hints = XAllocSizeHints();
 
-        sizehints->min_width  = sizehints->max_width  = width;
-        sizehints->min_height = sizehints->max_height = height;
+        hints->flags |= (PMinSize | PMaxSize);
+        hints->min_width  = hints->max_width  = width;
+        hints->min_height = hints->max_height = height;
 
-        XSetWMNormalHints( _glfwLibrary.display, _glfwWin.window, sizehints );
-        XFree( sizehints );
+        XSetWMNormalHints( _glfwLibrary.display, _glfwWin.window, hints );
+        XFree( hints );
     }
 
     // Change window size before changing fullscreen mode?
@@ -1665,9 +1691,22 @@ void _glfwPlatformSwapBuffers( void )
 
 void _glfwPlatformSwapInterval( int interval )
 {
-    if( _glfwWin.has_GLX_SGI_swap_control )
+    if( _glfwWin.has_GLX_EXT_swap_control )
     {
-        _glfwWin.SwapIntervalSGI( interval );
+        _glfwWin.SwapIntervalEXT( _glfwLibrary.display,
+                                  _glfwWin.window,
+                                  interval );
+    }
+    else if( _glfwWin.has_GLX_MESA_swap_control )
+    {
+        _glfwWin.SwapIntervalMESA( interval );
+    }
+    else if( _glfwWin.has_GLX_SGI_swap_control )
+    {
+        if( interval > 0 )
+        {
+            _glfwWin.SwapIntervalSGI( interval );
+        }
     }
 }
 
@@ -1795,6 +1834,11 @@ void _glfwPlatformPollEvents( void )
     {
         _glfwPlatformSetMouseCursorPos( _glfwWin.width/2,
                                         _glfwWin.height/2 );
+
+        // NOTE: This is a temporary fix.  It works as long as you use offsets
+        //       accumulated over the course of a frame, instead of performing
+        //       the necessary actions per callback call.
+        XFlush( _glfwLibrary.display );
     }
 
     if( closeRequested && _glfwWin.windowCloseCallback )
@@ -1849,6 +1893,9 @@ void _glfwPlatformHideMouseCursor( void )
             _glfwWin.pointerGrabbed = GL_TRUE;
         }
     }
+
+    // Move cursor to the middle of the window
+    _glfwPlatformSetMouseCursorPos( _glfwWin.width / 2, _glfwWin.height / 2 );
 }
 
 

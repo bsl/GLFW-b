@@ -39,6 +39,7 @@
 // Include files
 #include <sys/time.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <signal.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
@@ -126,6 +127,20 @@
 // Pointer length integer
 // One day, this will most likely move into glfw.h
 typedef intptr_t GLFWintptr;
+
+
+#ifndef GLX_EXT_swap_control
+
+typedef void (*PFNGLXSWAPINTERVALEXT)(Display*,GLXDrawable,int);
+
+#endif /*GLX_MESA_swap_control*/
+
+
+#ifndef GLX_MESA_swap_control
+
+typedef int (*PFNGLXSWAPINTERVALMESA)(int);
+
+#endif /*GLX_MESA_swap_control*/
 
 
 #ifndef GLX_SGI_swap_control
@@ -281,6 +296,8 @@ struct _GLFWwin_struct {
     Cursor        cursor;            // Invisible cursor for hidden cursor
 
     // GLX extensions
+    PFNGLXSWAPINTERVALEXTPROC             SwapIntervalEXT;
+    PFNGLXSWAPINTERVALMESAPROC            SwapIntervalMESA;
     PFNGLXSWAPINTERVALSGIPROC             SwapIntervalSGI;
     PFNGLXGETFBCONFIGATTRIBSGIXPROC       GetFBConfigAttribSGIX;
     PFNGLXCHOOSEFBCONFIGSGIXPROC          ChooseFBConfigSGIX;
@@ -288,6 +305,8 @@ struct _GLFWwin_struct {
     PFNGLXGETVISUALFROMFBCONFIGSGIXPROC   GetVisualFromFBConfigSGIX;
     PFNGLXCREATECONTEXTATTRIBSARBPROC     CreateContextAttribsARB;
     GLboolean   has_GLX_SGIX_fbconfig;
+    GLboolean   has_GLX_EXT_swap_control;
+    GLboolean   has_GLX_MESA_swap_control;
     GLboolean   has_GLX_SGI_swap_control;
     GLboolean   has_GLX_ARB_multisample;
     GLboolean   has_GLX_ARB_create_context;
@@ -367,6 +386,9 @@ GLFWGLOBAL struct {
     // Window opening hints
     _GLFWhints      hints;
 
+    // Initial desktop mode
+    GLFWvidmode     desktopMode;
+
 // ========= PLATFORM SPECIFIC PART ======================================
 
     Display        *display;
@@ -388,8 +410,9 @@ GLFWGLOBAL struct {
 
     // Timer data
     struct {
+        GLboolean   monotonic;
         double      resolution;
-        long long   t0;
+        long long   base;
     } Timer;
 
 #if defined(_GLFW_HAS_DLOPEN)

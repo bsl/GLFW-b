@@ -230,12 +230,12 @@ getVideoModes =
 -- -- -- -- -- -- -- -- -- --
 
 data VideoMode = VideoMode
-  { videoModeWidth       :: Int
-  , videoModeHeight      :: Int
-  , videoModeRedBits     :: Int
-  , videoModeGreenBits   :: Int
-  , videoModeBlueBits    :: Int
-  , videoModeRefreshRate :: Int
+  { videoMode_width       :: Int
+  , videoMode_height      :: Int
+  , videoMode_redBits     :: Int
+  , videoMode_greenBits   :: Int
+  , videoMode_blueBits    :: Int
+  , videoModerefreshRate :: Int
   } deriving (Eq, Ord, Read, Show)
 
 instance Storable VideoMode where
@@ -250,12 +250,12 @@ instance Storable VideoMode where
       bb <- (#peek GLFWvidmode, blueBits)    ptr :: IO CInt
       rr <- (#peek GLFWvidmode, refreshRate) ptr :: IO CInt
       return VideoMode
-        { videoModeWidth       = fromC w
-        , videoModeHeight      = fromC h
-        , videoModeRedBits     = fromC rb
-        , videoModeGreenBits   = fromC gb
-        , videoModeBlueBits    = fromC bb
-        , videoModeRefreshRate = fromC rr
+        { videoMode_width       = fromC w
+        , videoMode_height      = fromC h
+        , videoMode_redBits     = fromC rb
+        , videoMode_greenBits   = fromC gb
+        , videoMode_blueBits    = fromC bb
+        , videoMode_refreshRate = fromC rr
         }
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --

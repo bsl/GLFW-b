@@ -8,6 +8,8 @@ description:  Bindings to GLFW, a free, open source, multi-platform library for
               creating OpenGL contexts and managing input, including keyboard,
               mouse, joystick and time.
               .
+              These bindings use GLFW version 3.0, released 2013-06-12.
+              .
               GLFW-b works on Windows, Mac OS X, and many Unix-like operating
               systems.
               .
@@ -28,29 +30,50 @@ license-file: LICENSE
 -- -- -- -- -- -- -- -- -- --
 
 cabal-version: >= 1.6
-build-type:    Custom 
+build-type:    Custom
 
 -- -- -- -- -- -- -- -- -- --
 
 extra-source-files:
   Makefile
   README.md
+
+  glfw/include/os/unix-like/config.h
+
   ./build/glfw/lib/cocoa/.build-tag
-  glfw/include/GL/glfw.h
-  glfw/lib/internal.h
-  glfw/lib/cocoa/platform.h
-  glfw/lib/win32/platform.h
-  glfw/lib/x11/platform.h
-  -- We can't explicitly list these as
-  -- C sources so we list them here.
-  glfw/lib/cocoa/cocoa_enable.m
-  glfw/lib/cocoa/cocoa_joystick.m
-  glfw/lib/cocoa/cocoa_fullscreen.m
-  glfw/lib/cocoa/cocoa_time.m
-  glfw/lib/cocoa/cocoa_glext.m
-  glfw/lib/cocoa/cocoa_window.m
-  glfw/lib/cocoa/cocoa_init.m
-  glfw/lib/cocoa/cocoa_thread.c
+  glfw/include/GLFW/glfw3.h
+  glfw/include/GLFW/glfw3native.h
+  glfw/src/cocoa_platform.h
+  glfw/src/egl_platform.h
+  glfw/src/glx_platform.h
+  glfw/src/internal.h
+  glfw/src/nsgl_platform.h
+  glfw/src/wgl_platform.h
+  glfw/src/win32_platform.h
+  glfw/src/x11_platform.h
+
+  -- We can't explicitly list these as C sources so we list them here.
+  glfw/src/cocoa_gamma.c
+  glfw/src/cocoa_init.m
+  glfw/src/cocoa_joystick.m
+  glfw/src/cocoa_monitor.m
+  glfw/src/cocoa_time.c
+  glfw/src/cocoa_window.m
+  glfw/src/cocoa_clipboard.m
+  glfw/src/nsgl_context.m
+
+  glfw/src/egl_context.c
+  glfw/src/wgl_context.c
+
+  glfw/deps/EGL/eglext.h
+  glfw/deps/GL/glext.h
+  glfw/deps/GL/glxext.h
+  glfw/deps/GL/wglext.h
+  glfw/deps/getopt.c
+  glfw/deps/getopt.h
+  glfw/deps/tinycthread.c
+  glfw/deps/tinycthread.h
+
 -- -- -- -- -- -- -- -- -- --
 
 library
@@ -65,49 +88,43 @@ library
 
   include-dirs:
     glfw/include
-    glfw/lib
+    glfw/src
+
   if !os(darwin)
     c-sources:
-      glfw/lib/enable.c
-      glfw/lib/fullscreen.c
-      glfw/lib/glext.c
-      glfw/lib/image.c
-      glfw/lib/init.c
-      glfw/lib/input.c
-      glfw/lib/joystick.c
-      glfw/lib/stream.c
-      glfw/lib/tga.c
-      glfw/lib/thread.c
-      glfw/lib/time.c
-      glfw/lib/window.c
+      glfw/src/clipboard.c
+      glfw/src/context.c
+      glfw/src/gamma.c
+      glfw/src/glx_context.c
+      glfw/src/init.c
+      glfw/src/input.c
+      glfw/src/joystick.c
+      glfw/src/monitor.c
+      glfw/src/time.c
+      glfw/src/window.c
 
   if os(linux) || os(freebsd)
     include-dirs:
-      glfw/lib/x11
+      -- Note: glfw/include/os/unix-like/config.h is the config.h created by
+      --       CMake on my Linux system
+      glfw/include/os/unix-like
     c-sources:
-      glfw/lib/x11/x11_enable.c
-      glfw/lib/x11/x11_fullscreen.c
-      glfw/lib/x11/x11_glext.c
-      glfw/lib/x11/x11_init.c
-      glfw/lib/x11/x11_joystick.c
-      glfw/lib/x11/x11_keysym2unicode.c
-      glfw/lib/x11/x11_thread.c
-      glfw/lib/x11/x11_time.c
-      glfw/lib/x11/x11_window.c
+      glfw/src/x11_clipboard.c
+      glfw/src/x11_gamma.c
+      glfw/src/x11_init.c
+      glfw/src/x11_joystick.c
+      glfw/src/x11_monitor.c
+      glfw/src/x11_time.c
+      glfw/src/x11_unicode.c
+      glfw/src/x11_window.c
     cc-options:
-      -D_GLFW_USE_LINUX_JOYSTICKS
-      -D_GLFW_HAS_XRANDR
---    -D_GLFW_HAS_PTHREAD
---    -D_GLFW_HAS_SCHED_YIELD
-      -D_GLFW_HAS_GLXGETPROCADDRESS
---    -D_GLFW_HAS_DLOPEN
---    -D_GLFW_HAS_SYSCONF
---    -pthread
     extra-libraries:
       GL
       GLU
       X11
       Xrandr
+      Xxf86vm
+      pthread
   else
     if os(darwin)
       extra-libraries: glfw
@@ -115,18 +132,14 @@ library
       ghc-options: -fPIC
     else
       if os(mingw32)
-        include-dirs:
-          glfw/lib/win32
         c-sources:
-          glfw/lib/win32/win32_dllmain.c
-          glfw/lib/win32/win32_enable.c
-          glfw/lib/win32/win32_fullscreen.c
-          glfw/lib/win32/win32_glext.c
-          glfw/lib/win32/win32_init.c
-          glfw/lib/win32/win32_joystick.c
-          glfw/lib/win32/win32_thread.c
-          glfw/lib/win32/win32_time.c
-          glfw/lib/win32/win32_window.c
+          glfw/src/win32_clipboard.c
+          glfw/src/win32_gamma.c
+          glfw/src/win32_init.c
+          glfw/src/win32_joystick.c
+          glfw/src/win32_monitor.c
+          glfw/src/win32_time.c
+          glfw/src/win32_window.c
         extra-libraries:
           opengl32
 

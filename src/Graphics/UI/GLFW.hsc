@@ -230,11 +230,12 @@ getVideoModes =
 -- -- -- -- -- -- -- -- -- --
 
 data VideoMode = VideoMode
-  { videoMode_width        :: Int
-  , videoMode_height       :: Int
-  , videoMode_numRedBits   :: Int
-  , videoMode_numGreenBits :: Int
-  , videoMode_numBlueBits  :: Int
+  { videoModeWidth       :: Int
+  , videoModeHeight      :: Int
+  , videoModeRedBits     :: Int
+  , videoModeGreenBits   :: Int
+  , videoModeBlueBits    :: Int
+  , videoModeRefreshRate :: Int
   } deriving (Eq, Ord, Read, Show)
 
 instance Storable VideoMode where
@@ -242,17 +243,19 @@ instance Storable VideoMode where
   alignment _ = alignment (undefined :: CInt)
 
   peek ptr = do
-      w <- (#peek GLFWvidmode, Width)     ptr :: IO CInt
-      h <- (#peek GLFWvidmode, Height)    ptr :: IO CInt
-      r <- (#peek GLFWvidmode, RedBits)   ptr :: IO CInt
-      g <- (#peek GLFWvidmode, GreenBits) ptr :: IO CInt
-      b <- (#peek GLFWvidmode, BlueBits)  ptr :: IO CInt
+      w  <- (#peek GLFWvidmode, width)       ptr :: IO CInt
+      h  <- (#peek GLFWvidmode, height)      ptr :: IO CInt
+      rb <- (#peek GLFWvidmode, redBits)     ptr :: IO CInt
+      gb <- (#peek GLFWvidmode, greenBits)   ptr :: IO CInt
+      bb <- (#peek GLFWvidmode, blueBits)    ptr :: IO CInt
+      rr <- (#peek GLFWvidmode, refreshRate) ptr :: IO CInt
       return VideoMode
-        { videoMode_width        = fromC w
-        , videoMode_height       = fromC h
-        , videoMode_numRedBits   = fromC r
-        , videoMode_numGreenBits = fromC g
-        , videoMode_numBlueBits  = fromC b
+        { videoModeWidth       = fromC w
+        , videoModeHeight      = fromC h
+        , videoModeRedBits     = fromC rb
+        , videoModeGreenBits   = fromC gb
+        , videoModeBlueBits    = fromC bb
+        , videoModeRefreshRate = fromC rr
         }
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --

@@ -121,15 +121,15 @@ import System.IO.Unsafe      (unsafePerformIO)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 
 foreign import ccall glfwInit                     :: IO CInt
 foreign import ccall glfwTerminate                :: IO ()
 foreign import ccall glfwGetVersion               :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
 
-foreign import ccall glfwOpenWindow               :: CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> IO CInt
-foreign import ccall glfwOpenWindowHint           :: CInt -> CInt -> IO ()
-foreign import ccall glfwCloseWindow              :: IO ()
+foreign import ccall glfwCreateWindow               :: CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> CInt -> IO CInt
+foreign import ccall glfwWindowHint           :: CInt -> CInt -> IO ()
+foreign import ccall glfwDestroyWindow              :: IO ()
 foreign import ccall glfwSetWindowCloseCallback   :: FunPtr GlfwWindowCloseCallback -> IO ()
 foreign import ccall glfwSetWindowTitle           :: CString -> IO ()
 foreign import ccall glfwSetWindowSize            :: CInt -> CInt -> IO ()
@@ -138,29 +138,29 @@ foreign import ccall glfwGetWindowSize            :: Ptr CInt -> Ptr CInt -> IO 
 foreign import ccall glfwSetWindowSizeCallback    :: FunPtr GlfwWindowSizeCallback -> IO ()
 foreign import ccall glfwIconifyWindow            :: IO ()
 foreign import ccall glfwRestoreWindow            :: IO ()
-foreign import ccall glfwGetWindowParam           :: CInt -> IO CInt
+foreign import ccall glfwGetWindowAttrib           :: CInt -> IO CInt
 foreign import ccall glfwSwapBuffers              :: IO ()
 foreign import ccall glfwSwapInterval             :: CInt -> IO ()
 foreign import ccall glfwSetWindowRefreshCallback :: FunPtr GlfwWindowRefreshCallback -> IO ()
 
 foreign import ccall glfwGetVideoModes            :: Ptr VideoMode -> CInt -> IO CInt
-foreign import ccall glfwGetDesktopMode           :: Ptr VideoMode -> IO ()
+foreign import ccall glfwGetVideoMode           :: Ptr VideoMode -> IO ()
 
 foreign import ccall glfwPollEvents               :: IO ()
 foreign import ccall glfwWaitEvents               :: IO ()
 foreign import ccall glfwGetKey                   :: CInt -> IO CInt
 foreign import ccall glfwGetMouseButton           :: CInt -> IO CInt
-foreign import ccall glfwGetMousePos              :: Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall glfwSetMousePos              :: CInt -> CInt -> IO ()
+foreign import ccall glfwGetCursorPos              :: Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwSetCursorPos              :: CInt -> CInt -> IO ()
 foreign import ccall glfwGetMouseWheel            :: IO CInt
 foreign import ccall glfwSetMouseWheel            :: CInt -> IO ()
 foreign import ccall glfwSetKeyCallback           :: FunPtr GlfwKeyCallback -> IO ()
 foreign import ccall glfwSetCharCallback          :: FunPtr GlfwCharCallback -> IO ()
 foreign import ccall glfwSetMouseButtonCallback   :: FunPtr GlfwMouseButtonCallback -> IO ()
-foreign import ccall glfwSetMousePosCallback      :: FunPtr GlfwMousePositionCallback -> IO ()
-foreign import ccall glfwSetMouseWheelCallback    :: FunPtr GlfwMouseWheelCallback -> IO ()
-foreign import ccall glfwGetJoystickParam         :: CInt -> CInt -> IO CInt
-foreign import ccall glfwGetJoystickPos           :: CInt -> Ptr CFloat -> CInt -> IO CInt
+foreign import ccall glfwSetCursorPosCallback      :: FunPtr GlfwMousePositionCallback -> IO ()
+foreign import ccall glfwSetScrollCallback    :: FunPtr GlfwMouseWheelCallback -> IO ()
+foreign import ccall glfwGetJoystickPresent         :: CInt -> CInt -> IO CInt
+foreign import ccall glfwGetJoystickAxes           :: CInt -> Ptr CFloat -> CInt -> IO CInt
 foreign import ccall glfwGetJoystickButtons       :: CInt -> Ptr CUChar -> CInt -> IO CInt
 
 foreign import ccall glfwGetTime                  :: IO CDouble
@@ -169,8 +169,8 @@ foreign import ccall glfwSleep                    :: CDouble -> IO ()
 
 foreign import ccall glfwGetGLVersion             :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
 
-foreign import ccall glfwEnable                   :: CInt -> IO ()
-foreign import ccall glfwDisable                  :: CInt -> IO ()
+foreign import ccall glfwSetInputMode                   :: CInt -> IO ()
+foreign import ccall glfwSetInputMode                  :: CInt -> IO ()
 
 type GlfwCharCallback          = CInt -> CInt -> IO ()
 type GlfwKeyCallback           = CInt -> CInt -> IO ()
@@ -216,7 +216,7 @@ terminate =
 getVideoMode :: IO VideoMode
 getVideoMode =
     alloca $ \ptr -> do
-        glfwGetDesktopMode ptr
+        glfwGetVideoMode ptr
         peek ptr
 
 getVideoModes :: IO [VideoMode]
@@ -280,15 +280,15 @@ instance C OpenGLProfile CInt where
 
 openGLContextIsForwardCompatible :: IO Bool
 openGLContextIsForwardCompatible =
-    fromC `fmap` glfwGetWindowParam (#const GLFW_OPENGL_FORWARD_COMPAT)
+    fromC `fmap` glfwGetWindowAttrib (#const GLFW_OPENGL_FORWARD_COMPAT)
 
 openGLContextIsDebugContext :: IO Bool
 openGLContextIsDebugContext =
-    fromC `fmap` glfwGetWindowParam (#const GLFW_OPENGL_DEBUG_CONTEXT)
+    fromC `fmap` glfwGetWindowAttrib (#const GLFW_OPENGL_DEBUG_CONTEXT)
 
 openGLProfile :: IO OpenGLProfile
 openGLProfile =
-    fromC `fmap` glfwGetWindowParam (#const GLFW_OPENGL_PROFILE)
+    fromC `fmap` glfwGetWindowAttrib (#const GLFW_OPENGL_PROFILE)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Window management
@@ -321,24 +321,24 @@ openWindow displayOptions = do
           } = displayOptions
 
     -- Add hints.
-    when (isJust _displayOptions_refreshRate)              $ glfwOpenWindowHint (#const GLFW_REFRESH_RATE)     (toC (fromJust _displayOptions_refreshRate))
-    when (isJust _displayOptions_accumNumRedBits)          $ glfwOpenWindowHint (#const GLFW_ACCUM_RED_BITS)   (toC (fromJust _displayOptions_accumNumRedBits))
-    when (isJust _displayOptions_accumNumGreenBits)        $ glfwOpenWindowHint (#const GLFW_ACCUM_GREEN_BITS) (toC (fromJust _displayOptions_accumNumGreenBits))
-    when (isJust _displayOptions_accumNumBlueBits)         $ glfwOpenWindowHint (#const GLFW_ACCUM_BLUE_BITS)  (toC (fromJust _displayOptions_accumNumBlueBits))
-    when (isJust _displayOptions_accumNumAlphaBits)        $ glfwOpenWindowHint (#const GLFW_ACCUM_ALPHA_BITS) (toC (fromJust _displayOptions_accumNumAlphaBits))
-    when (isJust _displayOptions_numAuxiliaryBuffers)      $ glfwOpenWindowHint (#const GLFW_AUX_BUFFERS)      (toC (fromJust _displayOptions_numAuxiliaryBuffers))
-    when (isJust _displayOptions_numFsaaSamples)           $ glfwOpenWindowHint (#const GLFW_FSAA_SAMPLES)     (toC (fromJust _displayOptions_numFsaaSamples))
+    when (isJust _displayOptions_refreshRate)              $ glfwWindowHint (#const GLFW_REFRESH_RATE)     (toC (fromJust _displayOptions_refreshRate))
+    when (isJust _displayOptions_accumNumRedBits)          $ glfwWindowHint (#const GLFW_ACCUM_RED_BITS)   (toC (fromJust _displayOptions_accumNumRedBits))
+    when (isJust _displayOptions_accumNumGreenBits)        $ glfwWindowHint (#const GLFW_ACCUM_GREEN_BITS) (toC (fromJust _displayOptions_accumNumGreenBits))
+    when (isJust _displayOptions_accumNumBlueBits)         $ glfwWindowHint (#const GLFW_ACCUM_BLUE_BITS)  (toC (fromJust _displayOptions_accumNumBlueBits))
+    when (isJust _displayOptions_accumNumAlphaBits)        $ glfwWindowHint (#const GLFW_ACCUM_ALPHA_BITS) (toC (fromJust _displayOptions_accumNumAlphaBits))
+    when (isJust _displayOptions_numAuxiliaryBuffers)      $ glfwWindowHint (#const GLFW_AUX_BUFFERS)      (toC (fromJust _displayOptions_numAuxiliaryBuffers))
+    when (isJust _displayOptions_numFsaaSamples)           $ glfwWindowHint (#const GLFW_SAMPLES)     (toC (fromJust _displayOptions_numFsaaSamples))
 
-    glfwOpenWindowHint (#const GLFW_WINDOW_NO_RESIZE)      (toC (not _displayOptions_windowIsResizable))
-    glfwOpenWindowHint (#const GLFW_STEREO)                (toC      _displayOptions_stereoRendering)
-    glfwOpenWindowHint (#const GLFW_OPENGL_VERSION_MAJOR)  (toC (fst _displayOptions_openGLVersion))
-    glfwOpenWindowHint (#const GLFW_OPENGL_VERSION_MINOR)  (toC (snd _displayOptions_openGLVersion))
-    glfwOpenWindowHint (#const GLFW_OPENGL_FORWARD_COMPAT) (toC _displayOptions_openGLForwardCompatible)
-    glfwOpenWindowHint (#const GLFW_OPENGL_DEBUG_CONTEXT)  (toC _displayOptions_openGLDebugContext)
-    glfwOpenWindowHint (#const GLFW_OPENGL_PROFILE)        (toC _displayOptions_openGLProfile)
+    glfwWindowHint (#const GLFW_RESIZABLE)      (toC (not _displayOptions_windowIsResizable))
+    glfwWindowHint (#const GLFW_STEREO)                (toC      _displayOptions_stereoRendering)
+    glfwWindowHint (#const GLFW_CONTEXT_VERSION_MAJOR)  (toC (fst _displayOptions_openGLVersion))
+    glfwWindowHint (#const GLFW_CONTEXT_VERSION_MINOR)  (toC (snd _displayOptions_openGLVersion))
+    glfwWindowHint (#const GLFW_OPENGL_FORWARD_COMPAT) (toC _displayOptions_openGLForwardCompatible)
+    glfwWindowHint (#const GLFW_OPENGL_DEBUG_CONTEXT)  (toC _displayOptions_openGLDebugContext)
+    glfwWindowHint (#const GLFW_OPENGL_PROFILE)        (toC _displayOptions_openGLProfile)
 
     -- Open the window.
-    fromC `fmap` glfwOpenWindow
+    fromC `fmap` glfwCreateWindow
       (toC _displayOptions_width)
       (toC _displayOptions_height)
       (toC _displayOptions_numRedBits)
@@ -351,7 +351,7 @@ openWindow displayOptions = do
 
 closeWindow :: IO ()
 closeWindow =
-    glfwCloseWindow
+    glfwDestroyWindow
 
 setWindowTitle :: String -> IO ()
 setWindowTitle t =
@@ -458,31 +458,31 @@ defaultDisplayOptions =
 
 windowIsOpen :: IO Bool
 windowIsOpen =
-    fromC `fmap` glfwGetWindowParam (#const GLFW_OPENED)
+    fromC `fmap` glfwGetWindowAttrib (#const GLFW_OPENED)
 
 windowIsActive :: IO Bool
 windowIsActive =
-    fromC `fmap` glfwGetWindowParam (#const GLFW_ACTIVE)
+    fromC `fmap` glfwGetWindowAttrib (#const GLFW_FOCUSED)
 
 windowIsIconified :: IO Bool
 windowIsIconified =
-    fromC `fmap` glfwGetWindowParam (#const GLFW_ICONIFIED)
+    fromC `fmap` glfwGetWindowAttrib (#const GLFW_ICONIFIED)
 
 windowIsResizable :: IO Bool
 windowIsResizable =
-    (not . fromC) `fmap` glfwGetWindowParam (#const GLFW_WINDOW_NO_RESIZE)
+    (not . fromC) `fmap` glfwGetWindowAttrib (#const GLFW_RESIZABLE)
 
 windowIsHardwareAccelerated :: IO Bool
 windowIsHardwareAccelerated =
-    fromC `fmap` glfwGetWindowParam (#const GLFW_ACCELERATED)
+    fromC `fmap` glfwGetWindowAttrib (#const GLFW_ACCELERATED)
 
 windowSupportsStereoRendering :: IO Bool
 windowSupportsStereoRendering =
-    fromC `fmap` glfwGetWindowParam (#const GLFW_STEREO)
+    fromC `fmap` glfwGetWindowAttrib (#const GLFW_STEREO)
 
 getWindowRefreshRate :: IO Int
 getWindowRefreshRate =
-    fromC `fmap` glfwGetWindowParam (#const GLFW_REFRESH_RATE)
+    fromC `fmap` glfwGetWindowAttrib (#const GLFW_REFRESH_RATE)
 
 getWindowDimensions :: IO (Int, Int)
 getWindowDimensions =
@@ -495,7 +495,7 @@ getWindowDimensions =
 
 getWindowValue :: WindowValue -> IO Int
 getWindowValue wn =
-    fromC `fmap` glfwGetWindowParam (toC wn)
+    fromC `fmap` glfwGetWindowAttrib (toC wn)
 
 setWindowCloseCallback :: WindowCloseCallback -> IO ()
 setWindowCloseCallback cb = do
@@ -545,7 +545,7 @@ instance C WindowValue CInt where
       NumAccumBlueBits  -> #const GLFW_ACCUM_BLUE_BITS
       NumAccumAlphaBits -> #const GLFW_ACCUM_ALPHA_BITS
       NumAuxBuffers     -> #const GLFW_AUX_BUFFERS
-      NumFsaaSamples    -> #const GLFW_FSAA_SAMPLES
+      NumFsaaSamples    -> #const GLFW_SAMPLES
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Input
@@ -560,17 +560,17 @@ waitEvents =
 
 -- Make 'swapBuffers' implicitly call 'pollEvents' (Default)
 enableAutoPoll :: IO ()
-enableAutoPoll = glfwEnable (#const GLFW_AUTO_POLL_EVENTS)
+enableAutoPoll = glfwSetInputMode (#const GLFW_AUTO_POLL_EVENTS)
 
 -- Disable 'swapBuffers' implicitly calling 'pollEvents'
 disableAutoPoll :: IO ()
-disableAutoPoll = glfwDisable (#const GLFW_AUTO_POLL_EVENTS)
+disableAutoPoll = glfwSetInputMode (#const GLFW_AUTO_POLL_EVENTS)
 
 enableKeyRepeat :: IO ()
-enableKeyRepeat = glfwEnable (#const GLFW_KEY_REPEAT)
+enableKeyRepeat = glfwSetInputMode (#const GLFW_KEY_REPEAT)
 
 disableKeyRepeat :: IO ()
-disableKeyRepeat = glfwDisable (#const GLFW_KEY_REPEAT)
+disableKeyRepeat = glfwSetInputMode (#const GLFW_KEY_REPEAT)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 -- Keyboard
@@ -668,7 +668,7 @@ instance C Key CInt where
       KeyUnknown     -> #const GLFW_KEY_UNKNOWN
       KeySpace       -> #const GLFW_KEY_SPACE
       KeySpecial     -> #const GLFW_KEY_SPECIAL
-      KeyEsc         -> #const GLFW_KEY_ESC
+      KeyEsc         -> #const GLFW_KEY_ESCAPE
       KeyF1          -> #const GLFW_KEY_F1
       KeyF2          -> #const GLFW_KEY_F2
       KeyF3          -> #const GLFW_KEY_F3
@@ -698,19 +698,19 @@ instance C Key CInt where
       KeyDown        -> #const GLFW_KEY_DOWN
       KeyLeft        -> #const GLFW_KEY_LEFT
       KeyRight       -> #const GLFW_KEY_RIGHT
-      KeyLeftShift   -> #const GLFW_KEY_LSHIFT
-      KeyRightShift  -> #const GLFW_KEY_RSHIFT
-      KeyLeftCtrl    -> #const GLFW_KEY_LCTRL
-      KeyRightCtrl   -> #const GLFW_KEY_RCTRL
-      KeyLeftAlt     -> #const GLFW_KEY_LALT
-      KeyRightAlt    -> #const GLFW_KEY_RALT
+      KeyLeftShift   -> #const GLFW_KEY_LEFT_SHIFT
+      KeyRightShift  -> #const GLFW_KEY_RIGHT_SHIFT
+      KeyLeftCtrl    -> #const GLFW_KEY_LEFT_CONTROL
+      KeyRightCtrl   -> #const GLFW_KEY_RIGHT_CONTROL
+      KeyLeftAlt     -> #const GLFW_KEY_LEFT_ALT
+      KeyRightAlt    -> #const GLFW_KEY_RIGHT_ALT
       KeyTab         -> #const GLFW_KEY_TAB
       KeyEnter       -> #const GLFW_KEY_ENTER
       KeyBackspace   -> #const GLFW_KEY_BACKSPACE
       KeyInsert      -> #const GLFW_KEY_INSERT
-      KeyDel         -> #const GLFW_KEY_DEL
-      KeyPageup      -> #const GLFW_KEY_PAGEUP
-      KeyPagedown    -> #const GLFW_KEY_PAGEDOWN
+      KeyDel         -> #const GLFW_KEY_DELETE
+      KeyPageup      -> #const GLFW_KEY_PAGE_UP
+      KeyPagedown    -> #const GLFW_KEY_PAGE_DOWN
       KeyHome        -> #const GLFW_KEY_HOME
       KeyEnd         -> #const GLFW_KEY_END
       KeyPad0        -> #const GLFW_KEY_KP_0
@@ -738,7 +738,7 @@ instance C Key CInt where
                (#const GLFW_KEY_UNKNOWN    ) -> KeyUnknown
                (#const GLFW_KEY_SPACE      ) -> KeySpace
                (#const GLFW_KEY_SPECIAL    ) -> KeySpecial
-               (#const GLFW_KEY_ESC        ) -> KeyEsc
+               (#const GLFW_KEY_ESCAPE        ) -> KeyEsc
                (#const GLFW_KEY_F1         ) -> KeyF1
                (#const GLFW_KEY_F2         ) -> KeyF2
                (#const GLFW_KEY_F3         ) -> KeyF3
@@ -768,19 +768,19 @@ instance C Key CInt where
                (#const GLFW_KEY_DOWN       ) -> KeyDown
                (#const GLFW_KEY_LEFT       ) -> KeyLeft
                (#const GLFW_KEY_RIGHT      ) -> KeyRight
-               (#const GLFW_KEY_LSHIFT     ) -> KeyLeftShift
-               (#const GLFW_KEY_RSHIFT     ) -> KeyRightShift
-               (#const GLFW_KEY_LCTRL      ) -> KeyLeftCtrl
-               (#const GLFW_KEY_RCTRL      ) -> KeyRightCtrl
-               (#const GLFW_KEY_LALT       ) -> KeyLeftAlt
-               (#const GLFW_KEY_RALT       ) -> KeyRightAlt
+               (#const GLFW_KEY_LEFT_SHIFT     ) -> KeyLeftShift
+               (#const GLFW_KEY_RIGHT_SHIFT     ) -> KeyRightShift
+               (#const GLFW_KEY_LEFT_CONTROL      ) -> KeyLeftCtrl
+               (#const GLFW_KEY_RIGHT_CONTROL      ) -> KeyRightCtrl
+               (#const GLFW_KEY_LEFT_ALT       ) -> KeyLeftAlt
+               (#const GLFW_KEY_RIGHT_ALT       ) -> KeyRightAlt
                (#const GLFW_KEY_TAB        ) -> KeyTab
                (#const GLFW_KEY_ENTER      ) -> KeyEnter
                (#const GLFW_KEY_BACKSPACE  ) -> KeyBackspace
                (#const GLFW_KEY_INSERT     ) -> KeyInsert
-               (#const GLFW_KEY_DEL        ) -> KeyDel
-               (#const GLFW_KEY_PAGEUP     ) -> KeyPageup
-               (#const GLFW_KEY_PAGEDOWN   ) -> KeyPagedown
+               (#const GLFW_KEY_DELETE        ) -> KeyDel
+               (#const GLFW_KEY_PAGE_UP     ) -> KeyPageup
+               (#const GLFW_KEY_PAGE_DOWN   ) -> KeyPagedown
                (#const GLFW_KEY_HOME       ) -> KeyHome
                (#const GLFW_KEY_END        ) -> KeyEnd
                (#const GLFW_KEY_KP_0       ) -> KeyPad0
@@ -813,7 +813,7 @@ getMousePosition :: IO (Int, Int)
 getMousePosition =
     alloca $ \px ->
     alloca $ \py -> do
-        glfwGetMousePos px py
+        glfwGetCursorPos px py
         x <- peek px
         y <- peek py
         return (fromC x, fromC y)
@@ -824,7 +824,7 @@ getMouseWheel =
 
 setMousePosition :: Int -> Int -> IO ()
 setMousePosition x y =
-    glfwSetMousePos (toC x) (toC y)
+    glfwSetCursorPos (toC x) (toC y)
 
 setMouseWheel :: Int -> IO ()
 setMouseWheel =
@@ -839,22 +839,22 @@ setMouseButtonCallback cb = do
 setMousePositionCallback :: MousePositionCallback -> IO ()
 setMousePositionCallback cb = do
     ccb <- wrapMousePositionCallback (\x y -> cb (fromC x) (fromC y))
-    glfwSetMousePosCallback ccb
+    glfwSetCursorPosCallback ccb
     storeCallback mousePositionCallback ccb
 
 setMouseWheelCallback :: MouseWheelCallback -> IO ()
 setMouseWheelCallback cb = do
     ccb <- wrapMouseWheelCallback (cb . fromC)
-    glfwSetMouseWheelCallback ccb
+    glfwSetScrollCallback ccb
     storeCallback mouseWheelCallback ccb
 
 -- |Make the mouse cursor visible.
 enableMouseCursor :: IO ()
-enableMouseCursor = glfwEnable (#const GLFW_MOUSE_CURSOR)
+enableMouseCursor = glfwSetInputMode (#const GLFW_CURSOR)
 
 -- |Make the mouse cursor invisible.
 disableMouseCursor :: IO ()
-disableMouseCursor = glfwDisable (#const GLFW_MOUSE_CURSOR)
+disableMouseCursor = glfwSetInputMode (#const GLFW_CURSOR)
 
 -- -- -- -- -- -- -- -- -- --
 
@@ -890,22 +890,22 @@ instance C MouseButton CInt where
 
 joystickIsPresent :: Joystick -> IO Bool
 joystickIsPresent j =
-    fromC `fmap` glfwGetJoystickParam (toC j) (#const GLFW_PRESENT)
+    fromC `fmap` glfwGetJoystickPresent (toC j) (#const GLFW_PRESENT)
 
 getNumJoystickAxes :: Joystick -> IO Int
 getNumJoystickAxes j =
-    fromC `fmap` glfwGetJoystickParam (toC j) (#const GLFW_AXES)
+    fromC `fmap` glfwGetJoystickPresent (toC j) (#const GLFW_AXES)
 
 getNumJoystickButtons :: Joystick -> IO Int
 getNumJoystickButtons j =
-    fromC `fmap` glfwGetJoystickParam (toC j) (#const GLFW_BUTTONS)
+    fromC `fmap` glfwGetJoystickPresent (toC j) (#const GLFW_BUTTONS)
 
 getJoystickPosition :: Joystick -> Int -> IO [Float]
 getJoystickPosition j m =
     if m < 1
       then return []
       else allocaArray m $ \ptr -> do
-               n <- fromC `fmap` glfwGetJoystickPos (toC j) ptr (toC m)
+               n <- fromC `fmap` glfwGetJoystickAxes (toC j) ptr (toC m)
                a <- peekArray n ptr
                return $ map fromC a
 
@@ -998,16 +998,16 @@ getGlfwVersion =
         v2 <- fromC `fmap` peek p2
         return $ Version [v0, v1, v2] []
 
-getGlVersion :: IO Version
-getGlVersion =
-    alloca $ \p0 ->
-    alloca $ \p1 ->
-    alloca $ \p2 -> do
-        glfwGetGLVersion p0 p1 p2
-        v0 <- fromC `fmap` peek p0
-        v1 <- fromC `fmap` peek p1
-        v2 <- fromC `fmap` peek p2
-        return $ Version [v0, v1, v2] []
+-- getGlVersion :: IO Version
+-- getGlVersion =
+--     alloca $ \p0 ->
+--     alloca $ \p1 ->
+--     alloca $ \p2 -> do
+--         glfwGetGLVersion p0 p1 p2
+--         v0 <- fromC `fmap` peek p0
+--         v1 <- fromC `fmap` peek p1
+--         v2 <- fromC `fmap` peek p2
+--         return $ Version [v0, v1, v2] []
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 

@@ -1,11 +1,10 @@
 //========================================================================
 // GLFW - An OpenGL library
-// Platform:    Any
-// API version: 3.0
+// Platform:    Cocoa
+// API Version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -30,20 +29,46 @@
 
 #include "internal.h"
 
+#include <mach/mach_time.h>
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW public API                       //////
-//////////////////////////////////////////////////////////////////////////
 
-GLFWAPI double glfwGetTime(void)
+// Return raw time
+//
+static uint64_t getRawTime(void)
 {
-    _GLFW_REQUIRE_INIT_OR_RETURN(0.0);
-    return _glfwPlatformGetTime();
+    return mach_absolute_time();
 }
 
-GLFWAPI void glfwSetTime(double time)
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW internal API                      //////
+//////////////////////////////////////////////////////////////////////////
+
+// Initialise timer
+//
+void _glfwInitTimer(void)
 {
-    _GLFW_REQUIRE_INIT();
-    _glfwPlatformSetTime(time);
+    mach_timebase_info_data_t info;
+    mach_timebase_info(&info);
+
+    _glfw.ns.timer.resolution = (double) info.numer / (info.denom * 1.0e9);
+    _glfw.ns.timer.base = getRawTime();
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW platform API                      //////
+//////////////////////////////////////////////////////////////////////////
+
+double _glfwPlatformGetTime(void)
+{
+    return (double) (getRawTime() - _glfw.ns.timer.base) *
+        _glfw.ns.timer.resolution;
+}
+
+void _glfwPlatformSetTime(double time)
+{
+    _glfw.ns.timer.base = getRawTime() -
+        (uint64_t) (time / _glfw.ns.timer.resolution);
 }
 

@@ -4,8 +4,7 @@
 // API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -30,20 +29,25 @@
 
 #include "internal.h"
 
+#include <math.h>
+#include <string.h>
+
 
 //////////////////////////////////////////////////////////////////////////
 //////                        GLFW public API                       //////
 //////////////////////////////////////////////////////////////////////////
 
-GLFWAPI double glfwGetTime(void)
+GLFWAPI void glfwSetClipboardString(GLFWwindow* handle, const char* string)
 {
-    _GLFW_REQUIRE_INIT_OR_RETURN(0.0);
-    return _glfwPlatformGetTime();
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+    _GLFW_REQUIRE_INIT();
+    _glfwPlatformSetClipboardString(window, string);
 }
 
-GLFWAPI void glfwSetTime(double time)
+GLFWAPI const char* glfwGetClipboardString(GLFWwindow* handle)
 {
-    _GLFW_REQUIRE_INIT();
-    _glfwPlatformSetTime(time);
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+    return _glfwPlatformGetClipboardString(window);
 }
 

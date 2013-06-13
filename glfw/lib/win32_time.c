@@ -1,6 +1,6 @@
 //========================================================================
 // GLFW - An OpenGL library
-// Platform:    Any
+// Platform:    Win32
 // API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
@@ -32,62 +32,60 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-//////                        GLFW public API                       //////
+//////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-GLFWAPI int glfwJoystickPresent(int joy)
+// Initialise timer
+//
+void _glfwInitTimer(void)
 {
-    _GLFW_REQUIRE_INIT_OR_RETURN(0);
+    __int64 freq;
 
-    if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
+    if (QueryPerformanceFrequency((LARGE_INTEGER*) &freq))
     {
-        _glfwInputError(GLFW_INVALID_ENUM, NULL);
-        return 0;
+        _glfw.win32.timer.hasPC = GL_TRUE;
+        _glfw.win32.timer.resolution = 1.0 / (double) freq;
+        QueryPerformanceCounter((LARGE_INTEGER*) &_glfw.win32.timer.t0_64);
     }
-
-    return _glfwPlatformJoystickPresent(joy);
+    else
+    {
+        _glfw.win32.timer.hasPC = GL_FALSE;
+        _glfw.win32.timer.resolution = 0.001; // winmm resolution is 1 ms
+        _glfw.win32.timer.t0_32 = _glfw_timeGetTime();
+    }
 }
 
-GLFWAPI const float* glfwGetJoystickAxes(int joy, int* count)
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW platform API                      //////
+//////////////////////////////////////////////////////////////////////////
+
+double _glfwPlatformGetTime(void)
 {
-    *count = 0;
+    double t;
+    __int64 t_64;
 
-    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-
-    if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
+    if (_glfw.win32.timer.hasPC)
     {
-        _glfwInputError(GLFW_INVALID_ENUM, NULL);
-        return NULL;
+        QueryPerformanceCounter((LARGE_INTEGER*) &t_64);
+        t =  (double)(t_64 - _glfw.win32.timer.t0_64);
     }
+    else
+        t = (double)(_glfw_timeGetTime() - _glfw.win32.timer.t0_32);
 
-    return _glfwPlatformGetJoystickAxes(joy, count);
+    return t * _glfw.win32.timer.resolution;
 }
 
-GLFWAPI const unsigned char* glfwGetJoystickButtons(int joy, int* count)
+void _glfwPlatformSetTime(double t)
 {
-    *count = 0;
+    __int64 t_64;
 
-    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-
-    if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
+    if (_glfw.win32.timer.hasPC)
     {
-        _glfwInputError(GLFW_INVALID_ENUM, NULL);
-        return NULL;
+        QueryPerformanceCounter((LARGE_INTEGER*) &t_64);
+        _glfw.win32.timer.t0_64 = t_64 - (__int64) (t / _glfw.win32.timer.resolution);
     }
-
-    return _glfwPlatformGetJoystickButtons(joy, count);
-}
-
-GLFWAPI const char* glfwGetJoystickName(int joy)
-{
-    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-
-    if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
-    {
-        _glfwInputError(GLFW_INVALID_ENUM, NULL);
-        return NULL;
-    }
-
-    return _glfwPlatformGetJoystickName(joy);
+    else
+        _glfw.win32.timer.t0_32 = _glfw_timeGetTime() - (int)(t * 1000.0);
 }
 

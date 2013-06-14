@@ -7,6 +7,12 @@ module Graphics.UI.GLFW
   , terminate
   , getVersion
   , getVersionString
+  -- setErrorCallback
+  , getMonitors
+  , getPrimaryMonitor
+  , getMonitorPosition
+  , getMonitorPhysicalSize
+  , getMonitorName
   , Version(..)
   ) where
 --  ( -- *   Initialization and termination
@@ -140,19 +146,38 @@ data Version = Version
 
 data GlfwWindow
 newtype Window = Window (Ptr GlfwWindow)
+  deriving Show
+
+data GlfwMonitor
+newtype Monitor = Monitor (Ptr GlfwMonitor)
+  deriving Show
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
-foreign import ccall glfwInit :: IO ()
+type GlfwErrorCallback = CInt -> Ptr CChar
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+foreign import ccall glfwInit :: IO CInt
 foreign import ccall glfwTerminate :: IO ()
 foreign import ccall glfwGetVersion :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
 foreign import ccall glfwGetVersionString :: IO (Ptr CChar)
+foreign import ccall glfwSetErrorCallback :: FunPtr GlfwErrorCallback -> IO ()
+foreign import ccall glfwGetMonitors :: Ptr CInt -> IO (Ptr (Ptr GlfwMonitor))
+foreign import ccall glfwGetPrimaryMonitor :: IO (Ptr GlfwMonitor)
+foreign import ccall glfwGetMonitorPos :: Ptr GlfwMonitor -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwGetMonitorPhysicalSize :: Ptr GlfwMonitor -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwGetMonitorName :: Ptr GlfwMonitor -> IO (Ptr CChar)
 
-initialize :: IO ()
-initialize = glfwInit
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+initialize :: IO Bool
+initialize =
+    glBoolToBool `fmap` glfwInit
 
 terminate :: IO ()
-terminate = glfwTerminate
+terminate =
+    glfwTerminate
 
 getVersion :: IO Version
 getVersion =
@@ -169,6 +194,52 @@ getVersion =
 getVersionString :: IO String
 getVersionString =
     glfwGetVersionString >>= peekCString
+
+-- setErrorCallback
+
+getMonitors :: IO (Maybe [Monitor])
+getMonitors =
+    alloca $ \pn -> do
+        p <- glfwGetMonitors pn
+        n <- fromIntegral `fmap` peek pn
+        if p == nullPtr || n <= 0
+          then return Nothing
+          else (Just . map Monitor) `fmap` peekArray n p
+
+getPrimaryMonitor :: IO (Maybe Monitor)
+getPrimaryMonitor = do
+    p <- glfwGetPrimaryMonitor
+    return $
+      if p == nullPtr
+        then Nothing
+        else Just $ Monitor p
+
+getMonitorPosition :: Monitor -> IO (Int, Int)
+getMonitorPosition (Monitor gm) =
+    allocaArray 2 $ \p -> do
+        let px = p
+            py = p `advancePtr` 1
+        glfwGetMonitorPos gm px py
+        x <- fromIntegral `fmap` peek px
+        y <- fromIntegral `fmap` peek py
+        return (x, y)
+
+getMonitorPhysicalSize :: Monitor -> IO (Int, Int)
+getMonitorPhysicalSize (Monitor gm) =
+    allocaArray 2 $ \p -> do
+        let pw = p
+            ph = p `advancePtr` 1
+        glfwGetMonitorPhysicalSize gm pw ph
+        w <- fromIntegral `fmap` peek pw
+        h <- fromIntegral `fmap` peek ph
+        return (w, h)
+
+getMonitorName :: Monitor -> IO (Maybe String)
+getMonitorName (Monitor gm) = do
+    p <- glfwGetMonitorName gm
+    if p == nullPtr
+      then return Nothing
+      else Just `fmap` peekCString p
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -187,13 +258,10 @@ getClipboardString (Window gw) = do
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
-class C h c where
-  toC   :: h -> c
-  fromC :: c -> h
-
-instance C Int CInt where
-  toC   = fromIntegral
-  fromC = fromIntegral
+glBoolToBool :: CInt -> Bool
+glBoolToBool (#const GL_TRUE)  = True
+glBoolToBool (#const GL_FALSE) = False
+glBoolToBool x = error $ "glBoolToBool: " ++ show x
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 

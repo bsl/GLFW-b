@@ -10,7 +10,7 @@ import Data.List (intercalate, isPrefixOf)
 
 main :: IO ()
 main = do
-    GLFW.initialize
+    r <- GLFW.initialize
     TF.defaultMain tests
     GLFW.terminate
 
@@ -31,6 +31,11 @@ tests =
     [ TF.testGroup "main"
         [ TF.testCase "getVersion"       test_getVersion
         , TF.testCase "getVersionString" test_getVersionString
+        , TF.testCase "getMonitors"      test_getMonitors
+        , TF.testCase "getPrimaryMonitor"      test_getPrimaryMonitor
+        , TF.testCase "getMonitorPosition"      test_getMonitorPosition
+        , TF.testCase "getMonitorPhysicalSize"      test_getMonitorPhysicalSize
+        , TF.testCase "getMonitorName"      test_getMonitorName
         ]
     ]
 
@@ -52,5 +57,43 @@ test_getVersionString = do
     HU.assertBool "version" $
         let ver = intercalate "." $ map show [versionMajor, versionMinor, versionRevision]
         in ver `isPrefixOf` vs
+
+test_getMonitors :: IO ()
+test_getMonitors = do
+    r <- GLFW.getMonitors
+    case r of
+      (Just ms) -> HU.assertBool "empty" $ (not . null) ms
+      Nothing   -> HU.assertFailure "error"
+
+test_getPrimaryMonitor :: IO ()
+test_getPrimaryMonitor = do
+    r <- GLFW.getPrimaryMonitor
+    case r of
+      (Just _) -> return ()
+      Nothing  -> HU.assertFailure "error"
+
+test_getMonitorPosition :: IO ()
+test_getMonitorPosition = do
+    (Just m) <- GLFW.getPrimaryMonitor
+    (x, y) <- GLFW.getMonitorPosition m
+    HU.assertBool "invalid x" $ x >= 0
+    HU.assertBool "invalid y" $ y >= 0
+
+test_getMonitorPhysicalSize :: IO ()
+test_getMonitorPhysicalSize = do
+    (Just m) <- GLFW.getPrimaryMonitor
+    (w, h) <- GLFW.getMonitorPhysicalSize m
+    HU.assertBool "invalid width"  $ w >= 0
+    HU.assertBool "invalid height" $ h >= 0
+
+test_getMonitorName :: IO ()
+test_getMonitorName = do
+    (Just m) <- GLFW.getPrimaryMonitor
+    r <- GLFW.getMonitorName m
+    case r of
+      (Just _) -> return ()
+      Nothing  -> HU.assertFailure "error"
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 {-# ANN module "HLint: ignore Use camelCase" #-}

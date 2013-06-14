@@ -13,6 +13,12 @@ module Graphics.UI.GLFW
   , getMonitorPosition
   , getMonitorPhysicalSize
   , getMonitorName
+  , getVideoModes
+  , getVideoMode
+  , setGamma
+  -- , setGammaRamp
+  , defaultWindowHints
+  -- , windowHint
   , Version(..)
   ) where
 --  ( -- *   Initialization and termination
@@ -152,22 +158,57 @@ data GlfwMonitor
 newtype Monitor = Monitor (Ptr GlfwMonitor)
   deriving Show
 
+data VideoMode = VideoMode
+  { videoModeWidth       :: Int
+  , videoModeHeight      :: Int
+  , videoModeRedBits     :: Int
+  , videoModeGreenBits   :: Int
+  , videoModeBlueBits    :: Int
+  , videoModeRefreshRate :: Int
+  } deriving (Eq, Ord, Read, Show)
+
+instance Storable VideoMode where
+  sizeOf _ = (#const sizeof(GLFWvidmode))
+  peek ptr = do
+      w  <- (#peek GLFWvidmode, width)       ptr :: IO CInt
+      h  <- (#peek GLFWvidmode, height)      ptr :: IO CInt
+      rb <- (#peek GLFWvidmode, redBits)     ptr :: IO CInt
+      gb <- (#peek GLFWvidmode, greenBits)   ptr :: IO CInt
+      bb <- (#peek GLFWvidmode, blueBits)    ptr :: IO CInt
+      rr <- (#peek GLFWvidmode, refreshRate) ptr :: IO CInt
+      return VideoMode
+        { videoModeWidth       = fromIntegral w
+        , videoModeHeight      = fromIntegral h
+        , videoModeRedBits     = fromIntegral rb
+        , videoModeGreenBits   = fromIntegral gb
+        , videoModeBlueBits    = fromIntegral bb
+        , videoModeRefreshRate = fromIntegral rr
+        }
+
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
-type GlfwErrorCallback = CInt -> Ptr CChar
+type GlfwErrorCallback = CInt -> Ptr CChar -> IO ()
+type GlfwMonitorCallback = Ptr GlfwMonitor -> CInt -> IO ()
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
-foreign import ccall glfwInit :: IO CInt
-foreign import ccall glfwTerminate :: IO ()
-foreign import ccall glfwGetVersion :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall glfwGetVersionString :: IO (Ptr CChar)
-foreign import ccall glfwSetErrorCallback :: FunPtr GlfwErrorCallback -> IO ()
-foreign import ccall glfwGetMonitors :: Ptr CInt -> IO (Ptr (Ptr GlfwMonitor))
-foreign import ccall glfwGetPrimaryMonitor :: IO (Ptr GlfwMonitor)
-foreign import ccall glfwGetMonitorPos :: Ptr GlfwMonitor -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwInit                   :: IO CInt
+foreign import ccall glfwTerminate              :: IO ()
+foreign import ccall glfwGetVersion             :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwGetVersionString       :: IO (Ptr CChar)
+foreign import ccall glfwSetErrorCallback       :: FunPtr GlfwErrorCallback -> IO (FunPtr GlfwErrorCallback)
+foreign import ccall glfwGetMonitors            :: Ptr CInt -> IO (Ptr (Ptr GlfwMonitor))
+foreign import ccall glfwGetPrimaryMonitor      :: IO (Ptr GlfwMonitor)
+foreign import ccall glfwGetMonitorPos          :: Ptr GlfwMonitor -> Ptr CInt -> Ptr CInt -> IO ()
 foreign import ccall glfwGetMonitorPhysicalSize :: Ptr GlfwMonitor -> Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall glfwGetMonitorName :: Ptr GlfwMonitor -> IO (Ptr CChar)
+foreign import ccall glfwGetMonitorName         :: Ptr GlfwMonitor -> IO (Ptr CChar)
+foreign import ccall glfwSetMonitorCallback     :: FunPtr GlfwMonitorCallback -> IO (FunPtr GlfwMonitorCallback)
+foreign import ccall glfwGetVideoModes          :: Ptr GlfwMonitor -> Ptr CInt -> IO (Ptr VideoMode)
+foreign import ccall glfwGetVideoMode           :: Ptr GlfwMonitor -> IO (Ptr VideoMode)
+foreign import ccall glfwSetGamma               :: Ptr GlfwMonitor -> CFloat -> IO ()
+-- foreign import ccall glfwSetGammaRamp
+foreign import ccall glfwDefaultWindowHints     :: IO ()
+foreign import ccall glfwWindowHint             :: CInt -> CInt -> IO ()
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -240,6 +281,35 @@ getMonitorName (Monitor gm) = do
     if p == nullPtr
       then return Nothing
       else Just `fmap` peekCString p
+
+-- setMonitorCallback
+
+getVideoModes :: Monitor -> IO (Maybe [VideoMode])
+getVideoModes (Monitor gm) =
+    alloca $ \pn -> do
+        p <- glfwGetVideoModes gm pn
+        n <- fromIntegral `fmap` peek pn
+        if p == nullPtr || n == 0
+          then return Nothing
+          else Just `fmap` peekArray n p
+
+getVideoMode :: Monitor -> IO (Maybe VideoMode)
+getVideoMode (Monitor gm) = do
+    p <- glfwGetVideoMode gm
+    if p == nullPtr
+      then return Nothing
+      else Just `fmap` peek p
+
+setGamma :: Monitor -> Float -> IO ()
+setGamma (Monitor gm) e =
+    glfwSetGamma gm (realToFrac e)
+
+-- setGammaRamp
+
+defaultWindowHints :: IO ()
+defaultWindowHints = glfwDefaultWindowHints
+
+-- windowHint
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -368,37 +438,6 @@ glBoolToBool x = error $ "glBoolToBool: " ++ show x
 --        peekArray (fromC n) ptr
 --  where
 --    m = 256
---
----- -- -- -- -- -- -- -- -- --
---
---data VideoMode = VideoMode
---  { videoMode_width       :: Int
---  , videoMode_height      :: Int
---  , videoMode_redBits     :: Int
---  , videoMode_greenBits   :: Int
---  , videoMode_blueBits    :: Int
---  , videoModerefreshRate :: Int
---  } deriving (Eq, Ord, Read, Show)
---
---instance Storable VideoMode where
---  sizeOf    _ = (#const sizeof(GLFWvidmode))
---  alignment _ = alignment (undefined :: CInt)
---
---  peek ptr = do
---      w  <- (#peek GLFWvidmode, width)       ptr :: IO CInt
---      h  <- (#peek GLFWvidmode, height)      ptr :: IO CInt
---      rb <- (#peek GLFWvidmode, redBits)     ptr :: IO CInt
---      gb <- (#peek GLFWvidmode, greenBits)   ptr :: IO CInt
---      bb <- (#peek GLFWvidmode, blueBits)    ptr :: IO CInt
---      rr <- (#peek GLFWvidmode, refreshRate) ptr :: IO CInt
---      return VideoMode
---        { videoMode_width       = fromC w
---        , videoMode_height      = fromC h
---        , videoMode_redBits     = fromC rb
---        , videoMode_greenBits   = fromC gb
---        , videoMode_blueBits    = fromC bb
---        , videoMode_refreshRate = fromC rr
---        }
 --
 ---- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 ---- OpenGL context

@@ -29,13 +29,17 @@ glfwVersion = GLFW.Version versionMajor versionMinor versionRevision
 tests :: [TF.Test]
 tests =
     [ TF.testGroup "main"
-        [ TF.testCase "getVersion"       test_getVersion
-        , TF.testCase "getVersionString" test_getVersionString
-        , TF.testCase "getMonitors"      test_getMonitors
+        [ TF.testCase "getVersion"             test_getVersion
+        , TF.testCase "getVersionString"       test_getVersionString
+        , TF.testCase "getMonitors"            test_getMonitors
         , TF.testCase "getPrimaryMonitor"      test_getPrimaryMonitor
-        , TF.testCase "getMonitorPosition"      test_getMonitorPosition
-        , TF.testCase "getMonitorPhysicalSize"      test_getMonitorPhysicalSize
-        , TF.testCase "getMonitorName"      test_getMonitorName
+        , TF.testCase "getMonitorPosition"     test_getMonitorPosition
+        , TF.testCase "getMonitorPhysicalSize" test_getMonitorPhysicalSize
+        , TF.testCase "getMonitorName"         test_getMonitorName
+        , TF.testCase "getVideoModes"          test_getVideoModes
+        , TF.testCase "getVideoMode"           test_getVideoMode
+        -- , TF.testCase "setGamma"               test_setGamma
+        -- , TF.testCase "defaultWindowHints"     test_defaultWindowHints
         ]
     ]
 
@@ -92,6 +96,22 @@ test_getMonitorName = do
     r <- GLFW.getMonitorName m
     case r of
       (Just _) -> return ()
+      Nothing  -> HU.assertFailure "error"
+
+test_getVideoModes :: IO ()
+test_getVideoModes = do
+    (Just m) <- GLFW.getPrimaryMonitor
+    r <- GLFW.getVideoModes m
+    case r of
+      (Just _) -> return ()  -- XXX do more strict checking here
+      Nothing  -> HU.assertFailure "error"
+
+test_getVideoMode :: IO ()
+test_getVideoMode = do
+    (Just m) <- GLFW.getPrimaryMonitor
+    r <- GLFW.getVideoMode m
+    case r of
+      (Just _) -> return ()  -- XXX do more strict checking here
       Nothing  -> HU.assertFailure "error"
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --

@@ -29,7 +29,7 @@ license-file: LICENSE
 
 -- -- -- -- -- -- -- -- -- --
 
-cabal-version: >= 1.6
+cabal-version: >= 1.8
 build-type:    Custom
 
 -- -- -- -- -- -- -- -- -- --
@@ -122,6 +122,7 @@ library
       GL
       GLU
       X11
+      Xi
       Xrandr
       Xxf86vm
       pthread
@@ -142,6 +143,22 @@ library
           glfw/src/win32_window.c
         extra-libraries:
           opengl32
+
+  ghc-options: -Wall -O2
+  if impl(ghc >= 6.8)
+    ghc-options: -fwarn-tabs
+
+-- -- -- -- -- -- -- -- -- --
+
+test-suite main
+  type: exitcode-stdio-1.0
+  main-is: Test.hs
+  build-depends:
+    base,
+    GLFW-b,
+    HUnit                < 2,
+    test-framework       < 1,
+    test-framework-hunit < 1
 
   ghc-options: -Wall -O2
   if impl(ghc >= 6.8)

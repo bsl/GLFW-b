@@ -19,7 +19,59 @@ module Graphics.UI.GLFW
   -- , setGammaRamp
   , defaultWindowHints
   -- , windowHint
+  , createWindow
+  , destroyWindow
+  , windowShouldClose
+  , setWindowShouldClose
+  , setWindowTitle
+  , getWindowPos
+  , setWindowPos
+  , getWindowSize
+  , setWindowSize
+  , getFramebufferSize
+  , iconifyWindow
+  , restoreWindow
+  , showWindow
+  , hideWindow
+  , getWindowMonitor
+  , getWindowAttrib
+  -- setWindowPosCallback
+  -- setWindowSizeCallback
+  -- setWindowCloseCallback
+  -- setWindowRefreshCallback
+  -- setWindowFocusCallback
+  -- setWindowIconifyCallback
+  -- setFramebufferSizeCallback
+  , pollEvents
+  , waitEvents
+  -- getInputMode
+  -- setInputMode
+  -- getKey
+  -- getMouseButton
+  , getCursorPos
+  , setCursorPos
+  -- setKeyCallback
+  -- setCharCallback
+  -- setMouseButtonCallback
+  -- setCursorPosCallback
+  -- setCursorEnterCallback
+  -- setScrollCallback
+  , joystickPresent
+  , getJoystickAxes
+  -- getJoystickButtons
+  , getJoystickName
+  , setClipboardString
+  , getClipboardString
+  , getTime
+  , setTime
+  -- makeContextCurrent
+  , getCurrentContext
+  , swapBuffers
+  , swapInterval
+  , extensionSupported
+  -- getProcAddress
   , Version(..)
+  , Joystick(..)
   ) where
 --  ( -- *   Initialization and termination
 --    initialize
@@ -129,7 +181,7 @@ import Control.Monad         (when)
 import Data.Char             (chr, ord)
 import Data.IORef            (IORef, atomicModifyIORef, newIORef)
 import Data.Maybe            (fromJust, isJust)
-import Foreign.C.String      (CString, peekCString, withCString)
+import Foreign.C.String      (peekCString, withCString)
 import Foreign.C.Types       (CChar, CDouble(..), CFloat(..), CInt(..), CUChar(..))
 import Foreign.Marshal.Alloc (alloca)
 import Foreign.Marshal.Array (advancePtr, allocaArray, peekArray)
@@ -147,15 +199,14 @@ data Version = Version
   { versionMajor    :: Int
   , versionMinor    :: Int
   , versionRevision :: Int
-  }
-  deriving (Eq, Show)
+  } deriving (Eq, Ord, Show)
 
 data GlfwWindow
-newtype Window = Window (Ptr GlfwWindow)
+newtype Window = Window { unWindow :: Ptr GlfwWindow }
   deriving Show
 
 data GlfwMonitor
-newtype Monitor = Monitor (Ptr GlfwMonitor)
+newtype Monitor = Monitor { unMonitor :: Ptr GlfwMonitor }
   deriving Show
 
 data VideoMode = VideoMode
@@ -169,6 +220,7 @@ data VideoMode = VideoMode
 
 instance Storable VideoMode where
   sizeOf _ = (#const sizeof(GLFWvidmode))
+  alignment _ = alignment (undefined :: CInt)
   peek ptr = do
       w  <- (#peek GLFWvidmode, width)       ptr :: IO CInt
       h  <- (#peek GLFWvidmode, height)      ptr :: IO CInt
@@ -185,10 +237,78 @@ instance Storable VideoMode where
         , videoModeRefreshRate = fromIntegral rr
         }
 
+data WindowAttribute =
+    Focused
+  | Iconified
+  | Visible
+  | Resizable
+  deriving (Eq, Show)
+
+windowAttributeToCInt :: WindowAttribute -> CInt
+windowAttributeToCInt wa = case wa of
+    Focused   -> (#const GLFW_FOCUSED)
+    Iconified -> (#const GLFW_ICONIFIED)
+    Visible   -> (#const GLFW_VISIBLE)
+    Resizable -> (#const GLFW_RESIZABLE)
+
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
-type GlfwErrorCallback = CInt -> Ptr CChar -> IO ()
-type GlfwMonitorCallback = Ptr GlfwMonitor -> CInt -> IO ()
+type GlfwErrorCallback           = CInt -> Ptr CChar -> IO ()
+type GlfwMonitorCallback         = Ptr GlfwMonitor -> CInt -> IO ()
+type GlfwWindowPosCallback       = Ptr GlfwWindow -> CInt -> CInt -> IO ()
+type GlfwWindowSizeCallback      = Ptr GlfwWindow -> CInt -> CInt -> IO ()
+type GlfwWindowCloseCallback     = Ptr GlfwWindow -> IO ()
+type GlfwWindowRefreshCallback   = Ptr GlfwWindow -> IO ()
+type GlfwWindowFocusCallback     = Ptr GlfwWindow -> CInt -> IO ()
+type GlfwWindowIconifyCallback   = Ptr GlfwWindow -> CInt -> IO ()
+type GlfwFramebufferSizeCallback = Ptr GlfwWindow -> CInt -> CInt -> IO ()
+
+type GlfwKeyCallback         = Ptr GlfwWindow -> CInt -> CInt -> CInt -> CInt -> IO ()
+type GlfwCharCallback        = Ptr GlfwWindow -> CInt -> IO ()
+type GlfwMouseButtonCallback = Ptr GlfwWindow -> CInt -> CInt -> CInt -> IO ()
+type GlfwCursorPosCallback   = Ptr GlfwWindow -> CDouble -> CDouble -> IO ()
+type GlfwCursorEnterCallback = Ptr GlfwWindow -> CInt -> IO ()
+type GlfwScrollCallback      = Ptr GlfwWindow -> CDouble -> CDouble -> IO ()
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+data Joystick =
+    Joystick0
+  | Joystick1
+  | Joystick2
+  | Joystick3
+  | Joystick4
+  | Joystick5
+  | Joystick6
+  | Joystick7
+  | Joystick8
+  | Joystick9
+  | Joystick10
+  | Joystick11
+  | Joystick12
+  | Joystick13
+  | Joystick14
+  | Joystick15
+  deriving (Eq, Ord, Show)
+
+joystickToC :: Joystick -> CInt
+joystickToC j = case j of
+    Joystick0  -> 0
+    Joystick1  -> 1
+    Joystick2  -> 2
+    Joystick3  -> 3
+    Joystick4  -> 4
+    Joystick5  -> 5
+    Joystick6  -> 6
+    Joystick7  -> 7
+    Joystick8  -> 8
+    Joystick9  -> 9
+    Joystick10 -> 10
+    Joystick11 -> 11
+    Joystick12 -> 12
+    Joystick13 -> 13
+    Joystick14 -> 14
+    Joystick15 -> 15
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -209,6 +329,61 @@ foreign import ccall glfwSetGamma               :: Ptr GlfwMonitor -> CFloat -> 
 -- foreign import ccall glfwSetGammaRamp
 foreign import ccall glfwDefaultWindowHints     :: IO ()
 foreign import ccall glfwWindowHint             :: CInt -> CInt -> IO ()
+foreign import ccall glfwCreateWindow           :: CInt -> CInt -> Ptr CChar -> Ptr GlfwMonitor -> Ptr GlfwWindow -> IO (Ptr GlfwWindow)
+foreign import ccall glfwDestroyWindow          :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwWindowShouldClose      :: Ptr GlfwWindow -> IO CInt
+foreign import ccall glfwSetWindowShouldClose   :: Ptr GlfwWindow -> CInt -> IO ()
+foreign import ccall glfwSetWindowTitle   :: Ptr GlfwWindow -> Ptr CChar -> IO ()
+foreign import ccall glfwGetWindowPos   :: Ptr GlfwWindow -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwSetWindowPos   :: Ptr GlfwWindow -> CInt -> CInt -> IO ()
+foreign import ccall glfwGetWindowSize   :: Ptr GlfwWindow -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwSetWindowSize   :: Ptr GlfwWindow -> CInt -> CInt -> IO ()
+foreign import ccall glfwGetFramebufferSize   :: Ptr GlfwWindow -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwIconifyWindow   :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwRestoreWindow   :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwShowWindow   :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwHideWindow   :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwGetWindowMonitor   :: Ptr GlfwWindow -> IO (Ptr GlfwMonitor)
+foreign import ccall glfwGetWindowAttrib   :: Ptr GlfwWindow -> CInt -> IO CInt
+--foreign import ccall glfwSetWindowUserPointer
+--foreign import ccall glfwGetWindowUserPointer
+foreign import ccall glfwSetWindowPosCallback       :: Ptr GlfwWindow -> FunPtr GlfwWindowPosCallback       -> IO (FunPtr GlfwWindowPosCallback)
+foreign import ccall glfwSetWindowSizeCallback      :: Ptr GlfwWindow -> FunPtr GlfwWindowSizeCallback      -> IO (FunPtr GlfwWindowSizeCallback)
+foreign import ccall glfwSetWindowCloseCallback     :: Ptr GlfwWindow -> FunPtr GlfwWindowCloseCallback     -> IO (FunPtr GlfwWindowCloseCallback)
+foreign import ccall glfwSetWindowRefreshCallback   :: Ptr GlfwWindow -> FunPtr GlfwWindowRefreshCallback   -> IO (FunPtr GlfwWindowRefreshCallback)
+foreign import ccall glfwSetWindowFocusCallback     :: Ptr GlfwWindow -> FunPtr GlfwWindowFocusCallback     -> IO (FunPtr GlfwWindowFocusCallback)
+foreign import ccall glfwSetWindowIconifyCallback   :: Ptr GlfwWindow -> FunPtr GlfwWindowIconifyCallback   -> IO (FunPtr GlfwWindowIconifyCallback)
+foreign import ccall glfwSetFramebufferSizeCallback :: Ptr GlfwWindow -> FunPtr GlfwFramebufferSizeCallback -> IO (FunPtr GlfwFramebufferSizeCallback)
+foreign import ccall glfwPollEvents :: IO ()
+foreign import ccall glfwWaitEvents :: IO ()
+foreign import ccall glfwGetInputMode :: Ptr GlfwWindow -> CInt -> IO CInt
+foreign import ccall glfwSetInputMode :: Ptr GlfwWindow -> CInt -> CInt -> IO ()
+foreign import ccall glfwGetKey :: Ptr GlfwWindow -> CInt -> IO CInt
+foreign import ccall glfwGetMouseButton :: Ptr GlfwWindow -> CInt -> IO CInt
+foreign import ccall glfwGetCursorPos :: Ptr GlfwWindow -> Ptr CDouble -> Ptr CDouble -> IO ()
+foreign import ccall glfwSetCursorPos :: Ptr GlfwWindow -> CDouble -> CDouble -> IO ()
+
+foreign import ccall glfwSetKeyCallback         :: Ptr GlfwWindow -> FunPtr GlfwKeyCallback -> IO (FunPtr GlfwKeyCallback)
+foreign import ccall glfwSetCharCallback        :: Ptr GlfwWindow -> FunPtr GlfwCharCallback -> IO (FunPtr GlfwCharCallback)
+foreign import ccall glfwSetMouseButtonCallback :: Ptr GlfwWindow -> FunPtr GlfwMouseButtonCallback -> IO (FunPtr GlfwMouseButtonCallback)
+foreign import ccall glfwSetCursorPosCallback   :: Ptr GlfwWindow -> FunPtr GlfwCursorPosCallback -> IO (FunPtr GlfwCursorPosCallback)
+foreign import ccall glfwSetCursorEnterCallback :: Ptr GlfwWindow -> FunPtr GlfwCursorEnterCallback -> IO (FunPtr GlfwCursorEnterCallback)
+foreign import ccall glfwSetScrollCallback      :: Ptr GlfwWindow -> FunPtr GlfwScrollCallback -> IO (FunPtr GlfwScrollCallback)
+
+foreign import ccall glfwJoystickPresent :: CInt -> IO CInt
+foreign import ccall glfwGetJoystickAxes :: CInt -> Ptr Int -> IO (Ptr CFloat)
+foreign import ccall glfwGetJoystickButtons :: CInt -> Ptr Int -> IO (Ptr CUChar)
+foreign import ccall glfwGetJoystickName :: CInt -> IO (Ptr CChar)
+foreign import ccall glfwSetClipboardString :: Ptr GlfwWindow -> Ptr CChar -> IO ()
+foreign import ccall glfwGetClipboardString :: Ptr GlfwWindow -> IO (Ptr CChar)
+foreign import ccall glfwGetTime :: IO CDouble
+foreign import ccall glfwSetTime :: CDouble -> IO ()
+foreign import ccall glfwMakeContextCurrent :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwGetCurrentContext :: IO (Ptr GlfwWindow)
+foreign import ccall glfwSwapBuffers :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwSwapInterval :: CInt -> IO ()
+foreign import ccall glfwExtensionSupported :: Ptr CChar -> IO CInt
+-- foreign import ccall glfwGetProcAddress
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -311,20 +486,204 @@ defaultWindowHints = glfwDefaultWindowHints
 
 -- windowHint
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+createWindow :: Int -> Int -> String -> Monitor -> Maybe Window -> IO (Maybe Window)
+createWindow width height title monitor mwindow =
+    withCString title $ \ptitle -> do
+        p <- glfwCreateWindow (fromIntegral width)
+                              (fromIntegral height)
+                              ptitle
+                              (unMonitor monitor)
+                              (maybe nullPtr unWindow mwindow)
+        return $ if p == nullPtr
+          then Nothing
+          else Just $ Window p
 
-foreign import ccall glfwSetClipboardString :: Ptr GlfwWindow -> Ptr CChar -> IO ()
-setClipboardString :: Window -> String -> IO ()
-setClipboardString (Window gw) s =
-    withCString s (glfwSetClipboardString gw)
+destroyWindow :: Window -> IO ()
+destroyWindow =
+    glfwDestroyWindow . unWindow
 
-foreign import ccall glfwGetClipboardString :: Ptr GlfwWindow -> IO (Ptr CChar)
-getClipboardString :: Window -> IO (Maybe String)
-getClipboardString (Window gw) = do
-    cs <- glfwGetClipboardString gw
-    if cs == nullPtr
+windowShouldClose :: Window -> IO Bool
+windowShouldClose (Window pw) =
+    glBoolToBool `fmap` glfwWindowShouldClose pw
+
+setWindowShouldClose :: Window -> Bool -> IO ()
+setWindowShouldClose (Window pw) b =
+    glfwSetWindowShouldClose pw (boolToGlBool b)
+
+setWindowTitle :: Window -> String -> IO ()
+setWindowTitle (Window pw) title =
+    withCString title $ \ptitle ->
+        glfwSetWindowTitle pw ptitle
+
+getWindowPos :: Window -> IO (Int, Int)
+getWindowPos (Window pw) =
+    allocaArray 2 $ \pa -> do
+        let px = pa
+            py = pa `advancePtr` 1
+        glfwGetWindowPos pw px py
+        x <- fromIntegral `fmap` peek px
+        y <- fromIntegral `fmap` peek py
+        return (x, y)
+
+setWindowPos :: Window -> Int -> Int -> IO ()
+setWindowPos (Window pw) x y =
+    glfwSetWindowPos pw (fromIntegral x) (fromIntegral y)
+
+getWindowSize :: Window -> IO (Int, Int)
+getWindowSize (Window pw) =
+    allocaArray 2 $ \pa -> do
+        let pwidth  = pa
+            pheight = pa `advancePtr` 1
+        glfwGetWindowSize pw pwidth pheight
+        width  <- fromIntegral `fmap` peek pwidth
+        height <- fromIntegral `fmap` peek pheight
+        return (width, height)
+
+setWindowSize :: Window -> Int -> Int -> IO ()
+setWindowSize (Window pw) width height =
+    glfwSetWindowSize pw (fromIntegral width) (fromIntegral height)
+
+getFramebufferSize :: Window -> IO (Int, Int)
+getFramebufferSize (Window pw) =
+    allocaArray 2 $ \pa -> do
+        let pwidth  = pa
+            pheight = pa `advancePtr` 1
+        glfwGetFramebufferSize pw pwidth pheight
+        width  <- fromIntegral `fmap` peek pwidth
+        height <- fromIntegral `fmap` peek pheight
+        return (width, height)
+
+iconifyWindow :: Window -> IO ()
+iconifyWindow (Window pw) =
+    glfwIconifyWindow pw
+
+restoreWindow :: Window -> IO ()
+restoreWindow (Window pw) =
+    glfwRestoreWindow pw
+
+showWindow :: Window -> IO ()
+showWindow (Window pw) =
+    glfwShowWindow pw
+
+hideWindow :: Window -> IO ()
+hideWindow (Window pw) =
+    glfwHideWindow pw
+
+getWindowMonitor :: Window -> IO (Maybe Monitor)
+getWindowMonitor (Window pw) = do
+    p <- glfwGetWindowMonitor pw
+    return $ if p == nullPtr
+      then Nothing
+      else Just $ Monitor p
+
+getWindowAttrib :: Window -> WindowAttribute -> IO Bool
+getWindowAttrib (Window pw) wa =
+    glBoolToBool `fmap` glfwGetWindowAttrib pw (windowAttributeToCInt wa)
+
+-- setWindowPosCallback
+-- setWindowSizeCallback
+-- setWindowCloseCallback
+-- setWindowRefreshCallback
+-- setWindowFocusCallback
+-- setWindowIconifyCallback
+-- setFramebufferSizeCallback
+
+pollEvents :: IO ()
+pollEvents = glfwPollEvents
+
+waitEvents :: IO ()
+waitEvents = glfwWaitEvents
+
+-- getInputMode
+-- setInputMode
+-- getKey
+-- getMouseButton
+
+getCursorPos :: Window -> IO (Double, Double)
+getCursorPos (Window pw) =
+    allocaArray 2 $ \pa -> do
+        let px = pa
+            py = pa `advancePtr` 1
+        glfwGetCursorPos pw px py
+        x <- realToFrac `fmap` peek px
+        y <- realToFrac `fmap` peek py
+        return (x, y)
+
+setCursorPos :: Window -> Double -> Double -> IO ()
+setCursorPos (Window pw) x y =
+    glfwSetCursorPos pw (realToFrac x) (realToFrac y)
+
+-- setKeyCallback
+-- setCharCallback
+-- setMouseButtonCallback
+-- setCursorPosCallback
+-- setCursorEnterCallback
+-- setScrollCallback
+
+joystickPresent :: Joystick -> IO Bool
+joystickPresent js =
+    glBoolToBool `fmap` glfwJoystickPresent (joystickToC js)
+
+getJoystickAxes :: Joystick -> IO (Maybe [Float])
+getJoystickAxes js =
+    alloca $ \pn -> do
+        p <- glfwGetJoystickAxes (joystickToC js) pn
+        n <- fromIntegral `fmap` peek pn
+        if p == nullPtr || n == 0
+          then return Nothing
+          else (Just . map realToFrac) `fmap` peekArray n p
+
+-- getJoystickButtons
+
+getJoystickName :: Joystick -> IO (Maybe String)
+getJoystickName js = do
+    p <- glfwGetJoystickName (joystickToC js)
+    if p == nullPtr
       then return Nothing
-      else Just `fmap` peekCString cs
+      else Just `fmap` peekCString p
+
+setClipboardString :: Window -> String -> IO ()
+setClipboardString (Window pw) s =
+    withCString s (glfwSetClipboardString pw)
+
+getClipboardString :: Window -> IO (Maybe String)
+getClipboardString (Window pw) = do
+    p <- glfwGetClipboardString pw
+    if p == nullPtr
+      then return Nothing
+      else Just `fmap` peekCString p
+
+getTime :: IO (Maybe Double)
+getTime = do
+    t <- realToFrac `fmap` glfwGetTime
+    return $ if t == 0
+      then Nothing
+      else Just t
+
+setTime :: Double -> IO ()
+setTime =
+    glfwSetTime . realToFrac
+
+-- makeContextCurrent
+
+getCurrentContext :: IO Window
+getCurrentContext =
+    Window `fmap` glfwGetCurrentContext
+
+swapBuffers :: Window -> IO ()
+swapBuffers (Window pw) =
+    glfwSwapBuffers pw
+
+swapInterval :: Int -> IO ()
+swapInterval =
+    glfwSwapInterval . fromIntegral
+
+extensionSupported :: String -> IO Bool
+extensionSupported ext =
+    withCString ext $ \pext ->
+        glBoolToBool `fmap` glfwExtensionSupported pext
+
+-- getProcAddress
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -332,6 +691,10 @@ glBoolToBool :: CInt -> Bool
 glBoolToBool (#const GL_TRUE)  = True
 glBoolToBool (#const GL_FALSE) = False
 glBoolToBool x = error $ "glBoolToBool: " ++ show x
+
+boolToGlBool :: Bool -> CInt
+boolToGlBool True  = (#const GL_TRUE)
+boolToGlBool False = (#const GL_FALSE)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 

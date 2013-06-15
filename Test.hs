@@ -1,10 +1,12 @@
+import Control.Monad (unless)
+import Data.List     (intercalate, isPrefixOf)
+import Data.Maybe    (isJust)
+
 import qualified Test.Framework                 as TF
 import qualified Test.Framework.Providers.HUnit as TF
 import qualified Test.HUnit                     as HU
 
 import qualified Graphics.UI.GLFW as GLFW
-
-import Data.List (intercalate, isPrefixOf)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -40,6 +42,10 @@ tests =
         , TF.testCase "getVideoMode"           test_getVideoMode
         -- , TF.testCase "setGamma"               test_setGamma
         -- , TF.testCase "defaultWindowHints"     test_defaultWindowHints
+        -- , TF.testCase "createWindow"           test_createWindow
+        , TF.testCase "joystickPresent"        test_joystickPresent
+        , TF.testCase "getTime"        test_getTime
+        , TF.testCase "setTime"        test_setTime
         ]
     ]
 
@@ -72,9 +78,7 @@ test_getMonitors = do
 test_getPrimaryMonitor :: IO ()
 test_getPrimaryMonitor = do
     r <- GLFW.getPrimaryMonitor
-    case r of
-      (Just _) -> return ()
-      Nothing  -> HU.assertFailure "error"
+    HU.assertBool "Nothing" $ isJust r
 
 test_getMonitorPosition :: IO ()
 test_getMonitorPosition = do
@@ -94,9 +98,7 @@ test_getMonitorName :: IO ()
 test_getMonitorName = do
     (Just m) <- GLFW.getPrimaryMonitor
     r <- GLFW.getMonitorName m
-    case r of
-      (Just _) -> return ()
-      Nothing  -> HU.assertFailure "error"
+    HU.assertBool "Nothing" $ isJust r
 
 test_getVideoModes :: IO ()
 test_getVideoModes = do
@@ -113,6 +115,38 @@ test_getVideoMode = do
     case r of
       (Just _) -> return ()  -- XXX do more strict checking here
       Nothing  -> HU.assertFailure "error"
+
+-- XXX this left my desktop in hilariously low-res mode :(
+-- test_createWindow :: IO ()
+-- test_createWindow = do
+--     (Just m) <- GLFW.getPrimaryMonitor
+--     r <- GLFW.createWindow 640 480 "title" m Nothing
+--     case r of
+--       (Just w) -> print w
+--       Nothing  -> HU.assertFailure "error"
+
+test_joystickPresent :: IO ()
+test_joystickPresent = do
+    _ <- GLFW.joystickPresent GLFW.Joystick0
+    r <- GLFW.joystickPresent GLFW.Joystick15
+    HU.assertBool "error" $ not r
+
+test_getTime :: IO ()
+test_getTime = do
+    r <- GLFW.getTime
+    case r of
+      (Just _) -> return ()  -- XXX do more strict checking here
+      Nothing  -> HU.assertFailure "error"
+
+test_setTime :: IO ()
+test_setTime = do
+    let t = 37
+    GLFW.setTime t
+    r <- GLFW.getTime
+    case r of
+      (Just t') -> unless (t' >= t) $
+        HU.assertFailure $ "t = " ++ show t ++ ", t' = " ++ show t'
+      Nothing -> HU.assertFailure "error"
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 

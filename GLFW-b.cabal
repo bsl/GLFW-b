@@ -19,7 +19,7 @@ description:  Bindings to GLFW, a free, open source, multi-platform library for
               GLFW package (<http://hackage.haskell.org/package/GLFW>).
               .
               For more information about the library on which these bindings
-              are based, please see <http://glfw.sourceforge.net>.
+              are based, please see <http://www.glfw.org/>.
 
 author:       Brian Lewis <brian@lorf.org>
 maintainer:   Brian Lewis <brian@lorf.org>

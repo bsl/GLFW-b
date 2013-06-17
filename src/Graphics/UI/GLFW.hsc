@@ -22,7 +22,8 @@ module Graphics.UI.GLFW
   , getVideoModes
   , getVideoMode
   , setGamma
-  -- , setGammaRamp
+  , setGammaRamp
+  , getGammaRamp
   , setDefaultWindowHints
   , defaultWindowHints
   , setWindowHints
@@ -51,8 +52,13 @@ module Graphics.UI.GLFW
   , setFramebufferSizeCallback
   , pollEvents
   , waitEvents
-  -- getInputMode
-  -- setInputMode
+  -- {s,g}etInputMode is covered by next 6 {s,g}et*InputMode
+  , getCursorInputMode
+  , setCursorInputMode
+  , getKeysInputMode
+  , setKeysInputMode
+  , getMouseButtonsInputMode
+  , setMouseButtonsInputMode
   , getKey
   , getMouseButton
   , getCursorPos
@@ -65,7 +71,7 @@ module Graphics.UI.GLFW
   , setScrollCallback
   , joystickPresent
   , getJoystickAxes
-  -- getJoystickButtons
+  , getJoystickButtons
   , getJoystickName
   , setClipboardString
   , getClipboardString
@@ -79,6 +85,7 @@ module Graphics.UI.GLFW
   -- getProcAddress
   , Version(..)
   , Joystick(..)
+  , GammaRamp, gammaRampRed, gammaRampGreen, gammaRampBlue, gammaRampSize
   ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -88,9 +95,9 @@ import Data.Bits             ((.&.))
 import Data.Char             (chr, ord)
 import Data.IORef            (IORef, atomicModifyIORef', newIORef)
 import Foreign.C.String      (peekCString, withCString)
-import Foreign.C.Types       (CChar, CDouble(..), CFloat(..), CInt(..), CUChar(..))
-import Foreign.Marshal.Alloc (alloca)
-import Foreign.Marshal.Array (advancePtr, allocaArray, peekArray)
+import Foreign.C.Types       (CChar, CDouble(..), CFloat(..), CInt(..), CUShort, CUChar(..), CUInt(..))
+import Foreign.Marshal.Alloc (alloca, allocaBytes)
+import Foreign.Marshal.Array (advancePtr, allocaArray, withArray, peekArray)
 import Foreign.Ptr           (FunPtr, Ptr, freeHaskellFunPtr, nullFunPtr, nullPtr)
 import Foreign.Storable      (Storable(..))
 import System.IO.Unsafe      (unsafePerformIO)
@@ -113,7 +120,8 @@ foreign import ccall glfwSetMonitorCallback     :: FunPtr GlfwMonitorCallback ->
 foreign import ccall glfwGetVideoModes          :: Ptr GlfwMonitor -> Ptr CInt -> IO (Ptr VideoMode)
 foreign import ccall glfwGetVideoMode           :: Ptr GlfwMonitor -> IO (Ptr VideoMode)
 foreign import ccall glfwSetGamma               :: Ptr GlfwMonitor -> CFloat -> IO ()
--- foreign import ccall glfwSetGammaRamp
+foreign import ccall glfwSetGammaRamp         :: Ptr GlfwMonitor -> Ptr GlfwGammaRamp -> IO ()
+foreign import ccall glfwGetGammaRamp         :: Ptr GlfwMonitor -> IO (Ptr GlfwGammaRamp)
 foreign import ccall glfwDefaultWindowHints   :: IO ()
 foreign import ccall glfwWindowHint           :: CInt -> CInt -> IO ()
 foreign import ccall glfwCreateWindow         :: CInt -> CInt -> Ptr CChar -> Ptr GlfwMonitor -> Ptr GlfwWindow -> IO (Ptr GlfwWindow)
@@ -158,8 +166,8 @@ foreign import ccall glfwSetCursorEnterCallback     :: Ptr GlfwWindow -> FunPtr 
 foreign import ccall glfwSetScrollCallback          :: Ptr GlfwWindow -> FunPtr GlfwScrollCallback -> IO (FunPtr GlfwScrollCallback)
 
 foreign import ccall glfwJoystickPresent            :: CInt -> IO CInt
-foreign import ccall glfwGetJoystickAxes            :: CInt -> Ptr Int -> IO (Ptr CFloat)
-foreign import ccall glfwGetJoystickButtons         :: CInt -> Ptr Int -> IO (Ptr CUChar)
+foreign import ccall glfwGetJoystickAxes            :: CInt -> Ptr CInt -> IO (Ptr CFloat)
+foreign import ccall glfwGetJoystickButtons         :: CInt -> Ptr CInt -> IO (Ptr CUChar)
 foreign import ccall glfwGetJoystickName            :: CInt -> IO (Ptr CChar)
 foreign import ccall glfwSetClipboardString         :: Ptr GlfwWindow -> Ptr CChar -> IO ()
 foreign import ccall glfwGetClipboardString         :: Ptr GlfwWindow -> IO (Ptr CChar)
@@ -211,6 +219,14 @@ class C c h where
   toC   :: h -> c
 
 instance C CInt Int where
+  fromC = fromIntegral
+  toC   = fromIntegral
+
+instance C CUInt Int where
+  fromC = fromIntegral
+  toC   = fromIntegral
+
+instance C CUShort Int where
   fromC = fromIntegral
   toC   = fromIntegral
 
@@ -311,6 +327,54 @@ type ScrollCallback          = Window -> Double -> Double                       
 type KeyCallback             = Window -> Key -> Int -> KeyAction -> ModifierKeys          -> IO ()
 type CharCallback            = Window -> Char                                             -> IO ()
 type MonitorCallback         = Monitor -> MonitorAction                                   -> IO ()
+
+data GlfwGammaRamp
+
+data GammaRamp = GammaRamp
+  { gammaRampRed   :: [Int]
+  , gammaRampGreen :: [Int]
+  , gammaRampBlue  :: [Int]
+  , gammaRampSize  :: Int
+  } deriving (Eq, Show)
+
+data CursorInputMode =
+    CursorNormal
+  | CursorHidden
+  | CursorDisabled
+  deriving (Eq, Show)
+
+instance C CInt CursorInputMode where
+  fromC (#const GLFW_CURSOR_NORMAL)   = CursorNormal
+  fromC (#const GLFW_CURSOR_HIDDEN)   = CursorHidden
+  fromC (#const GLFW_CURSOR_DISABLED) = CursorDisabled
+  fromC v = error $ "C CInt CursorInputMode fromC: " ++ show v
+  toC CursorNormal   = (#const GLFW_CURSOR_NORMAL)
+  toC CursorHidden   = (#const GLFW_CURSOR_HIDDEN)
+  toC CursorDisabled = (#const GLFW_CURSOR_DISABLED)
+
+data KeysInputMode =
+    KeysNormal
+  | KeysSticky
+  deriving (Eq, Show)
+
+instance C CInt KeysInputMode where
+  fromC (#const GL_TRUE)  = KeysSticky
+  fromC (#const GL_FALSE) = KeysNormal
+  fromC v = error $ "C CInt KeysInputMode fromC: " ++ show v
+  toC KeysSticky = (#const GL_TRUE)
+  toC KeysNormal = (#const GL_FALSE)
+
+data MouseButtonsInputMode =
+    MouseButtonsNormal
+  | MouseButtonsSticky
+  deriving (Eq, Show)
+
+instance C CInt MouseButtonsInputMode where
+  fromC (#const GL_TRUE)  = MouseButtonsSticky
+  fromC (#const GL_FALSE) = MouseButtonsNormal
+  fromC v = error $ "C CInt MouseButtonsInputMode fromC: " ++ show v
+  toC MouseButtonsSticky = (#const GL_TRUE)
+  toC MouseButtonsNormal = (#const GL_FALSE)
 
 data WindowHints = WindowHints
   { windowHintsResizable           :: Bool
@@ -471,6 +535,17 @@ instance C CInt KeyAction where
   fromC (#const GLFW_RELEASE) = KeyRelease
   fromC (#const GLFW_REPEAT)  = KeyRepeat
   fromC v = error $ "C CInt KeyAction fromC: " ++ show v
+  toC _ = undefined  -- not needed
+
+data JoystickButtonAction =
+    JoystickButtonPress
+  | JoystickButtonRelease
+  deriving (Eq, Show)
+
+instance C CUChar JoystickButtonAction where
+  fromC (#const GLFW_PRESS)   = JoystickButtonPress
+  fromC (#const GLFW_RELEASE) = JoystickButtonRelease
+  fromC v = error $ "C CInt JoystickButtonAction fromC: " ++ show v
   toC _ = undefined  -- not needed
 
 data MouseButtonAction =
@@ -1144,7 +1219,42 @@ setGamma :: Monitor -> Float -> IO ()
 setGamma (Monitor gm) e =
     glfwSetGamma gm (realToFrac e)
 
--- setGammaRamp
+setGammaRamp :: Monitor -> GammaRamp -> IO ()
+setGammaRamp m gr =
+    let r = map toC $ gammaRampRed   gr :: [CUShort]
+        g = map toC $ gammaRampGreen gr :: [CUShort]
+        b = map toC $ gammaRampBlue  gr :: [CUShort]
+        n =     toC $ gammaRampSize  gr :: CUInt
+    in allocaBytes (#size GLFWgammaramp) $ \pgr ->
+       withArray r $ \pr ->
+       withArray g $ \pg ->
+       withArray b $ \pb -> do
+           (#poke GLFWgammaramp, red)   pgr pr
+           (#poke GLFWgammaramp, green) pgr pg
+           (#poke GLFWgammaramp, blue)  pgr pb
+           (#poke GLFWgammaramp, size)  pgr n
+           glfwSetGammaRamp (unMonitor m) pgr
+
+getGammaRamp :: Monitor -> IO (Maybe GammaRamp)
+getGammaRamp m = do
+    p <- glfwGetGammaRamp (unMonitor m)
+    if p == nullPtr
+      then return Nothing
+      else do
+          pr <- (#peek GLFWgammaramp, red)   p :: IO (Ptr CUShort)
+          pg <- (#peek GLFWgammaramp, green) p :: IO (Ptr CUShort)
+          pb <- (#peek GLFWgammaramp, blue)  p :: IO (Ptr CUShort)
+          cn <- (#peek GLFWgammaramp, size)  p :: IO CUInt
+          let n = fromC cn
+          r <- map fromC `fmap` peekArray n pr
+          g <- map fromC `fmap` peekArray n pg
+          b <- map fromC `fmap` peekArray n pb
+          return $ Just $ GammaRamp
+            { gammaRampRed   = r
+            , gammaRampGreen = g
+            , gammaRampBlue  = b
+            , gammaRampSize  = n
+            }
 
 -- XXX name exception
 setDefaultWindowHints :: IO ()
@@ -1337,8 +1447,31 @@ pollEvents = glfwPollEvents
 waitEvents :: IO ()
 waitEvents = glfwWaitEvents
 
--- getInputMode
--- setInputMode
+-- instead of {g,s}etInputMode, we have {g,s}et{Cursor,Keys,MouseButtons}InputMode
+
+getCursorInputMode :: Window -> IO CursorInputMode
+getCursorInputMode w =
+    fromC `fmap` glfwGetInputMode (unWindow w) (#const GLFW_CURSOR)
+
+setCursorInputMode :: Window -> CursorInputMode -> IO ()
+setCursorInputMode w m =
+    glfwSetInputMode (unWindow w) (#const GLFW_CURSOR) (toC m)
+
+getKeysInputMode :: Window -> IO KeysInputMode
+getKeysInputMode w =
+    fromC `fmap` glfwGetInputMode (unWindow w) (#const GLFW_STICKY_KEYS)
+
+setKeysInputMode :: Window -> KeysInputMode -> IO ()
+setKeysInputMode w m =
+    glfwSetInputMode (unWindow w) (#const GLFW_STICKY_KEYS) (toC m)
+
+getMouseButtonsInputMode :: Window -> IO MouseButtonsInputMode
+getMouseButtonsInputMode w =
+    fromC `fmap` glfwGetInputMode (unWindow w) (#const GLFW_STICKY_MOUSE_BUTTONS)
+
+setMouseButtonsInputMode :: Window -> MouseButtonsInputMode -> IO ()
+setMouseButtonsInputMode w m =
+    glfwSetInputMode (unWindow w) (#const GLFW_STICKY_MOUSE_BUTTONS) (toC m)
 
 getKey :: Window -> Key -> IO KeyAction
 getKey w k =
@@ -1419,12 +1552,19 @@ getJoystickAxes :: Joystick -> IO (Maybe [Float])
 getJoystickAxes js =
     alloca $ \pn -> do
         p <- glfwGetJoystickAxes (toC js) pn
-        n <- fromIntegral `fmap` peek pn
+        n <- fromC `fmap` peek pn
         if p == nullPtr || n == 0
           then return Nothing
           else (Just . map realToFrac) `fmap` peekArray n p
 
--- getJoystickButtons
+getJoystickButtons :: Joystick -> IO (Maybe [JoystickButtonAction])
+getJoystickButtons js =
+    alloca $ \pn -> do
+        p <- glfwGetJoystickButtons (toC js) pn
+        n <- fromC `fmap` peek pn
+        if p == nullPtr || n == 0
+          then return Nothing
+          else (Just . map fromC) `fmap` peekArray n p
 
 getJoystickName :: Joystick -> IO (Maybe String)
 getJoystickName js = do

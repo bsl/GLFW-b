@@ -12,7 +12,12 @@ import qualified Graphics.UI.GLFW as GLFW
 
 main :: IO ()
 main = do
-    r <- GLFW.initialize
+    -- GLFW.setErrorCallback $ Just $ \e s -> do
+    --     putStrLn $ show e
+    --     putStrLn $ show s
+    -- _ <- GLFW.getMonitors
+    -- return ()
+    _ <- GLFW.initialize
     TF.defaultMain tests
     GLFW.terminate
 
@@ -127,8 +132,8 @@ test_getVideoMode = do
 
 test_joystickPresent :: IO ()
 test_joystickPresent = do
-    _ <- GLFW.joystickPresent GLFW.Joystick0
-    r <- GLFW.joystickPresent GLFW.Joystick15
+    _ <- GLFW.joystickPresent GLFW.Joystick1
+    r <- GLFW.joystickPresent GLFW.Joystick16
     HU.assertBool "error" $ not r
 
 test_getTime :: IO ()

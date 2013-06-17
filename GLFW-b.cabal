@@ -120,12 +120,12 @@ library
     cc-options:
     extra-libraries:
       GL
-      GLU
+    --GLU
       X11
       Xi
       Xrandr
       Xxf86vm
-      pthread
+    --pthread
   else
     if os(darwin)
       extra-libraries: glfw

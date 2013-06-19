@@ -125,7 +125,7 @@ library
       Xi
       Xrandr
       Xxf86vm
-    --pthread
+      pthread
   else
     if os(darwin)
       extra-libraries: glfw

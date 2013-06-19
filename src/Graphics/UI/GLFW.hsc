@@ -86,6 +86,17 @@ module Graphics.UI.GLFW
   , Version(..)
   , Joystick(..)
   , GammaRamp, gammaRampRed, gammaRampGreen, gammaRampBlue, gammaRampSize
+  , Key(..)
+  , KeyAction(..)
+  , Window
+  , Error(..)
+  , FocusAction(..)
+  , IconifyAction(..)
+  , MouseButton(..)
+  , MouseButtonAction(..)
+  , ModifierKeys(..)
+  , MonitorAction(..)
+  , CursorAction(..)
   ) where
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -95,7 +106,7 @@ import Data.Bits             ((.&.))
 import Data.Char             (chr, ord)
 import Data.IORef            (IORef, atomicModifyIORef', newIORef)
 import Foreign.C.String      (peekCString, withCString)
-import Foreign.C.Types       (CChar, CDouble(..), CFloat(..), CInt(..), CUShort, CUChar(..), CUInt(..))
+import Foreign.C.Types       (CChar(..), CDouble(..), CFloat(..), CInt(..), CUShort(..), CUChar(..), CUInt(..))
 import Foreign.Marshal.Alloc (alloca, allocaBytes)
 import Foreign.Marshal.Array (advancePtr, allocaArray, withArray, peekArray)
 import Foreign.Ptr           (FunPtr, Ptr, freeHaskellFunPtr, nullFunPtr, nullPtr)
@@ -106,42 +117,40 @@ import System.IO.Unsafe      (unsafePerformIO)
 
 #include <GLFW/glfw3.h>
 
-foreign import ccall glfwInit                   :: IO CInt
-foreign import ccall glfwTerminate              :: IO ()
-foreign import ccall glfwGetVersion             :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall glfwGetVersionString       :: IO (Ptr CChar)
-foreign import ccall glfwSetErrorCallback       :: FunPtr GlfwErrorCallback -> IO (FunPtr GlfwErrorCallback)
-foreign import ccall glfwGetMonitors            :: Ptr CInt -> IO (Ptr (Ptr GlfwMonitor))
-foreign import ccall glfwGetPrimaryMonitor      :: IO (Ptr GlfwMonitor)
-foreign import ccall glfwGetMonitorPos          :: Ptr GlfwMonitor -> Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall glfwGetMonitorPhysicalSize :: Ptr GlfwMonitor -> Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall glfwGetMonitorName         :: Ptr GlfwMonitor -> IO (Ptr CChar)
-foreign import ccall glfwSetMonitorCallback     :: FunPtr GlfwMonitorCallback -> IO (FunPtr GlfwMonitorCallback)
-foreign import ccall glfwGetVideoModes          :: Ptr GlfwMonitor -> Ptr CInt -> IO (Ptr VideoMode)
-foreign import ccall glfwGetVideoMode           :: Ptr GlfwMonitor -> IO (Ptr VideoMode)
-foreign import ccall glfwSetGamma               :: Ptr GlfwMonitor -> CFloat -> IO ()
-foreign import ccall glfwSetGammaRamp         :: Ptr GlfwMonitor -> Ptr GlfwGammaRamp -> IO ()
-foreign import ccall glfwGetGammaRamp         :: Ptr GlfwMonitor -> IO (Ptr GlfwGammaRamp)
-foreign import ccall glfwDefaultWindowHints   :: IO ()
-foreign import ccall glfwWindowHint           :: CInt -> CInt -> IO ()
-foreign import ccall glfwCreateWindow         :: CInt -> CInt -> Ptr CChar -> Ptr GlfwMonitor -> Ptr GlfwWindow -> IO (Ptr GlfwWindow)
-foreign import ccall glfwDestroyWindow        :: Ptr GlfwWindow -> IO ()
-foreign import ccall glfwWindowShouldClose    :: Ptr GlfwWindow -> IO CInt
-foreign import ccall glfwSetWindowShouldClose :: Ptr GlfwWindow -> CInt -> IO ()
-foreign import ccall glfwSetWindowTitle       :: Ptr GlfwWindow -> Ptr CChar -> IO ()
-foreign import ccall glfwGetWindowPos         :: Ptr GlfwWindow -> Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall glfwSetWindowPos         :: Ptr GlfwWindow -> CInt -> CInt -> IO ()
-foreign import ccall glfwGetWindowSize        :: Ptr GlfwWindow -> Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall glfwSetWindowSize        :: Ptr GlfwWindow -> CInt -> CInt -> IO ()
-foreign import ccall glfwGetFramebufferSize   :: Ptr GlfwWindow -> Ptr CInt -> Ptr CInt -> IO ()
-foreign import ccall glfwIconifyWindow        :: Ptr GlfwWindow -> IO ()
-foreign import ccall glfwRestoreWindow        :: Ptr GlfwWindow -> IO ()
-foreign import ccall glfwShowWindow           :: Ptr GlfwWindow -> IO ()
-foreign import ccall glfwHideWindow           :: Ptr GlfwWindow -> IO ()
-foreign import ccall glfwGetWindowMonitor     :: Ptr GlfwWindow -> IO (Ptr GlfwMonitor)
-foreign import ccall glfwGetWindowAttrib      :: Ptr GlfwWindow -> CInt -> IO CInt
---foreign import ccall glfwSetWindowUserPointer
---foreign import ccall glfwGetWindowUserPointer
+foreign import ccall glfwInit                       :: IO CInt
+foreign import ccall glfwTerminate                  :: IO ()
+foreign import ccall glfwGetVersion                 :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwGetVersionString           :: IO (Ptr CChar)
+foreign import ccall glfwSetErrorCallback           :: FunPtr GlfwErrorCallback -> IO (FunPtr GlfwErrorCallback)
+foreign import ccall glfwGetMonitors                :: Ptr CInt -> IO (Ptr (Ptr GlfwMonitor))
+foreign import ccall glfwGetPrimaryMonitor          :: IO (Ptr GlfwMonitor)
+foreign import ccall glfwGetMonitorPos              :: Ptr GlfwMonitor -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwGetMonitorPhysicalSize     :: Ptr GlfwMonitor -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwGetMonitorName             :: Ptr GlfwMonitor -> IO (Ptr CChar)
+foreign import ccall glfwSetMonitorCallback         :: FunPtr GlfwMonitorCallback -> IO (FunPtr GlfwMonitorCallback)
+foreign import ccall glfwGetVideoModes              :: Ptr GlfwMonitor -> Ptr CInt -> IO (Ptr GlfwVideoMode)
+foreign import ccall glfwGetVideoMode               :: Ptr GlfwMonitor -> IO (Ptr GlfwVideoMode)
+foreign import ccall glfwSetGamma                   :: Ptr GlfwMonitor -> CFloat -> IO ()
+foreign import ccall glfwSetGammaRamp               :: Ptr GlfwMonitor -> Ptr GlfwGammaRamp -> IO ()
+foreign import ccall glfwGetGammaRamp               :: Ptr GlfwMonitor -> IO (Ptr GlfwGammaRamp)
+foreign import ccall glfwDefaultWindowHints         :: IO ()
+foreign import ccall glfwWindowHint                 :: CInt -> CInt -> IO ()
+foreign import ccall glfwCreateWindow               :: CInt -> CInt -> Ptr CChar -> Ptr GlfwMonitor -> Ptr GlfwWindow -> IO (Ptr GlfwWindow)
+foreign import ccall glfwDestroyWindow              :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwWindowShouldClose          :: Ptr GlfwWindow -> IO CInt
+foreign import ccall glfwSetWindowShouldClose       :: Ptr GlfwWindow -> CInt -> IO ()
+foreign import ccall glfwSetWindowTitle             :: Ptr GlfwWindow -> Ptr CChar -> IO ()
+foreign import ccall glfwGetWindowPos               :: Ptr GlfwWindow -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwSetWindowPos               :: Ptr GlfwWindow -> CInt -> CInt -> IO ()
+foreign import ccall glfwGetWindowSize              :: Ptr GlfwWindow -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwSetWindowSize              :: Ptr GlfwWindow -> CInt -> CInt -> IO ()
+foreign import ccall glfwGetFramebufferSize         :: Ptr GlfwWindow -> Ptr CInt -> Ptr CInt -> IO ()
+foreign import ccall glfwIconifyWindow              :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwRestoreWindow              :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwShowWindow                 :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwHideWindow                 :: Ptr GlfwWindow -> IO ()
+foreign import ccall glfwGetWindowMonitor           :: Ptr GlfwWindow -> IO (Ptr GlfwMonitor)
+foreign import ccall glfwGetWindowAttrib            :: Ptr GlfwWindow -> CInt -> IO CInt
 foreign import ccall glfwSetWindowPosCallback       :: Ptr GlfwWindow -> FunPtr GlfwWindowPosCallback       -> IO (FunPtr GlfwWindowPosCallback)
 foreign import ccall glfwSetWindowSizeCallback      :: Ptr GlfwWindow -> FunPtr GlfwWindowSizeCallback      -> IO (FunPtr GlfwWindowSizeCallback)
 foreign import ccall glfwSetWindowCloseCallback     :: Ptr GlfwWindow -> FunPtr GlfwWindowCloseCallback     -> IO (FunPtr GlfwWindowCloseCallback)
@@ -157,14 +166,12 @@ foreign import ccall glfwGetKey                     :: Ptr GlfwWindow -> CInt ->
 foreign import ccall glfwGetMouseButton             :: Ptr GlfwWindow -> CInt -> IO CInt
 foreign import ccall glfwGetCursorPos               :: Ptr GlfwWindow -> Ptr CDouble -> Ptr CDouble -> IO ()
 foreign import ccall glfwSetCursorPos               :: Ptr GlfwWindow -> CDouble -> CDouble -> IO ()
-
 foreign import ccall glfwSetKeyCallback             :: Ptr GlfwWindow -> FunPtr GlfwKeyCallback -> IO (FunPtr GlfwKeyCallback)
 foreign import ccall glfwSetCharCallback            :: Ptr GlfwWindow -> FunPtr GlfwCharCallback -> IO (FunPtr GlfwCharCallback)
 foreign import ccall glfwSetMouseButtonCallback     :: Ptr GlfwWindow -> FunPtr GlfwMouseButtonCallback -> IO (FunPtr GlfwMouseButtonCallback)
 foreign import ccall glfwSetCursorPosCallback       :: Ptr GlfwWindow -> FunPtr GlfwCursorPosCallback -> IO (FunPtr GlfwCursorPosCallback)
 foreign import ccall glfwSetCursorEnterCallback     :: Ptr GlfwWindow -> FunPtr GlfwCursorEnterCallback -> IO (FunPtr GlfwCursorEnterCallback)
 foreign import ccall glfwSetScrollCallback          :: Ptr GlfwWindow -> FunPtr GlfwScrollCallback -> IO (FunPtr GlfwScrollCallback)
-
 foreign import ccall glfwJoystickPresent            :: CInt -> IO CInt
 foreign import ccall glfwGetJoystickAxes            :: CInt -> Ptr CInt -> IO (Ptr CFloat)
 foreign import ccall glfwGetJoystickButtons         :: CInt -> Ptr CInt -> IO (Ptr CUChar)
@@ -178,7 +185,10 @@ foreign import ccall glfwGetCurrentContext          :: IO (Ptr GlfwWindow)
 foreign import ccall glfwSwapBuffers                :: Ptr GlfwWindow -> IO ()
 foreign import ccall glfwSwapInterval               :: CInt -> IO ()
 foreign import ccall glfwExtensionSupported         :: Ptr CChar -> IO CInt
--- foreign import ccall glfwGetProcAddress
+
+-- glfwSetWindowUserPointer
+-- glfwGetWindowUserPointer
+-- glfwGetProcAddress
 
 type GlfwErrorCallback           = CInt -> Ptr CChar                              -> IO ()
 type GlfwMonitorCallback         = Ptr GlfwMonitor -> CInt                        -> IO ()
@@ -217,6 +227,8 @@ foreign import ccall "wrapper" wrapGlfwWindowSizeCallback      :: GlfwWindowSize
 class C c h where
   fromC :: c -> h
   toC   :: h -> c
+  fromC = undefined
+  toC   = undefined
 
 instance C CInt Int where
   fromC = fromIntegral
@@ -242,7 +254,6 @@ instance C CInt Bool where
   fromC (#const GL_TRUE)  = True
   fromC (#const GL_FALSE) = False
   fromC v = error $ "C CInt Bool fromC: " ++ show v
-  toC _ = undefined  -- not needed
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -322,7 +333,7 @@ type WindowIconifyCallback   = Window -> IconifyAction                          
 type FramebufferSizeCallback = Window -> Int -> Int                                       -> IO ()
 type MouseButtonCallback     = Window -> MouseButton -> MouseButtonAction -> ModifierKeys -> IO ()
 type CursorPosCallback       = Window -> Double -> Double                                 -> IO ()
-type CursorEnterCallback     = Window -> Bool                                             -> IO ()
+type CursorEnterCallback     = Window -> CursorAction                                     -> IO ()
 type ScrollCallback          = Window -> Double -> Double                                 -> IO ()
 type KeyCallback             = Window -> Key -> Int -> KeyAction -> ModifierKeys          -> IO ()
 type CharCallback            = Window -> Char                                             -> IO ()
@@ -500,7 +511,16 @@ instance C CInt Error where
       (#const GLFW_PLATFORM_ERROR)      -> PlatformError
       (#const GLFW_FORMAT_UNAVAILABLE)  -> FormatUnavailable
       _ -> error $ "C CInt Error fromC: " ++ show v
-  toC _ = undefined  -- not needed
+
+data CursorAction =
+    CursorEnter
+  | CursorLeave
+  deriving (Eq, Show)
+
+instance C CInt CursorAction where
+  fromC (#const GL_TRUE)  = CursorEnter
+  fromC (#const GL_FALSE) = CursorLeave
+  fromC v = error $ "C CInt CursorAction fromC: " ++ show v
 
 data FocusAction =
     Focus
@@ -511,7 +531,6 @@ instance C CInt FocusAction where
   fromC (#const GL_TRUE)  = Focus
   fromC (#const GL_FALSE) = Defocus
   fromC v = error $ "C CInt FocusAction fromC: " ++ show v
-  toC _ = undefined  -- not needed
 
 data IconifyAction =
     Iconify
@@ -522,7 +541,6 @@ instance C CInt IconifyAction where
   fromC (#const GL_TRUE)  = Iconify
   fromC (#const GL_FALSE) = Restore
   fromC v = error $ "C CInt IconifyAction fromC: " ++ show v
-  toC _ = undefined  -- not needed
 
 data KeyAction =
     KeyPress
@@ -535,7 +553,6 @@ instance C CInt KeyAction where
   fromC (#const GLFW_RELEASE) = KeyRelease
   fromC (#const GLFW_REPEAT)  = KeyRepeat
   fromC v = error $ "C CInt KeyAction fromC: " ++ show v
-  toC _ = undefined  -- not needed
 
 data JoystickButtonAction =
     JoystickButtonPress
@@ -546,7 +563,6 @@ instance C CUChar JoystickButtonAction where
   fromC (#const GLFW_PRESS)   = JoystickButtonPress
   fromC (#const GLFW_RELEASE) = JoystickButtonRelease
   fromC v = error $ "C CInt JoystickButtonAction fromC: " ++ show v
-  toC _ = undefined  -- not needed
 
 data MouseButtonAction =
     MouseButtonPress
@@ -557,7 +573,6 @@ instance C CInt MouseButtonAction where
   fromC (#const GLFW_PRESS)   = MouseButtonPress
   fromC (#const GLFW_RELEASE) = MouseButtonRelease
   fromC v = error $ "C CInt MouseButtonAction fromC: " ++ show v
-  toC _ = undefined  -- not needed
 
 data MonitorAction =
     Connect
@@ -568,7 +583,6 @@ instance C CInt MonitorAction where
   fromC (#const GL_TRUE)  = Connect
   fromC (#const GL_FALSE) = Disconnect
   fromC v = error $ "C CInt Key fromC: " ++ show v
-  toC _ = undefined  -- not needed
 
 data ModifierKeys = ModifierKeys
   { modifierKeysShift   :: Bool
@@ -584,7 +598,6 @@ instance C CInt ModifierKeys where
     , modifierKeysAlt     = (v .&. (#const GLFW_MOD_ALT))     /= 0
     , modifierKeysSuper   = (v .&. (#const GLFW_MOD_SUPER))   /= 0
     }
-  toC _ = undefined  -- not needed
 
 data Version = Version
   { versionMajor    :: Int
@@ -1009,6 +1022,25 @@ data GlfwMonitor
 newtype Monitor = Monitor { unMonitor :: Ptr GlfwMonitor }
   deriving Show
 
+data GlfwVideoMode = GlfwVideoMode
+  { glfwVideoModeWidth       :: CInt
+  , glfwVideoModeHeight      :: CInt
+  , glfwVideoModeRedBits     :: CInt
+  , glfwVideoModeGreenBits   :: CInt
+  , glfwVideoModeBlueBits    :: CInt
+  , glfwVideoModeRefreshRate :: CInt
+  } deriving (Eq, Show)
+
+instance C GlfwVideoMode VideoMode where
+  fromC gvm = VideoMode
+      { videoModeWidth       = fromIntegral $ glfwVideoModeWidth       gvm
+      , videoModeHeight      = fromIntegral $ glfwVideoModeHeight      gvm
+      , videoModeRedBits     = fromIntegral $ glfwVideoModeRedBits     gvm
+      , videoModeGreenBits   = fromIntegral $ glfwVideoModeGreenBits   gvm
+      , videoModeBlueBits    = fromIntegral $ glfwVideoModeBlueBits    gvm
+      , videoModeRefreshRate = fromIntegral $ glfwVideoModeRefreshRate gvm
+      }
+
 data VideoMode = VideoMode
   { videoModeWidth       :: Int
   , videoModeHeight      :: Int
@@ -1016,9 +1048,9 @@ data VideoMode = VideoMode
   , videoModeGreenBits   :: Int
   , videoModeBlueBits    :: Int
   , videoModeRefreshRate :: Int
-  } deriving (Eq, Ord, Read, Show)
+  } deriving (Eq, Show)
 
-instance Storable VideoMode where
+instance Storable GlfwVideoMode where
   sizeOf _ = (#const sizeof(GLFWvidmode))
   alignment _ = alignment (undefined :: CInt)
   peek ptr = do
@@ -1028,13 +1060,13 @@ instance Storable VideoMode where
       gb <- (#peek GLFWvidmode, greenBits)   ptr :: IO CInt
       bb <- (#peek GLFWvidmode, blueBits)    ptr :: IO CInt
       rr <- (#peek GLFWvidmode, refreshRate) ptr :: IO CInt
-      return VideoMode
-        { videoModeWidth       = fromIntegral w
-        , videoModeHeight      = fromIntegral h
-        , videoModeRedBits     = fromIntegral rb
-        , videoModeGreenBits   = fromIntegral gb
-        , videoModeBlueBits    = fromIntegral bb
-        , videoModeRefreshRate = fromIntegral rr
+      return GlfwVideoMode
+        { glfwVideoModeWidth       = w
+        , glfwVideoModeHeight      = h
+        , glfwVideoModeRedBits     = rb
+        , glfwVideoModeGreenBits   = gb
+        , glfwVideoModeBlueBits    = bb
+        , glfwVideoModeRefreshRate = rr
         }
 
 data WindowAttribute =
@@ -1206,14 +1238,14 @@ getVideoModes (Monitor gm) =
         n <- fromIntegral `fmap` peek pn
         if p == nullPtr || n == 0
           then return Nothing
-          else Just `fmap` peekArray n p
+          else (Just . map fromC) `fmap` peekArray n p
 
 getVideoMode :: Monitor -> IO (Maybe VideoMode)
 getVideoMode (Monitor gm) = do
     p <- glfwGetVideoMode gm
     if p == nullPtr
       then return Nothing
-      else Just `fmap` peek p
+      else (Just . fromC) `fmap` peek p
 
 setGamma :: Monitor -> Float -> IO ()
 setGamma (Monitor gm) e =
@@ -1249,7 +1281,7 @@ getGammaRamp m = do
           r <- map fromC `fmap` peekArray n pr
           g <- map fromC `fmap` peekArray n pg
           b <- map fromC `fmap` peekArray n pb
-          return $ Just $ GammaRamp
+          return $ Just GammaRamp
             { gammaRampRed   = r
             , gammaRampGreen = g
             , gammaRampBlue  = b
@@ -1289,14 +1321,15 @@ setWindowHints wh = do
     glfwWindowHint (#const GLFW_OPENGL_DEBUG_CONTEXT)  $ toC $ windowHintsOpenglDebugContext  wh
     glfwWindowHint (#const GLFW_OPENGL_PROFILE)        $ toC $ windowHintsOpenglProfile       wh
 
-createWindow :: Int -> Int -> String -> Monitor -> Maybe Window -> IO (Maybe Window)
-createWindow width height title monitor mwindow =
+createWindow :: Int -> Int -> String -> Maybe Monitor -> Maybe Window -> IO (Maybe Window)
+createWindow width height title mmonitor mwindow =
     withCString title $ \ptitle -> do
-        p <- glfwCreateWindow (fromIntegral width)
-                              (fromIntegral height)
-                              ptitle
-                              (unMonitor monitor)
-                              (maybe nullPtr unWindow mwindow)
+        p <- glfwCreateWindow
+            (fromIntegral width)
+            (fromIntegral height)
+            ptitle
+            (maybe nullPtr unMonitor mmonitor)
+            (maybe nullPtr unWindow mwindow)
         return $ if p == nullPtr
           then Nothing
           else Just $ Window p
@@ -1586,7 +1619,7 @@ getClipboardString (Window pw) = do
 
 getTime :: IO (Maybe Double)
 getTime = do
-    t <- realToFrac `fmap` glfwGetTime
+    t <- fromC `fmap` glfwGetTime
     return $ if t == 0
       then Nothing
       else Just t

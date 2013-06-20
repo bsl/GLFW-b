@@ -80,8 +80,12 @@ library
   exposed-modules:
     Graphics.UI.GLFW
 
+  other-modules:
+    Graphics.UI.GLFW.C
+
   build-depends:
     base == 4.*
+    -- template-haskell == 2.*
 
   hs-source-dirs:
     src

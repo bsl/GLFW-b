@@ -2,6 +2,9 @@
 {-# LANGUAGE MultiParamTypeClasses    #-}
 {-# LANGUAGE EmptyDataDecls           #-}
 
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+-- ^ For instances of internal utility class C.
+
 {-
 When we set a callback, do we want the previous one?
 In 'terminate', should we clear all stored callbacks?
@@ -112,6 +115,8 @@ import Foreign.Marshal.Array (advancePtr, allocaArray, withArray, peekArray)
 import Foreign.Ptr           (FunPtr, Ptr, freeHaskellFunPtr, nullFunPtr, nullPtr)
 import Foreign.Storable      (Storable(..))
 import System.IO.Unsafe      (unsafePerformIO)
+
+import Graphics.UI.GLFW.C
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -224,12 +229,6 @@ foreign import ccall "wrapper" wrapGlfwWindowSizeCallback      :: GlfwWindowSize
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
-class C c h where
-  fromC :: c -> h
-  toC   :: h -> c
-  fromC = undefined
-  toC   = undefined
-
 instance C CInt Int where
   fromC = fromIntegral
   toC   = fromIntegral
@@ -254,6 +253,8 @@ instance C CInt Bool where
   fromC (#const GL_TRUE)  = True
   fromC (#const GL_FALSE) = False
   fromC v = error $ "C CInt Bool fromC: " ++ show v
+  toC True  = (#const GL_TRUE)
+  toC False = (#const GL_FALSE)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 

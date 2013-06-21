@@ -1,0 +1,67 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell       #-}
+
+module Graphics.UI.GLFW.Internal.C
+  ( C(..)
+  , deriveC
+  ) where
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+import Data.Data                  (Data)
+import Data.Tuple                 (swap)
+import Language.Haskell.TH        (Dec, Name, Q, appT, clause, conT, cxt, funD, global, instanceD, mkName, nameBase, normalB, varP)
+import Language.Haskell.TH.Quote  (dataToPatQ)
+import Language.Haskell.TH.Syntax (Lift(..))
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+class C c h where
+  fromC :: c -> h
+  toC   :: h -> c
+  fromC = undefined
+  toC   = undefined
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+deriveC :: (Data c, Data h, Lift c, Lift h) => Name -> Name -> [(c, h)] -> Q [Dec]
+deriveC ctype htype pairs =
+    (:[]) `fmap` deriveC1 ctype htype pairs
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+deriveC1 :: (Data c, Data h, Lift c, Lift h) => Name -> Name -> [(c, h)] -> Q Dec
+deriveC1 _ _ [] =
+    error "deriveC: no pairs!"
+deriveC1 ctype htype pairs =
+    instanceD
+      (cxt [])
+      (appT
+          (appT (conT cname) (conT ctype))
+          (conT htype)
+      )
+      [ funD frname frClauses
+      , funD toname toClauses
+      ]
+  where
+    cname  = mkName "C"
+    frname = mkName "fromC"
+    toname = mkName "toC"
+    vname  = mkName "v"
+
+    frClauses = map  genPairClause         pairs ++ [genErrorClause]
+    toClauses = map (genPairClause . swap) pairs
+
+    genPairClause (v0, v1) =
+        clause [pat] body []
+      where
+        pat  = dataToPatQ (const Nothing) v0
+        body = normalB [|v1|]
+
+    genErrorClause =
+        clause [pat] body []
+      where
+        pat   = varP vname
+        body  = normalB [| error $ msg ++ show $(global vname) |]
+        -- e.g., "C CInt Bool fromC: "
+        msg = unwords (map nameBase [cname, ctype, htype, frname]) ++ ": "

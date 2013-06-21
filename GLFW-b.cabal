@@ -81,11 +81,18 @@ library
     Graphics.UI.GLFW
 
   other-modules:
-    Graphics.UI.GLFW.C
+    Graphics.UI.GLFW.Internal.C
+    Graphics.UI.GLFW.Internal.Instances.C
+    Graphics.UI.GLFW.Internal.Instances.Data
+    Graphics.UI.GLFW.Internal.Instances.Lift
+    Graphics.UI.GLFW.Internal.Tables
+    Graphics.UI.GLFW.Types
 
   build-depends:
-    base == 4.*
-    -- template-haskell == 2.*
+    base             == 4.*,
+    template-haskell == 2.*,
+    derive           == 2.*,
+    th-lift          == 0.*
 
   hs-source-dirs:
     src

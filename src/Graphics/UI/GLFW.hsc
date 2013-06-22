@@ -394,28 +394,28 @@ getPrimaryMonitor = do
         else Just $ Monitor p
 
 getMonitorPosition :: Monitor -> IO (Int, Int)
-getMonitorPosition (Monitor gm) =
+getMonitorPosition mon =
     allocaArray 2 $ \p -> do
         let px = p
             py = p `advancePtr` 1
-        glfwGetMonitorPos gm px py
+        glfwGetMonitorPos (unMonitor mon) px py
         x <- fromIntegral `fmap` peek px
         y <- fromIntegral `fmap` peek py
         return (x, y)
 
 getMonitorPhysicalSize :: Monitor -> IO (Int, Int)
-getMonitorPhysicalSize (Monitor gm) =
+getMonitorPhysicalSize mon =
     allocaArray 2 $ \p -> do
         let pw = p
             ph = p `advancePtr` 1
-        glfwGetMonitorPhysicalSize gm pw ph
+        glfwGetMonitorPhysicalSize (unMonitor mon) pw ph
         w <- fromIntegral `fmap` peek pw
         h <- fromIntegral `fmap` peek ph
         return (w, h)
 
 getMonitorName :: Monitor -> IO (Maybe String)
-getMonitorName (Monitor gm) = do
-    p <- glfwGetMonitorName gm
+getMonitorName mon = do
+    p <- glfwGetMonitorName (unMonitor mon)
     if p == nullPtr
       then return Nothing
       else Just `fmap` peekCString p
@@ -431,24 +431,24 @@ setMonitorCallback mcb = do
     storeCallback monitorCallback ccb
 
 getVideoModes :: Monitor -> IO (Maybe [VideoMode])
-getVideoModes (Monitor gm) =
+getVideoModes mon =
     alloca $ \pn -> do
-        p <- glfwGetVideoModes gm pn
+        p <- glfwGetVideoModes (unMonitor mon) pn
         n <- fromIntegral `fmap` peek pn
         if p == nullPtr || n == 0
           then return Nothing
           else (Just . map fromC) `fmap` peekArray n p
 
 getVideoMode :: Monitor -> IO (Maybe VideoMode)
-getVideoMode (Monitor gm) = do
-    p <- glfwGetVideoMode gm
+getVideoMode mon = do
+    p <- glfwGetVideoMode (unMonitor mon)
     if p == nullPtr
       then return Nothing
       else (Just . fromC) `fmap` peek p
 
 setGamma :: Monitor -> Double -> IO ()
-setGamma (Monitor gm) e =
-    glfwSetGamma gm (toC e)
+setGamma mon e =
+    glfwSetGamma (unMonitor mon) (toC e)
 
 setGammaRamp :: Monitor -> GammaRamp -> IO ()
 setGammaRamp m gr =
@@ -538,82 +538,82 @@ destroyWindow =
     glfwDestroyWindow . unWindow
 
 windowShouldClose :: Window -> IO Bool
-windowShouldClose (Window pw) =
-    fromC `fmap` glfwWindowShouldClose pw
+windowShouldClose win =
+    fromC `fmap` glfwWindowShouldClose (unWindow win)
 
 setWindowShouldClose :: Window -> Bool -> IO ()
-setWindowShouldClose (Window pw) b =
-    glfwSetWindowShouldClose pw (toC b)
+setWindowShouldClose win b =
+    glfwSetWindowShouldClose (unWindow win) (toC b)
 
 setWindowTitle :: Window -> String -> IO ()
-setWindowTitle (Window pw) title =
+setWindowTitle win title =
     withCString title $ \ptitle ->
-        glfwSetWindowTitle pw ptitle
+        glfwSetWindowTitle (unWindow win) ptitle
 
 getWindowPos :: Window -> IO (Int, Int)
-getWindowPos (Window pw) =
+getWindowPos win =
     allocaArray 2 $ \pa -> do
         let px = pa
             py = pa `advancePtr` 1
-        glfwGetWindowPos pw px py
+        glfwGetWindowPos (unWindow win) px py
         x <- fromIntegral `fmap` peek px
         y <- fromIntegral `fmap` peek py
         return (x, y)
 
 setWindowPos :: Window -> Int -> Int -> IO ()
-setWindowPos (Window pw) x y =
-    glfwSetWindowPos pw (fromIntegral x) (fromIntegral y)
+setWindowPos win x y =
+    glfwSetWindowPos (unWindow win) (fromIntegral x) (fromIntegral y)
 
 getWindowSize :: Window -> IO (Int, Int)
-getWindowSize (Window pw) =
+getWindowSize win =
     allocaArray 2 $ \pa -> do
         let pwidth  = pa
             pheight = pa `advancePtr` 1
-        glfwGetWindowSize pw pwidth pheight
+        glfwGetWindowSize (unWindow win) pwidth pheight
         width  <- fromIntegral `fmap` peek pwidth
         height <- fromIntegral `fmap` peek pheight
         return (width, height)
 
 setWindowSize :: Window -> Int -> Int -> IO ()
-setWindowSize (Window pw) width height =
-    glfwSetWindowSize pw (fromIntegral width) (fromIntegral height)
+setWindowSize win width height =
+    glfwSetWindowSize (unWindow win) (fromIntegral width) (fromIntegral height)
 
 getFramebufferSize :: Window -> IO (Int, Int)
-getFramebufferSize (Window pw) =
+getFramebufferSize win =
     allocaArray 2 $ \pa -> do
         let pwidth  = pa
             pheight = pa `advancePtr` 1
-        glfwGetFramebufferSize pw pwidth pheight
+        glfwGetFramebufferSize (unWindow win) pwidth pheight
         width  <- fromIntegral `fmap` peek pwidth
         height <- fromIntegral `fmap` peek pheight
         return (width, height)
 
 iconifyWindow :: Window -> IO ()
-iconifyWindow (Window pw) =
-    glfwIconifyWindow pw
+iconifyWindow win =
+    glfwIconifyWindow (unWindow win)
 
 restoreWindow :: Window -> IO ()
-restoreWindow (Window pw) =
-    glfwRestoreWindow pw
+restoreWindow win =
+    glfwRestoreWindow (unWindow win)
 
 showWindow :: Window -> IO ()
-showWindow (Window pw) =
-    glfwShowWindow pw
+showWindow win =
+    glfwShowWindow (unWindow win)
 
 hideWindow :: Window -> IO ()
-hideWindow (Window pw) =
-    glfwHideWindow pw
+hideWindow win =
+    glfwHideWindow (unWindow win)
 
 getWindowMonitor :: Window -> IO (Maybe Monitor)
-getWindowMonitor (Window pw) = do
-    p <- glfwGetWindowMonitor pw
+getWindowMonitor win = do
+    p <- glfwGetWindowMonitor (unWindow win)
     return $ if p == nullPtr
       then Nothing
       else Just $ Monitor p
 
 getWindowAttrib :: Window -> WindowAttribute -> IO Bool
-getWindowAttrib (Window pw) wa =
-    fromC `fmap` glfwGetWindowAttrib pw (toC wa)
+getWindowAttrib win wa =
+    fromC `fmap` glfwGetWindowAttrib (unWindow win) (toC wa)
 
 setWindowPosCallback :: Window -> Maybe WindowPosCallback -> IO ()
 setWindowPosCallback w =
@@ -714,18 +714,18 @@ getMouseButton w b =
     fromC `fmap` glfwGetMouseButton (unWindow w) (toC b)
 
 getCursorPos :: Window -> IO (Double, Double)
-getCursorPos (Window pw) =
+getCursorPos win =
     allocaArray 2 $ \pa -> do
         let px = pa
             py = pa `advancePtr` 1
-        glfwGetCursorPos pw px py
+        glfwGetCursorPos (unWindow win) px py
         x <- realToFrac `fmap` peek px
         y <- realToFrac `fmap` peek py
         return (x, y)
 
 setCursorPos :: Window -> Double -> Double -> IO ()
-setCursorPos (Window pw) x y =
-    glfwSetCursorPos pw (realToFrac x) (realToFrac y)
+setCursorPos win x y =
+    glfwSetCursorPos (unWindow win) (realToFrac x) (realToFrac y)
 
 setKeyCallback :: Window -> Maybe KeyCallback -> IO ()
 setKeyCallback w =
@@ -806,12 +806,12 @@ getJoystickName js = do
       else Just `fmap` peekCString p
 
 setClipboardString :: Window -> String -> IO ()
-setClipboardString (Window pw) s =
-    withCString s (glfwSetClipboardString pw)
+setClipboardString win s =
+    withCString s (glfwSetClipboardString (unWindow win))
 
 getClipboardString :: Window -> IO (Maybe String)
-getClipboardString (Window pw) = do
-    p <- glfwGetClipboardString pw
+getClipboardString win = do
+    p <- glfwGetClipboardString (unWindow win)
     if p == nullPtr
       then return Nothing
       else Just `fmap` peekCString p

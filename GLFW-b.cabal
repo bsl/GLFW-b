@@ -1,25 +1,6 @@
 name:         GLFW-b
 version:      0.1.0.5
-
 category:     Graphics
-
-synopsis:     GLFW bindings
-description:  Bindings to GLFW, a free, open source, multi-platform library for
-              creating OpenGL contexts and managing input, including keyboard,
-              mouse, joystick and time.
-              .
-              These bindings use GLFW version 3.0, released 2013-06-12.
-              .
-              GLFW-b works on Windows, Mac OS X, and many Unix-like operating
-              systems.
-              .
-              Please see README.md
-              (<http://github.com/bsl/GLFW-b/blob/master/README.md>) for
-              information about how these bindings differ from the ones in the
-              GLFW package (<http://hackage.haskell.org/package/GLFW>).
-              .
-              For more information about the library on which these bindings
-              are based, please see <http://www.glfw.org/>.
 
 author:       Brian Lewis <brian@lorf.org>
 maintainer:   Brian Lewis <brian@lorf.org>
@@ -27,27 +8,38 @@ maintainer:   Brian Lewis <brian@lorf.org>
 license:      BSD3
 license-file: LICENSE
 
--- -- -- -- -- -- -- -- -- --
+synopsis:     Bindings to GLFW OpenGL library
+description:
+  Bindings to GLFW, an Open Source, multi-platform library for creating windows
+  with OpenGL contexts and managing input and events. See
+  <http://www.glfw.org/>.
+  .
+  The bound version GLFW is version 3.0, released 2013-06-12. See
+  <http://www.glfw.org/Version-3.0-released.html>.
 
 cabal-version: >= 1.8
 build-type:    Custom
 
--- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 extra-source-files:
-  Makefile
   README.md
+
+  Makefile
+  ./build/glfw/lib/cocoa/.build-tag
 
   glfw/include/os/unix-like/config.h
 
-  ./build/glfw/lib/cocoa/.build-tag
   glfw/include/GLFW/glfw3.h
   glfw/include/GLFW/glfw3native.h
+
   glfw/src/cocoa_platform.h
+  glfw/src/egl_context.c
   glfw/src/egl_platform.h
   glfw/src/glx_platform.h
   glfw/src/internal.h
   glfw/src/nsgl_platform.h
+  glfw/src/wgl_context.c
   glfw/src/wgl_platform.h
   glfw/src/win32_platform.h
   glfw/src/x11_platform.h
@@ -62,9 +54,6 @@ extra-source-files:
   glfw/src/cocoa_clipboard.m
   glfw/src/nsgl_context.m
 
-  glfw/src/egl_context.c
-  glfw/src/wgl_context.c
-
   glfw/deps/EGL/eglext.h
   glfw/deps/GL/glext.h
   glfw/deps/GL/glxext.h
@@ -74,9 +63,13 @@ extra-source-files:
   glfw/deps/tinycthread.c
   glfw/deps/tinycthread.h
 
--- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 library
+  ghc-options: -Wall -O2
+  if impl(ghc >= 6.8)
+    ghc-options: -fwarn-tabs
+
   exposed-modules:
     Graphics.UI.GLFW
 
@@ -91,8 +84,8 @@ library
 
   build-depends:
     base             == 4.*,
-    template-haskell == 2.*,
     derive           == 2.*,
+    template-haskell == 2.*,
     th-lift          == 0.*
 
   hs-source-dirs:
@@ -107,13 +100,13 @@ library
       glfw/src/clipboard.c
       glfw/src/context.c
       glfw/src/gamma.c
-      glfw/src/glx_context.c
       glfw/src/init.c
       glfw/src/input.c
       glfw/src/joystick.c
       glfw/src/monitor.c
       glfw/src/time.c
       glfw/src/window.c
+      glfw/src/glx_context.c
 
   if os(linux) || os(freebsd)
     include-dirs:
@@ -129,10 +122,8 @@ library
       glfw/src/x11_time.c
       glfw/src/x11_unicode.c
       glfw/src/x11_window.c
-    cc-options:
     extra-libraries:
       GL
-    --GLU
       X11
       Xi
       Xrandr
@@ -156,27 +147,23 @@ library
         extra-libraries:
           opengl32
 
-  ghc-options: -Wall -O2
-  if impl(ghc >= 6.8)
-    ghc-options: -fwarn-tabs
-
--- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 test-suite main
   type: exitcode-stdio-1.0
   main-is: Test.hs
   build-depends:
-    base,
     GLFW-b,
-    HUnit                < 2,
-    test-framework       < 1,
-    test-framework-hunit < 1
+    HUnit                == 1.*,
+    base                 == 4.*,
+    test-framework       == 0.*,
+    test-framework-hunit == 0.*
 
   ghc-options: -Wall -O2
   if impl(ghc >= 6.8)
     ghc-options: -fwarn-tabs
 
--- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 source-repository head
   type:     git

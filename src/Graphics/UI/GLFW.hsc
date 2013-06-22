@@ -118,6 +118,7 @@ import Graphics.UI.GLFW.Types
 
 --------------------------------------------------------------------------------
 
+-- TODO: which of these can be marked "unsafe"?
 foreign import ccall glfwInit                       :: IO CInt
 foreign import ccall glfwTerminate                  :: IO ()
 foreign import ccall glfwGetVersion                 :: Ptr CInt -> Ptr CInt -> Ptr CInt -> IO ()

@@ -16,12 +16,12 @@ data GlfwGammaRamp
 data GlfwMonitor
 
 data GlfwVideoMode = GlfwVideoMode
-  { glfwVideoModeWidth       :: CInt
-  , glfwVideoModeHeight      :: CInt
-  , glfwVideoModeRedBits     :: CInt
-  , glfwVideoModeGreenBits   :: CInt
-  , glfwVideoModeBlueBits    :: CInt
-  , glfwVideoModeRefreshRate :: CInt
+  { glfwVideoModeWidth       :: !CInt
+  , glfwVideoModeHeight      :: !CInt
+  , glfwVideoModeRedBits     :: !CInt
+  , glfwVideoModeGreenBits   :: !CInt
+  , glfwVideoModeBlueBits    :: !CInt
+  , glfwVideoModeRefreshRate :: !CInt
   } deriving (Eq, Show)
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -33,10 +33,10 @@ data CursorInputMode =
   deriving (Eq, Show, Typeable)
 
 data GammaRamp = GammaRamp
-  { gammaRampRed   :: [Int]
-  , gammaRampGreen :: [Int]
-  , gammaRampBlue  :: [Int]
-  , gammaRampSize  :: Int
+  { gammaRampRed   :: ![Int]
+  , gammaRampGreen :: ![Int]
+  , gammaRampBlue  :: ![Int]
+  , gammaRampSize  :: !Int
   } deriving (Eq, Show, Typeable)
 
 data KeysInputMode =
@@ -143,16 +143,16 @@ data MonitorAction =
   deriving (Eq, Show, Typeable)
 
 data ModifierKeys = ModifierKeys
-  { modifierKeysShift   :: Bool
-  , modifierKeysControl :: Bool
-  , modifierKeysAlt     :: Bool
-  , modifierKeysSuper   :: Bool
+  { modifierKeysShift   :: !Bool
+  , modifierKeysControl :: !Bool
+  , modifierKeysAlt     :: !Bool
+  , modifierKeysSuper   :: !Bool
   } deriving (Eq, Show, Typeable)
 
 data Version = Version
-  { versionMajor    :: Int
-  , versionMinor    :: Int
-  , versionRevision :: Int
+  { versionMajor    :: !Int
+  , versionMinor    :: !Int
+  , versionRevision :: !Int
   } deriving (Eq, Ord, Show, Typeable)
 
 data Key =
@@ -290,19 +290,21 @@ data MouseButton =
   | MouseButton8
   deriving (Eq, Show, Typeable)
 
-newtype Window = Window { unWindow :: Ptr GlfwWindow }
-  deriving (Eq, Show, Typeable)
+newtype Window = Window
+  { unWindow :: Ptr GlfwWindow
+  } deriving (Eq, Show, Typeable)
 
-newtype Monitor = Monitor { unMonitor :: Ptr GlfwMonitor }
-  deriving (Eq, Show, Typeable)
+newtype Monitor = Monitor
+  { unMonitor :: Ptr GlfwMonitor
+  } deriving (Eq, Show, Typeable)
 
 data VideoMode = VideoMode
-  { videoModeWidth       :: Int
-  , videoModeHeight      :: Int
-  , videoModeRedBits     :: Int
-  , videoModeGreenBits   :: Int
-  , videoModeBlueBits    :: Int
-  , videoModeRefreshRate :: Int
+  { videoModeWidth       :: !Int
+  , videoModeHeight      :: !Int
+  , videoModeRedBits     :: !Int
+  , videoModeGreenBits   :: !Int
+  , videoModeBlueBits    :: !Int
+  , videoModeRefreshRate :: !Int
   } deriving (Eq, Show, Typeable)
 
 data WindowAttribute =

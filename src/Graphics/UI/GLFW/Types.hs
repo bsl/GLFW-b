@@ -3,13 +3,13 @@
 
 module Graphics.UI.GLFW.Types where
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 import Data.Typeable   (Typeable)
 import Foreign.C.Types (CInt)
 import Foreign.Ptr     (Ptr)
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 data GlfwWindow
 data GlfwGammaRamp
@@ -24,7 +24,7 @@ data GlfwVideoMode = GlfwVideoMode
   , glfwVideoModeRefreshRate :: !CInt
   } deriving (Eq, Show)
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 data CursorInputMode =
     CursorNormal

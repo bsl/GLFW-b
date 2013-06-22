@@ -3,7 +3,7 @@
 
 module Graphics.UI.GLFW.Internal.Instances.Data where
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 import Data.Data
 import Data.DeriveTH   (derives, makeData)
@@ -11,7 +11,7 @@ import Foreign.C.Types (CInt(..), CUChar(..))
 
 import Graphics.UI.GLFW.Types
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 derives [makeData]
   [ ''CInt

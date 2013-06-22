@@ -6,7 +6,7 @@
 
 module Graphics.UI.GLFW.Internal.Instances.C where
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 import Data.Bits       ((.&.))
 import Data.Char       (chr, ord)
@@ -19,7 +19,7 @@ import Graphics.UI.GLFW.Internal.Instances.Lift ()
 import Graphics.UI.GLFW.Internal.Tables
 import Graphics.UI.GLFW.Types
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 deriveC ''CInt   ''Bool                  table_C_CInt_Bool
 deriveC ''CInt   ''CursorInputMode       table_C_CInt_CursorInputMode

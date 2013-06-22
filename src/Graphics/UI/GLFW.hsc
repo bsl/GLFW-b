@@ -100,7 +100,7 @@ module Graphics.UI.GLFW
   , CursorAction(..)
   ) where
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 import Control.Monad         (when)
 import Data.IORef            (IORef, atomicModifyIORef', newIORef)
@@ -116,7 +116,7 @@ import Graphics.UI.GLFW.Internal.C           (C(..))
 import Graphics.UI.GLFW.Internal.Instances.C ()
 import Graphics.UI.GLFW.Types
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 foreign import ccall glfwInit                       :: IO CInt
 foreign import ccall glfwTerminate                  :: IO ()
@@ -223,7 +223,7 @@ foreign import ccall "wrapper" wrapGlfwWindowPosCallback       :: GlfwWindowPosC
 foreign import ccall "wrapper" wrapGlfwWindowRefreshCallback   :: GlfwWindowRefreshCallback   -> IO (FunPtr GlfwWindowRefreshCallback   )
 foreign import ccall "wrapper" wrapGlfwWindowSizeCallback      :: GlfwWindowSizeCallback      -> IO (FunPtr GlfwWindowSizeCallback      )
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 errorCallback           :: IORef (FunPtr GlfwErrorCallback)
 {-# NOINLINE errorCallback           #-}
@@ -289,7 +289,7 @@ storeCallback ior new = do
     prev <- atomicModifyIORef' ior (\cur -> (new, cur))
     when (prev /= nullFunPtr) $ freeHaskellFunPtr prev
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 -- see http://www.glfw.org/docs/3.0/window.html#window_hints_values
 defaultWindowHints :: WindowHints
@@ -340,7 +340,7 @@ instance Storable GlfwVideoMode where
         , glfwVideoModeRefreshRate = rr
         }
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 initialize :: IO Bool
 initialize =
@@ -850,7 +850,7 @@ extensionSupported ext =
 
 -- getProcAddress
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 type ErrorCallback           = Error -> String                                            -> IO ()
 type WindowPosCallback       = Window -> Int -> Int                                       -> IO ()

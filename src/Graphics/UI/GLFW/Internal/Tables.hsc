@@ -2,13 +2,13 @@
 
 module Graphics.UI.GLFW.Internal.Tables where
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 import Foreign.C.Types (CInt, CUChar)
 
 import Graphics.UI.GLFW.Types
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 table_C_CInt_Bool :: [(CInt, Bool)]
 table_C_CInt_Bool =

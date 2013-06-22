@@ -4,7 +4,7 @@ module Graphics.UI.GLFW.Internal.C.TH
   ( deriveC
   ) where
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 import Data.Data                  (Data)
 import Data.Tuple                 (swap)
@@ -12,13 +12,13 @@ import Language.Haskell.TH        (Dec, Name, Q, appT, clause, conT, cxt, funD, 
 import Language.Haskell.TH.Quote  (dataToPatQ)
 import Language.Haskell.TH.Syntax (Lift(..))
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 deriveC :: (Data c, Data h, Lift c, Lift h) => Name -> Name -> [(c, h)] -> Q [Dec]
 deriveC ctype htype pairs =
     (:[]) `fmap` deriveC1 ctype htype pairs
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 deriveC1 :: (Data c, Data h, Lift c, Lift h) => Name -> Name -> [(c, h)] -> Q Dec
 deriveC1 _ _ [] =

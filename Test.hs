@@ -8,7 +8,7 @@ import qualified Test.HUnit                     as HU
 
 import qualified Graphics.UI.GLFW as GLFW
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 main :: IO ()
 main = do
@@ -19,7 +19,7 @@ main = do
     TF.defaultMain tests
     GLFW.terminate
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 versionMajor, versionMinor, versionRevision :: Int
 versionMajor    = 3
@@ -29,7 +29,7 @@ versionRevision = 0
 glfwVersion :: GLFW.Version
 glfwVersion = GLFW.Version versionMajor versionMinor versionRevision
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 tests :: [TF.Test]
 tests =
@@ -52,7 +52,7 @@ tests =
         ]
     ]
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--------------------------------------------------------------------------------
 
 test_getVersion :: IO ()
 test_getVersion = do

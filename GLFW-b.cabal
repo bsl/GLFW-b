@@ -58,10 +58,6 @@ extra-source-files:
   glfw/deps/GL/glext.h
   glfw/deps/GL/glxext.h
   glfw/deps/GL/wglext.h
-  glfw/deps/getopt.c
-  glfw/deps/getopt.h
-  glfw/deps/tinycthread.c
-  glfw/deps/tinycthread.h
 
 --------------------------------------------------------------------------------
 

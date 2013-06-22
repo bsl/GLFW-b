@@ -82,6 +82,7 @@ library
 
   other-modules:
     Graphics.UI.GLFW.Internal.C
+    Graphics.UI.GLFW.Internal.C.TH
     Graphics.UI.GLFW.Internal.Instances.C
     Graphics.UI.GLFW.Internal.Instances.Data
     Graphics.UI.GLFW.Internal.Instances.Lift

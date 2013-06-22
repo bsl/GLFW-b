@@ -12,7 +12,8 @@ import Data.Bits       ((.&.))
 import Data.Char       (chr, ord)
 import Foreign.C.Types (CDouble, CInt, CUChar, CUInt, CUShort)
 
-import Graphics.UI.GLFW.Internal.C              (C(..), deriveC)
+import Graphics.UI.GLFW.Internal.C              (C(..))
+import Graphics.UI.GLFW.Internal.C.TH           (deriveC)
 import Graphics.UI.GLFW.Internal.Instances.Data ()
 import Graphics.UI.GLFW.Internal.Instances.Lift ()
 import Graphics.UI.GLFW.Internal.Tables

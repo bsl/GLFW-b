@@ -26,38 +26,34 @@ extra-source-files:
   README.md
 
   Makefile
-  ./build/glfw/lib/cocoa/.build-tag
+  build/glfw/lib/cocoa/.build-tag
 
   glfw/include/os/unix-like/config.h
 
   glfw/include/GLFW/glfw3.h
   glfw/include/GLFW/glfw3native.h
 
-  glfw/src/cocoa_platform.h
-  glfw/src/egl_context.c
-  glfw/src/egl_platform.h
-  glfw/src/glx_platform.h
-  glfw/src/internal.h
-  glfw/src/nsgl_platform.h
-  glfw/src/wgl_context.c
-  glfw/src/wgl_platform.h
-  glfw/src/win32_platform.h
-  glfw/src/x11_platform.h
-
-  -- We can't explicitly list these as C sources so we list them here.
-  glfw/src/cocoa_gamma.c
-  glfw/src/cocoa_init.m
-  glfw/src/cocoa_joystick.m
-  glfw/src/cocoa_monitor.m
-  glfw/src/cocoa_time.c
-  glfw/src/cocoa_window.m
-  glfw/src/cocoa_clipboard.m
-  glfw/src/nsgl_context.m
-
   glfw/deps/EGL/eglext.h
   glfw/deps/GL/glext.h
   glfw/deps/GL/glxext.h
   glfw/deps/GL/wglext.h
+
+  glfw/src/cocoa_clipboard.m
+  glfw/src/cocoa_gamma.c
+  glfw/src/cocoa_init.m
+  glfw/src/cocoa_joystick.m
+  glfw/src/cocoa_monitor.m
+  glfw/src/cocoa_platform.h
+  glfw/src/cocoa_time.c
+  glfw/src/cocoa_window.m
+  glfw/src/egl_context.c
+  glfw/src/egl_platform.h
+  glfw/src/glx_platform.h
+  glfw/src/internal.h
+  glfw/src/nsgl_context.m
+  glfw/src/nsgl_platform.h
+  glfw/src/wgl_context.c
+  glfw/src/wgl_platform.h
 
 --------------------------------------------------------------------------------
 

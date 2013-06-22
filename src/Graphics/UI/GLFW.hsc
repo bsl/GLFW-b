@@ -370,9 +370,9 @@ setErrorCallback :: Maybe ErrorCallback -> IO ()
 setErrorCallback =
     setCallback
         wrapGlfwErrorCallback
-        (\cb -> (\a0 a1 -> do
+        (\cb a0 a1 -> do
             s <- peekCString a1
-            cb (fromC a0) s))
+            cb (fromC a0) s)
         glfwSetErrorCallback
         errorCallback
 
@@ -446,9 +446,9 @@ getVideoMode (Monitor gm) = do
       then return Nothing
       else (Just . fromC) `fmap` peek p
 
-setGamma :: Monitor -> Float -> IO ()
+setGamma :: Monitor -> Double -> IO ()
 setGamma (Monitor gm) e =
-    glfwSetGamma gm (realToFrac e)
+    glfwSetGamma gm (toC e)
 
 setGammaRamp :: Monitor -> GammaRamp -> IO ()
 setGammaRamp m gr =
@@ -619,8 +619,8 @@ setWindowPosCallback :: Window -> Maybe WindowPosCallback -> IO ()
 setWindowPosCallback w =
     setCallback
         wrapGlfwWindowPosCallback
-        (\cb -> (\a0 a1 a2 ->
-            cb (Window a0) (fromIntegral a1) (fromIntegral a2)))
+        (\cb a0 a1 a2 ->
+            cb (Window a0) (fromIntegral a1) (fromIntegral a2))
         (glfwSetWindowPosCallback (unWindow w))
         windowPosCallback
 
@@ -628,8 +628,8 @@ setWindowSizeCallback :: Window -> Maybe WindowSizeCallback -> IO ()
 setWindowSizeCallback w =
     setCallback
         wrapGlfwWindowSizeCallback
-        (\cb -> (\a0 a1 a2 ->
-            cb (Window a0) (fromIntegral a1) (fromIntegral a2)))
+        (\cb a0 a1 a2 ->
+            cb (Window a0) (fromIntegral a1) (fromIntegral a2))
         (glfwSetWindowSizeCallback (unWindow w))
         windowSizeCallback
 
@@ -637,7 +637,7 @@ setWindowCloseCallback :: Window -> Maybe WindowCloseCallback -> IO ()
 setWindowCloseCallback w =
     setCallback
         wrapGlfwWindowCloseCallback
-        (\cb -> (\a0 -> cb (Window a0)))
+        (. Window)
         (glfwSetWindowCloseCallback (unWindow w))
         windowCloseCallback
 
@@ -645,7 +645,7 @@ setWindowRefreshCallback :: Window -> Maybe WindowRefreshCallback -> IO ()
 setWindowRefreshCallback w =
     setCallback
         wrapGlfwWindowRefreshCallback
-        (\cb -> (\a0 -> cb (Window a0)))
+        (. Window)
         (glfwSetWindowRefreshCallback (unWindow w))
         windowRefreshCallback
 
@@ -653,7 +653,7 @@ setWindowFocusCallback :: Window -> Maybe WindowFocusCallback -> IO ()
 setWindowFocusCallback w =
     setCallback
         wrapGlfwWindowFocusCallback
-        (\cb -> (\a0 a1 -> cb (Window a0) (fromC a1)))
+        (\cb a0 a1 -> cb (Window a0) (fromC a1))
         (glfwSetWindowFocusCallback (unWindow w))
         windowFocusCallback
 
@@ -661,7 +661,7 @@ setWindowIconifyCallback :: Window -> Maybe WindowIconifyCallback -> IO ()
 setWindowIconifyCallback w =
     setCallback
         wrapGlfwWindowIconifyCallback
-        (\cb -> (\a0 a1 -> cb (Window a0) (fromC a1)))
+        (\cb a0 a1 -> cb (Window a0) (fromC a1))
         (glfwSetWindowIconifyCallback (unWindow w))
         windowIconifyCallback
 
@@ -669,7 +669,7 @@ setFramebufferSizeCallback :: Window -> Maybe FramebufferSizeCallback -> IO ()
 setFramebufferSizeCallback w =
     setCallback
         wrapGlfwFramebufferSizeCallback
-        (\cb -> (\a0 a1 a2 -> cb (Window a0) (fromIntegral a1) (fromIntegral a2)))
+        (\cb a0 a1 a2 -> cb (Window a0) (fromIntegral a1) (fromIntegral a2))
         (glfwSetFramebufferSizeCallback (unWindow w))
         framebufferSizeCallback
 
@@ -731,8 +731,8 @@ setKeyCallback :: Window -> Maybe KeyCallback -> IO ()
 setKeyCallback w =
     setCallback
         wrapGlfwKeyCallback
-        (\cb -> (\a0 a1 a2 a3 a4 ->
-            cb (Window a0) (fromC a1) (fromC a2) (fromC a3) (fromC a4)))
+        (\cb a0 a1 a2 a3 a4 ->
+            cb (Window a0) (fromC a1) (fromC a2) (fromC a3) (fromC a4))
         (glfwSetKeyCallback (unWindow w))
         keyCallback
 
@@ -740,7 +740,7 @@ setCharCallback :: Window -> Maybe CharCallback -> IO ()
 setCharCallback w =
     setCallback
         wrapGlfwCharCallback
-        (\cb -> (\a0 a1 -> cb (Window a0) (fromC a1)))
+        (\cb a0 a1 -> cb (Window a0) (fromC a1))
         (glfwSetCharCallback (unWindow w))
         charCallback
 
@@ -748,7 +748,7 @@ setMouseButtonCallback :: Window -> Maybe MouseButtonCallback -> IO ()
 setMouseButtonCallback w =
     setCallback
         wrapGlfwMouseButtonCallback
-        (\cb -> (\a0 a1 a2 a3 -> cb (Window a0) (fromC a1) (fromC a2) (fromC a3)))
+        (\cb a0 a1 a2 a3 -> cb (Window a0) (fromC a1) (fromC a2) (fromC a3))
         (glfwSetMouseButtonCallback (unWindow w))
         mouseButtonCallback
 
@@ -756,7 +756,7 @@ setCursorPosCallback :: Window -> Maybe CursorPosCallback -> IO ()
 setCursorPosCallback w =
     setCallback
         wrapGlfwCursorPosCallback
-        (\cb -> (\a0 a1 a2 -> cb (Window a0) (fromC a1) (fromC a2)))
+        (\cb a0 a1 a2 -> cb (Window a0) (fromC a1) (fromC a2))
         (glfwSetCursorPosCallback (unWindow w))
         cursorPosCallback
 
@@ -764,7 +764,7 @@ setCursorEnterCallback :: Window -> Maybe CursorEnterCallback -> IO ()
 setCursorEnterCallback w =
     setCallback
         wrapGlfwCursorEnterCallback
-        (\cb -> (\a0 a1 -> cb (Window a0) (fromC a1)))
+        (\cb a0 a1 -> cb (Window a0) (fromC a1))
         (glfwSetCursorEnterCallback (unWindow w))
         cursorEnterCallback
 
@@ -772,7 +772,7 @@ setScrollCallback :: Window -> Maybe ScrollCallback -> IO ()
 setScrollCallback w =
     setCallback
         wrapGlfwScrollCallback
-        (\cb -> (\a0 a1 a2 -> cb (Window a0) (fromC a1) (fromC a2)))
+        (\cb a0 a1 a2 -> cb (Window a0) (fromC a1) (fromC a2))
         (glfwSetScrollCallback (unWindow w))
         scrollCallback
 
@@ -780,14 +780,14 @@ joystickPresent :: Joystick -> IO Bool
 joystickPresent js =
     fromC `fmap` glfwJoystickPresent (toC js)
 
-getJoystickAxes :: Joystick -> IO (Maybe [Float])
+getJoystickAxes :: Joystick -> IO (Maybe [Double])
 getJoystickAxes js =
     alloca $ \pn -> do
         p <- glfwGetJoystickAxes (toC js) pn
         n <- fromC `fmap` peek pn
         if p == nullPtr || n == 0
           then return Nothing
-          else (Just . map realToFrac) `fmap` peekArray n p
+          else (Just . map fromC) `fmap` peekArray n p
 
 getJoystickButtons :: Joystick -> IO (Maybe [JoystickButtonAction])
 getJoystickButtons js =

@@ -10,7 +10,7 @@ module Graphics.UI.GLFW.Internal.Instances.C where
 
 import Data.Bits       ((.&.))
 import Data.Char       (chr, ord)
-import Foreign.C.Types (CDouble, CInt, CUChar, CUInt, CUShort)
+import Foreign.C.Types (CDouble, CFloat, CInt, CUChar, CUInt, CUShort)
 
 import Graphics.UI.GLFW.Internal.C              (C(..))
 import Graphics.UI.GLFW.Internal.C.TH           (deriveC)
@@ -41,6 +41,14 @@ deriveC ''CInt   ''MouseButton           table_C_CInt_MouseButton
 deriveC ''CInt   ''WindowAttribute       table_C_CInt_WindowAttribute
 deriveC ''CInt   ''Joystick              table_C_CInt_Joystick
 
+instance C CInt Char where
+  fromC = chr . fromIntegral
+  toC   = fromIntegral . ord
+
+instance C CDouble Double where
+  fromC = realToFrac
+  toC   = realToFrac
+
 instance C CInt Int where
   fromC = fromIntegral
   toC   = fromIntegral
@@ -53,11 +61,7 @@ instance C CUShort Int where
   fromC = fromIntegral
   toC   = fromIntegral
 
-instance C CInt Char where
-  fromC = chr . fromIntegral
-  toC   = fromIntegral . ord
-
-instance C CDouble Double where
+instance C CFloat Double where
   fromC = realToFrac
   toC   = realToFrac
 

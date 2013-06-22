@@ -12,11 +12,9 @@ import qualified Graphics.UI.GLFW as GLFW
 
 main :: IO ()
 main = do
-    -- GLFW.setErrorCallback $ Just $ \e s -> do
-    --     putStrLn $ show e
-    --     putStrLn $ show s
-    -- _ <- GLFW.getMonitors
-    -- return ()
+    GLFW.setErrorCallback $ Just $ \e s ->
+        putStrLn $ show e ++ " " ++ show s
+
     _ <- GLFW.initialize
     TF.defaultMain tests
     GLFW.terminate
@@ -152,7 +150,5 @@ test_setTime = do
       (Just t') -> unless (t' >= t) $
         HU.assertFailure $ "t = " ++ show t ++ ", t' = " ++ show t'
       Nothing -> HU.assertFailure "error"
-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 {-# ANN module "HLint: ignore Use camelCase" #-}

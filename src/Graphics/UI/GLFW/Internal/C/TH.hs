@@ -55,4 +55,3 @@ deriveC1 ctype htype pairs =
         body  = normalB [| error $ msg ++ show $(global vname) |]
         -- e.g., "C CInt Bool fromC: "
         msg = unwords (map nameBase [cname, ctype, htype, frname]) ++ ": "
-

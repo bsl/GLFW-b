@@ -15,7 +15,7 @@ main = do
     GLFW.setErrorCallback $ Just $ \e s ->
         putStrLn $ show e ++ " " ++ show s
 
-    _ <- GLFW.initialize
+    _ <- GLFW.init
     TF.defaultMain tests
     GLFW.terminate
 
@@ -38,17 +38,17 @@ tests =
         , TF.testCase "getVersionString"       test_getVersionString
         , TF.testCase "getMonitors"            test_getMonitors
         , TF.testCase "getPrimaryMonitor"      test_getPrimaryMonitor
-        , TF.testCase "getMonitorPosition"     test_getMonitorPosition
+        , TF.testCase "getMonitorPos"          test_getMonitorPos
         , TF.testCase "getMonitorPhysicalSize" test_getMonitorPhysicalSize
         , TF.testCase "getMonitorName"         test_getMonitorName
         , TF.testCase "getVideoModes"          test_getVideoModes
         , TF.testCase "getVideoMode"           test_getVideoMode
-        -- , TF.testCase "setGamma"               test_setGamma
-        -- , TF.testCase "defaultWindowHints"     test_defaultWindowHints
-        -- , TF.testCase "createWindow"           test_createWindow
+        -- , TF.testCase "setGamma"            test_setGamma
+        -- , TF.testCase "defaultWindowHints"  test_defaultWindowHints
+        -- , TF.testCase "createWindow"        test_createWindow
         , TF.testCase "joystickPresent"        test_joystickPresent
-        , TF.testCase "getTime"        test_getTime
-        , TF.testCase "setTime"        test_setTime
+        , TF.testCase "getTime"                test_getTime
+        , TF.testCase "setTime"                test_setTime
         ]
     ]
 
@@ -60,8 +60,8 @@ test_getVersion = do
     HU.assertBool "(==)" $
         v == glfwVersion
     HU.assertBool "values" $
-        GLFW.versionMajor    v == versionMajor    &&
-        GLFW.versionMinor    v == versionMinor    &&
+        GLFW.versionMajor    v == versionMajor &&
+        GLFW.versionMinor    v == versionMinor &&
         GLFW.versionRevision v == versionRevision
 
 test_getVersionString :: IO ()
@@ -83,10 +83,10 @@ test_getPrimaryMonitor = do
     r <- GLFW.getPrimaryMonitor
     HU.assertBool "Nothing" $ isJust r
 
-test_getMonitorPosition :: IO ()
-test_getMonitorPosition = do
+test_getMonitorPos :: IO ()
+test_getMonitorPos = do
     (Just m) <- GLFW.getPrimaryMonitor
-    (x, y) <- GLFW.getMonitorPosition m
+    (x, y) <- GLFW.getMonitorPos m
     HU.assertBool "invalid x" $ x >= 0
     HU.assertBool "invalid y" $ y >= 0
 
@@ -130,8 +130,8 @@ test_getVideoMode = do
 
 test_joystickPresent :: IO ()
 test_joystickPresent = do
-    _ <- GLFW.joystickPresent GLFW.Joystick1
-    r <- GLFW.joystickPresent GLFW.Joystick16
+    _ <- GLFW.joystickPresent GLFW.Joystick'1
+    r <- GLFW.joystickPresent GLFW.Joystick'16
     HU.assertBool "error" $ not r
 
 test_getTime :: IO ()

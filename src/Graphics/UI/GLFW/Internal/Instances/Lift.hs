@@ -21,21 +21,20 @@ instance Lift CUChar where
 
 deriveLiftMany
   [ ''CursorInputMode
-  , ''KeysInputMode
-  , ''MouseButtonsInputMode
-  , ''ClientApi
+  , ''StickyKeysInputMode
+  , ''StickyMouseButtonsInputMode
+  , ''ClientAPI
   , ''ContextRobustness
-  , ''OpenglProfile
+  , ''OpenGLProfile
   , ''Error
-  , ''CursorAction
-  , ''FocusAction
-  , ''IconifyAction
-  , ''KeyAction
-  , ''JoystickButtonAction
-  , ''MouseButtonAction
-  , ''MonitorAction
+  , ''CursorState
+  , ''FocusState
+  , ''IconifyState
+  , ''KeyState
+  , ''JoystickButtonState
+  , ''MouseButtonState
+  , ''MonitorState
   , ''Key
   , ''MouseButton
-  , ''WindowAttribute
   , ''Joystick
   ]

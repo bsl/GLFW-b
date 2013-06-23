@@ -26,10 +26,65 @@ data GlfwVideoMode = GlfwVideoMode
 
 --------------------------------------------------------------------------------
 
+data WindowHint =
+    WindowHint'Resizable           Bool
+  | WindowHint'Visible             Bool
+  | WindowHint'Decorated           Bool
+  | WindowHint'RedBits             Int
+  | WindowHint'GreenBits           Int
+  | WindowHint'BlueBits            Int
+  | WindowHint'AlphaBits           Int
+  | WindowHint'DepthBits           Int
+  | WindowHint'StencilBits         Int
+  | WindowHint'AccumRedBits        Int
+  | WindowHint'AccumGreenBits      Int
+  | WindowHint'AccumBlueBits       Int
+  | WindowHint'AccumAlphaBits      Int
+  | WindowHint'AuxBuffers          Int
+  | WindowHint'Samples             Int
+  | WindowHint'RefreshRate         Int
+  | WindowHint'Stereo              Bool
+  | WindowHint'sRGBCapable         Bool
+  | WindowHint'ClientAPI           ClientAPI
+  | WindowHint'ContextVersionMajor Int
+  | WindowHint'ContextVersionMinor Int
+  | WindowHint'ContextRobustness   ContextRobustness
+  | WindowHint'OpenGLForwardCompat Bool
+  | WindowHint'OpenGLDebugContext  Bool
+  | WindowHint'OpenGLProfile       OpenGLProfile
+  deriving (Eq, Show, Typeable)
+
+data ClientAPI =
+    ClientAPI'OpenGL
+  | ClientAPI'OpenGLES
+  deriving (Eq, Show, Typeable)
+
+data ContextRobustness =
+    ContextRobustness'NoRobustness
+  | ContextRobustness'NoResetNotification
+  | ContextRobustness'LoseContextOnReset
+  deriving (Eq, Show, Typeable)
+
+data OpenGLProfile =
+    OpenGLProfile'Any
+  | OpenGLProfile'Compat
+  | OpenGLProfile'Core
+  deriving (Eq, Show, Typeable)
+
 data CursorInputMode =
-    CursorNormal
-  | CursorHidden
-  | CursorDisabled
+    CursorInputMode'Normal
+  | CursorInputMode'Hidden
+  | CursorInputMode'Disabled
+  deriving (Eq, Show, Typeable)
+
+data StickyKeysInputMode =
+    StickyKeysInputMode'Enabled
+  | StickyKeysInputMode'Disabled
+  deriving (Eq, Show, Typeable)
+
+data StickyMouseButtonsInputMode =
+    StickyMouseButtonsInputMode'Enabled
+  | StickyMouseButtonsInputMode'Disabled
   deriving (Eq, Show, Typeable)
 
 data GammaRamp = GammaRamp
@@ -39,107 +94,52 @@ data GammaRamp = GammaRamp
   , gammaRampSize  :: Int
   } deriving (Eq, Show, Typeable)
 
-data KeysInputMode =
-    KeysNormal
-  | KeysSticky
-  deriving (Eq, Show, Typeable)
-
-data MouseButtonsInputMode =
-    MouseButtonsNormal
-  | MouseButtonsSticky
-  deriving (Eq, Show, Typeable)
-
-data WindowHints = WindowHints
-  { windowHintsResizable           :: Bool
-  , windowHintsVisible             :: Bool
-  , windowHintsDecorated           :: Bool
-  , windowHintsRedBits             :: Int
-  , windowHintsGreenBits           :: Int
-  , windowHintsBlueBits            :: Int
-  , windowHintsAlphaBits           :: Int
-  , windowHintsDepthBits           :: Int
-  , windowHintsStencilBits         :: Int
-  , windowHintsAccumRedBits        :: Int
-  , windowHintsAccumGreenBits      :: Int
-  , windowHintsAccumBlueBits       :: Int
-  , windowHintsAccumAlphaBits      :: Int
-  , windowHintsAuxBuffers          :: Int
-  , windowHintsSamples             :: Int
-  , windowHintsRefreshRate         :: Int
-  , windowHintsStereo              :: Bool
-  , windowHintsSrgbCapable         :: Bool
-  , windowHintsClientApi           :: ClientApi
-  , windowHintsContextVersionMajor :: Int
-  , windowHintsContextVersionMinor :: Int
-  , windowHintsContextRobustness   :: ContextRobustness
-  , windowHintsOpenglForwardCompat :: Bool
-  , windowHintsOpenglDebugContext  :: Bool
-  , windowHintsOpenglProfile       :: OpenglProfile
-  } deriving (Eq, Show, Typeable)
-
-data ClientApi =
-    OpenglApi
-  | OpenglEsApi
-  deriving (Eq, Show, Typeable)
-
-data ContextRobustness =
-    NoRobustness
-  | NoResetNotification
-  | LoseContextOnReset
-  deriving (Eq, Show, Typeable)
-
-data OpenglProfile =
-    OpenglAnyProfile
-  | OpenglCompatProfile
-  | OpenglCoreProfile
-  deriving (Eq, Show, Typeable)
-
 data Error =
-    NotInitialized
-  | NoCurrentContext
-  | InvalidEnum
-  | InvalidValue
-  | OutOfMemory
-  | ApiUnavailable
-  | VersionUnavailable
-  | PlatformError
-  | FormatUnavailable
+    Error'NotInitialized
+  | Error'NoCurrentContext
+  | Error'InvalidEnum
+  | Error'InvalidValue
+  | Error'OutOfMemory
+  | Error'ApiUnavailable
+  | Error'VersionUnavailable
+  | Error'PlatformError
+  | Error'FormatUnavailable
   deriving (Eq, Show, Typeable)
 
-data CursorAction =
-    CursorEnter
-  | CursorLeave
+data CursorState =
+    CursorState'InWindow
+  | CursorState'NotInWindow
   deriving (Eq, Show, Typeable)
 
-data FocusAction =
-    Focus
-  | Defocus
+data FocusState =
+    FocusState'Focused
+  | FocusState'Defocused
   deriving (Eq, Show, Typeable)
 
-data IconifyAction =
-    Iconify
-  | Restore
+data IconifyState =
+    IconifyState'Iconified
+  | IconifyState'NotIconified
   deriving (Eq, Show, Typeable)
 
-data KeyAction =
-    KeyPress
-  | KeyRelease
-  | KeyRepeat
+data KeyState =
+    KeyState'Pressed
+  | KeyState'Released
+  | KeyState'Repeating
   deriving (Eq, Show, Typeable)
 
-data JoystickButtonAction =
-    JoystickButtonPress
-  | JoystickButtonRelease
+data JoystickButtonState =
+    JoystickButtonState'Pressed
+  | JoystickButtonState'Released
   deriving (Eq, Show, Typeable)
 
-data MouseButtonAction =
-    MouseButtonPress
-  | MouseButtonRelease
+data MouseButtonState =
+    MouseButtonState'Pressed
+  | MouseButtonState'Released
   deriving (Eq, Show, Typeable)
 
-data MonitorAction =
-    Connect
-  | Disconnect
+data MonitorState =
+    MonitorState'Connected
+  | MonitorState'Disconnected
   deriving (Eq, Show, Typeable)
 
 data ModifierKeys = ModifierKeys
@@ -156,138 +156,138 @@ data Version = Version
   } deriving (Eq, Ord, Show, Typeable)
 
 data Key =
-    KeyUnknown
-  | KeySpace
-  | KeyApostrophe
-  | KeyComma
-  | KeyMinus
-  | KeyPeriod
-  | KeySlash
-  | Key0
-  | Key1
-  | Key2
-  | Key3
-  | Key4
-  | Key5
-  | Key6
-  | Key7
-  | Key8
-  | Key9
-  | KeySemicolon
-  | KeyEqual
-  | KeyA
-  | KeyB
-  | KeyC
-  | KeyD
-  | KeyE
-  | KeyF
-  | KeyG
-  | KeyH
-  | KeyI
-  | KeyJ
-  | KeyK
-  | KeyL
-  | KeyM
-  | KeyN
-  | KeyO
-  | KeyP
-  | KeyQ
-  | KeyR
-  | KeyS
-  | KeyT
-  | KeyU
-  | KeyV
-  | KeyW
-  | KeyX
-  | KeyY
-  | KeyZ
-  | KeyLeftBracket
-  | KeyBackslash
-  | KeyRightBracket
-  | KeyGraveAccent
-  | KeyWorld1
-  | KeyWorld2
-  | KeyEscape
-  | KeyEnter
-  | KeyTab
-  | KeyBackspace
-  | KeyInsert
-  | KeyDelete
-  | KeyRight
-  | KeyLeft
-  | KeyDown
-  | KeyUp
-  | KeyPageUp
-  | KeyPageDown
-  | KeyHome
-  | KeyEnd
-  | KeyCapsLock
-  | KeyScrollLock
-  | KeyNumLock
-  | KeyPrintScreen
-  | KeyPause
-  | KeyF1
-  | KeyF2
-  | KeyF3
-  | KeyF4
-  | KeyF5
-  | KeyF6
-  | KeyF7
-  | KeyF8
-  | KeyF9
-  | KeyF10
-  | KeyF11
-  | KeyF12
-  | KeyF13
-  | KeyF14
-  | KeyF15
-  | KeyF16
-  | KeyF17
-  | KeyF18
-  | KeyF19
-  | KeyF20
-  | KeyF21
-  | KeyF22
-  | KeyF23
-  | KeyF24
-  | KeyF25
-  | KeyPad0
-  | KeyPad1
-  | KeyPad2
-  | KeyPad3
-  | KeyPad4
-  | KeyPad5
-  | KeyPad6
-  | KeyPad7
-  | KeyPad8
-  | KeyPad9
-  | KeyPadDecimal
-  | KeyPadDivide
-  | KeyPadMultiply
-  | KeyPadSubtract
-  | KeyPadAdd
-  | KeyPadEnter
-  | KeyPadEqual
-  | KeyLeftShift
-  | KeyLeftControl
-  | KeyLeftAlt
-  | KeyLeftSuper
-  | KeyRightShift
-  | KeyRightControl
-  | KeyRightAlt
-  | KeyRightSuper
-  | KeyMenu
+    Key'Unknown
+  | Key'Space
+  | Key'Apostrophe
+  | Key'Comma
+  | Key'Minus
+  | Key'Period
+  | Key'Slash
+  | Key'0
+  | Key'1
+  | Key'2
+  | Key'3
+  | Key'4
+  | Key'5
+  | Key'6
+  | Key'7
+  | Key'8
+  | Key'9
+  | Key'Semicolon
+  | Key'Equal
+  | Key'A
+  | Key'B
+  | Key'C
+  | Key'D
+  | Key'E
+  | Key'F
+  | Key'G
+  | Key'H
+  | Key'I
+  | Key'J
+  | Key'K
+  | Key'L
+  | Key'M
+  | Key'N
+  | Key'O
+  | Key'P
+  | Key'Q
+  | Key'R
+  | Key'S
+  | Key'T
+  | Key'U
+  | Key'V
+  | Key'W
+  | Key'X
+  | Key'Y
+  | Key'Z
+  | Key'LeftBracket
+  | Key'Backslash
+  | Key'RightBracket
+  | Key'GraveAccent
+  | Key'World1
+  | Key'World2
+  | Key'Escape
+  | Key'Enter
+  | Key'Tab
+  | Key'Backspace
+  | Key'Insert
+  | Key'Delete
+  | Key'Right
+  | Key'Left
+  | Key'Down
+  | Key'Up
+  | Key'PageUp
+  | Key'PageDown
+  | Key'Home
+  | Key'End
+  | Key'CapsLock
+  | Key'ScrollLock
+  | Key'NumLock
+  | Key'PrintScreen
+  | Key'Pause
+  | Key'F1
+  | Key'F2
+  | Key'F3
+  | Key'F4
+  | Key'F5
+  | Key'F6
+  | Key'F7
+  | Key'F8
+  | Key'F9
+  | Key'F10
+  | Key'F11
+  | Key'F12
+  | Key'F13
+  | Key'F14
+  | Key'F15
+  | Key'F16
+  | Key'F17
+  | Key'F18
+  | Key'F19
+  | Key'F20
+  | Key'F21
+  | Key'F22
+  | Key'F23
+  | Key'F24
+  | Key'F25
+  | Key'Pad0
+  | Key'Pad1
+  | Key'Pad2
+  | Key'Pad3
+  | Key'Pad4
+  | Key'Pad5
+  | Key'Pad6
+  | Key'Pad7
+  | Key'Pad8
+  | Key'Pad9
+  | Key'PadDecimal
+  | Key'PadDivide
+  | Key'PadMultiply
+  | Key'PadSubtract
+  | Key'PadAdd
+  | Key'PadEnter
+  | Key'PadEqual
+  | Key'LeftShift
+  | Key'LeftControl
+  | Key'LeftAlt
+  | Key'LeftSuper
+  | Key'RightShift
+  | Key'RightControl
+  | Key'RightAlt
+  | Key'RightSuper
+  | Key'Menu
   deriving (Eq, Show, Typeable)
 
 data MouseButton =
-    MouseButton1
-  | MouseButton2
-  | MouseButton3
-  | MouseButton4
-  | MouseButton5
-  | MouseButton6
-  | MouseButton7
-  | MouseButton8
+    MouseButton'1
+  | MouseButton'2
+  | MouseButton'3
+  | MouseButton'4
+  | MouseButton'5
+  | MouseButton'6
+  | MouseButton'7
+  | MouseButton'8
   deriving (Eq, Show, Typeable)
 
 newtype Window = Window
@@ -307,28 +307,21 @@ data VideoMode = VideoMode
   , videoModeRefreshRate :: Int
   } deriving (Eq, Show, Typeable)
 
-data WindowAttribute =
-    Focused
-  | Iconified
-  | Visible
-  | Resizable
-  deriving (Eq, Show, Typeable)
-
 data Joystick =
-    Joystick1
-  | Joystick2
-  | Joystick3
-  | Joystick4
-  | Joystick5
-  | Joystick6
-  | Joystick7
-  | Joystick8
-  | Joystick9
-  | Joystick10
-  | Joystick11
-  | Joystick12
-  | Joystick13
-  | Joystick14
-  | Joystick15
-  | Joystick16
+    Joystick'1
+  | Joystick'2
+  | Joystick'3
+  | Joystick'4
+  | Joystick'5
+  | Joystick'6
+  | Joystick'7
+  | Joystick'8
+  | Joystick'9
+  | Joystick'10
+  | Joystick'11
+  | Joystick'12
+  | Joystick'13
+  | Joystick'14
+  | Joystick'15
+  | Joystick'16
   deriving (Eq, Ord, Show, Typeable)

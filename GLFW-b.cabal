@@ -78,7 +78,6 @@ library
 
   build-depends:
     base             == 4.*,
-    derive           == 2.*,
     template-haskell == 2.*,
     th-lift          == 0.*
 

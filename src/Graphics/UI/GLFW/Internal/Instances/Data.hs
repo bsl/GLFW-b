@@ -1,36 +1,15 @@
-{-# LANGUAGE    TemplateHaskell   #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE    DeriveDataTypeable #-}
+{-# LANGUAGE    StandaloneDeriving #-}
+{-# OPTIONS_GHC -fno-warn-orphans  #-}
 
 module Graphics.UI.GLFW.Internal.Instances.Data where
 
---------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------
 
-import Data.Data
-import Data.DeriveTH   (derives, makeData)
+import Data.Data       (Data)
 import Foreign.C.Types (CInt(..), CUChar(..))
 
-import Graphics.UI.GLFW.Types
+-- --------------------------------------------------------------------------------
 
---------------------------------------------------------------------------------
-
-derives [makeData]
-  [ ''CInt
-  , ''CUChar
-  , ''CursorInputMode
-  , ''StickyKeysInputMode
-  , ''StickyMouseButtonsInputMode
-  , ''ClientAPI
-  , ''ContextRobustness
-  , ''OpenGLProfile
-  , ''Error
-  , ''CursorState
-  , ''FocusState
-  , ''IconifyState
-  , ''KeyState
-  , ''JoystickButtonState
-  , ''MouseButtonState
-  , ''MonitorState
-  , ''Key
-  , ''MouseButton
-  , ''Joystick
-  ]
+deriving instance Data CInt
+deriving instance Data CUChar

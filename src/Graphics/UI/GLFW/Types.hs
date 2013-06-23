@@ -5,15 +5,20 @@ module Graphics.UI.GLFW.Types where
 
 --------------------------------------------------------------------------------
 
+import Data.Data       (Data)
 import Data.Typeable   (Typeable)
 import Foreign.C.Types (CInt)
 import Foreign.Ptr     (Ptr)
 
 --------------------------------------------------------------------------------
 
-data GlfwWindow
 data GlfwGammaRamp
-data GlfwMonitor
+
+data GlfwMonitor = GlfwMonitor
+  deriving (Data, Typeable)
+
+data GlfwWindow = GlfwWindow
+  deriving (Data, Typeable)
 
 data GlfwVideoMode = GlfwVideoMode
   { glfwVideoModeWidth       :: CInt
@@ -52,47 +57,47 @@ data WindowHint =
   | WindowHint'OpenGLForwardCompat Bool
   | WindowHint'OpenGLDebugContext  Bool
   | WindowHint'OpenGLProfile       OpenGLProfile
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data ClientAPI =
     ClientAPI'OpenGL
   | ClientAPI'OpenGLES
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data ContextRobustness =
     ContextRobustness'NoRobustness
   | ContextRobustness'NoResetNotification
   | ContextRobustness'LoseContextOnReset
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data OpenGLProfile =
     OpenGLProfile'Any
   | OpenGLProfile'Compat
   | OpenGLProfile'Core
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data CursorInputMode =
     CursorInputMode'Normal
   | CursorInputMode'Hidden
   | CursorInputMode'Disabled
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data StickyKeysInputMode =
     StickyKeysInputMode'Enabled
   | StickyKeysInputMode'Disabled
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data StickyMouseButtonsInputMode =
     StickyMouseButtonsInputMode'Enabled
   | StickyMouseButtonsInputMode'Disabled
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data GammaRamp = GammaRamp
   { gammaRampRed   :: [Int]
   , gammaRampGreen :: [Int]
   , gammaRampBlue  :: [Int]
   , gammaRampSize  :: Int
-  } deriving (Eq, Show, Typeable)
+  } deriving (Data, Eq, Show, Typeable)
 
 data Error =
     Error'NotInitialized
@@ -104,56 +109,56 @@ data Error =
   | Error'VersionUnavailable
   | Error'PlatformError
   | Error'FormatUnavailable
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data CursorState =
     CursorState'InWindow
   | CursorState'NotInWindow
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data FocusState =
     FocusState'Focused
   | FocusState'Defocused
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data IconifyState =
     IconifyState'Iconified
   | IconifyState'NotIconified
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data KeyState =
     KeyState'Pressed
   | KeyState'Released
   | KeyState'Repeating
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data JoystickButtonState =
     JoystickButtonState'Pressed
   | JoystickButtonState'Released
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data MouseButtonState =
     MouseButtonState'Pressed
   | MouseButtonState'Released
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data MonitorState =
     MonitorState'Connected
   | MonitorState'Disconnected
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data ModifierKeys = ModifierKeys
   { modifierKeysShift   :: Bool
   , modifierKeysControl :: Bool
   , modifierKeysAlt     :: Bool
   , modifierKeysSuper   :: Bool
-  } deriving (Eq, Show, Typeable)
+  } deriving (Data, Eq, Show, Typeable)
 
 data Version = Version
   { versionMajor    :: Int
   , versionMinor    :: Int
   , versionRevision :: Int
-  } deriving (Eq, Ord, Show, Typeable)
+  } deriving (Data, Eq, Ord, Show, Typeable)
 
 data Key =
     Key'Unknown
@@ -277,7 +282,7 @@ data Key =
   | Key'RightAlt
   | Key'RightSuper
   | Key'Menu
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 data MouseButton =
     MouseButton'1
@@ -288,15 +293,15 @@ data MouseButton =
   | MouseButton'6
   | MouseButton'7
   | MouseButton'8
-  deriving (Eq, Show, Typeable)
+  deriving (Data, Eq, Show, Typeable)
 
 newtype Window = Window
   { unWindow :: Ptr GlfwWindow
-  } deriving (Eq, Show, Typeable)
+  } deriving (Data, Eq, Show, Typeable)
 
 newtype Monitor = Monitor
   { unMonitor :: Ptr GlfwMonitor
-  } deriving (Eq, Show, Typeable)
+  } deriving (Data, Eq, Show, Typeable)
 
 data VideoMode = VideoMode
   { videoModeWidth       :: Int
@@ -305,7 +310,7 @@ data VideoMode = VideoMode
   , videoModeGreenBits   :: Int
   , videoModeBlueBits    :: Int
   , videoModeRefreshRate :: Int
-  } deriving (Eq, Show, Typeable)
+  } deriving (Data, Eq, Show, Typeable)
 
 data Joystick =
     Joystick'1
@@ -324,4 +329,4 @@ data Joystick =
   | Joystick'14
   | Joystick'15
   | Joystick'16
-  deriving (Eq, Ord, Show, Typeable)
+  deriving (Data, Eq, Ord, Show, Typeable)

@@ -3,11 +3,6 @@
 
 #include <GLFW/glfw3.h>
 
-{-
-When we set a callback, do we want the previous one?
-In 'terminate', should we clear all stored callbacks?
--}
-
 module Graphics.UI.GLFW
   ( initialize
   , terminate
@@ -347,6 +342,7 @@ initialize :: IO Bool
 initialize =
     fromC `fmap` glfwInit
 
+-- TODO free stored callback FunPtrs here
 terminate :: IO ()
 terminate =
     glfwTerminate

@@ -17,7 +17,7 @@ description:
   The bound version GLFW is version 3.0, released 2013-06-12. See
   <http://www.glfw.org/Version-3.0-released.html>.
 
-cabal-version: >= 1.8
+cabal-version: >= 1.10
 build-type:    Custom
 
 --------------------------------------------------------------------------------
@@ -58,6 +58,8 @@ extra-source-files:
 --------------------------------------------------------------------------------
 
 library
+  default-language: Haskell2010
+
   ghc-options: -Wall -O2
   if impl(ghc >= 6.8)
     ghc-options: -fwarn-tabs
@@ -142,6 +144,12 @@ library
 --------------------------------------------------------------------------------
 
 test-suite main
+  default-language: Haskell2010
+
+  ghc-options: -Wall -O2
+  if impl(ghc >= 6.8)
+    ghc-options: -fwarn-tabs
+
   type: exitcode-stdio-1.0
   main-is: Test.hs
   build-depends:
@@ -150,10 +158,6 @@ test-suite main
     base                 == 4.*,
     test-framework       == 0.*,
     test-framework-hunit == 0.*
-
-  ghc-options: -Wall -O2
-  if impl(ghc >= 6.8)
-    ghc-options: -fwarn-tabs
 
 --------------------------------------------------------------------------------
 

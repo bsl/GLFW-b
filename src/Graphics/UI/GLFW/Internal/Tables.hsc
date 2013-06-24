@@ -16,29 +16,41 @@ table_C_CInt_Bool =
     , ( (#const GL_TRUE),  True  )
     ]
 
-table_C_CInt_CursorInputMode :: [(CInt, CursorInputMode)]
-table_C_CInt_CursorInputMode =
-    [ ( (#const GLFW_CURSOR_NORMAL),   CursorInputMode'Normal   )
-    , ( (#const GLFW_CURSOR_HIDDEN),   CursorInputMode'Hidden   )
-    , ( (#const GLFW_CURSOR_DISABLED), CursorInputMode'Disabled )
+--------------------------------------------------------------------------------
+
+table_C_CInt_Error :: [(CInt, Error)]
+table_C_CInt_Error =
+    [ ( (#const GLFW_NOT_INITIALIZED),     Error'NotInitialized     )
+    , ( (#const GLFW_NO_CURRENT_CONTEXT),  Error'NoCurrentContext   )
+    , ( (#const GLFW_INVALID_ENUM),        Error'InvalidEnum        )
+    , ( (#const GLFW_INVALID_VALUE),       Error'InvalidValue       )
+    , ( (#const GLFW_OUT_OF_MEMORY),       Error'OutOfMemory        )
+    , ( (#const GLFW_API_UNAVAILABLE),     Error'ApiUnavailable     )
+    , ( (#const GLFW_VERSION_UNAVAILABLE), Error'VersionUnavailable )
+    , ( (#const GLFW_PLATFORM_ERROR),      Error'PlatformError      )
+    , ( (#const GLFW_FORMAT_UNAVAILABLE),  Error'FormatUnavailable  )
     ]
 
-table_C_CInt_StickyKeysInputMode :: [(CInt, StickyKeysInputMode)]
-table_C_CInt_StickyKeysInputMode =
-    [ ( (#const GL_TRUE),  StickyKeysInputMode'Enabled )
-    , ( (#const GL_FALSE), StickyKeysInputMode'Disabled )
+--------------------------------------------------------------------------------
+
+table_C_CInt_MonitorState :: [(CInt, MonitorState)]
+table_C_CInt_MonitorState =
+    [ ( (#const GL_TRUE),  MonitorState'Connected    )
+    , ( (#const GL_FALSE), MonitorState'Disconnected )
     ]
 
-table_C_CInt_StickyMouseButtonsInputMode :: [(CInt, StickyMouseButtonsInputMode)]
-table_C_CInt_StickyMouseButtonsInputMode =
-    [ ( (#const GL_TRUE),  StickyMouseButtonsInputMode'Enabled )
-    , ( (#const GL_FALSE), StickyMouseButtonsInputMode'Disabled )
+--------------------------------------------------------------------------------
+
+table_C_CInt_FocusState :: [(CInt, FocusState)]
+table_C_CInt_FocusState =
+    [ ( (#const GL_TRUE),  FocusState'Focused   )
+    , ( (#const GL_FALSE), FocusState'Defocused )
     ]
 
-table_C_CInt_ClientAPI :: [(CInt, ClientAPI)]
-table_C_CInt_ClientAPI =
-    [ ( (#const GLFW_OPENGL_API),    ClientAPI'OpenGL   )
-    , ( (#const GLFW_OPENGL_ES_API), ClientAPI'OpenGLES )
+table_C_CInt_IconifyState :: [(CInt, IconifyState)]
+table_C_CInt_IconifyState =
+    [ ( (#const GL_TRUE),  IconifyState'Iconified    )
+    , ( (#const GL_FALSE), IconifyState'NotIconified )
     ]
 
 table_C_CInt_ContextRobustness :: [(CInt, ContextRobustness)]
@@ -55,61 +67,13 @@ table_C_CInt_OpenGLProfile =
     , ( (#const GLFW_OPENGL_CORE_PROFILE),   OpenGLProfile'Core   )
     ]
 
-table_C_CInt_Error :: [(CInt, Error)]
-table_C_CInt_Error =
-    [ ( (#const GLFW_NOT_INITIALIZED),     Error'NotInitialized     )
-    , ( (#const GLFW_NO_CURRENT_CONTEXT),  Error'NoCurrentContext   )
-    , ( (#const GLFW_INVALID_ENUM),        Error'InvalidEnum        )
-    , ( (#const GLFW_INVALID_VALUE),       Error'InvalidValue       )
-    , ( (#const GLFW_OUT_OF_MEMORY),       Error'OutOfMemory        )
-    , ( (#const GLFW_API_UNAVAILABLE),     Error'ApiUnavailable     )
-    , ( (#const GLFW_VERSION_UNAVAILABLE), Error'VersionUnavailable )
-    , ( (#const GLFW_PLATFORM_ERROR),      Error'PlatformError      )
-    , ( (#const GLFW_FORMAT_UNAVAILABLE),  Error'FormatUnavailable  )
+table_C_CInt_ClientAPI :: [(CInt, ClientAPI)]
+table_C_CInt_ClientAPI =
+    [ ( (#const GLFW_OPENGL_API),    ClientAPI'OpenGL   )
+    , ( (#const GLFW_OPENGL_ES_API), ClientAPI'OpenGLES )
     ]
 
-table_C_CInt_CursorState :: [(CInt, CursorState)]
-table_C_CInt_CursorState =
-    [ ( (#const GL_TRUE),  CursorState'InWindow    )
-    , ( (#const GL_FALSE), CursorState'NotInWindow )
-    ]
-
-table_C_CInt_FocusState :: [(CInt, FocusState)]
-table_C_CInt_FocusState =
-    [ ( (#const GL_TRUE),  FocusState'Focused   )
-    , ( (#const GL_FALSE), FocusState'Defocused )
-    ]
-
-table_C_CInt_IconifyState :: [(CInt, IconifyState)]
-table_C_CInt_IconifyState =
-    [ ( (#const GL_TRUE),  IconifyState'Iconified    )
-    , ( (#const GL_FALSE), IconifyState'NotIconified )
-    ]
-
-table_C_CInt_KeyState :: [(CInt, KeyState)]
-table_C_CInt_KeyState =
-    [ ( (#const GLFW_PRESS),   KeyState'Pressed   )
-    , ( (#const GLFW_RELEASE), KeyState'Released  )
-    , ( (#const GLFW_REPEAT),  KeyState'Repeating )
-    ]
-
-table_C_CUChar_JoystickButtonState :: [(CUChar, JoystickButtonState)]
-table_C_CUChar_JoystickButtonState =
-    [ ( (#const GLFW_PRESS),   JoystickButtonState'Pressed  )
-    , ( (#const GLFW_RELEASE), JoystickButtonState'Released )
-    ]
-
-table_C_CInt_MouseButtonState :: [(CInt, MouseButtonState)]
-table_C_CInt_MouseButtonState =
-    [ ( (#const GLFW_PRESS),   MouseButtonState'Pressed  )
-    , ( (#const GLFW_RELEASE), MouseButtonState'Released )
-    ]
-
-table_C_CInt_MonitorState :: [(CInt, MonitorState)]
-table_C_CInt_MonitorState =
-    [ ( (#const GL_TRUE),  MonitorState'Connected    )
-    , ( (#const GL_FALSE), MonitorState'Disconnected )
-    ]
+--------------------------------------------------------------------------------
 
 table_C_CInt_Key :: [(CInt, Key)]
 table_C_CInt_Key =
@@ -236,16 +200,11 @@ table_C_CInt_Key =
    , ( (#const GLFW_KEY_MENU),          Key'Menu         )
    ]
 
-table_C_CInt_MouseButton :: [(CInt, MouseButton)]
-table_C_CInt_MouseButton =
-    [ ( (#const GLFW_MOUSE_BUTTON_1), MouseButton'1 )
-    , ( (#const GLFW_MOUSE_BUTTON_2), MouseButton'2 )
-    , ( (#const GLFW_MOUSE_BUTTON_3), MouseButton'3 )
-    , ( (#const GLFW_MOUSE_BUTTON_4), MouseButton'4 )
-    , ( (#const GLFW_MOUSE_BUTTON_5), MouseButton'5 )
-    , ( (#const GLFW_MOUSE_BUTTON_6), MouseButton'6 )
-    , ( (#const GLFW_MOUSE_BUTTON_7), MouseButton'7 )
-    , ( (#const GLFW_MOUSE_BUTTON_8), MouseButton'8 )
+table_C_CInt_KeyState :: [(CInt, KeyState)]
+table_C_CInt_KeyState =
+    [ ( (#const GLFW_PRESS),   KeyState'Pressed   )
+    , ( (#const GLFW_RELEASE), KeyState'Released  )
+    , ( (#const GLFW_REPEAT),  KeyState'Repeating )
     ]
 
 table_C_CInt_Joystick :: [(CInt, Joystick)]
@@ -266,6 +225,55 @@ table_C_CInt_Joystick =
     , ( (#const GLFW_JOYSTICK_14), Joystick'14 )
     , ( (#const GLFW_JOYSTICK_15), Joystick'15 )
     , ( (#const GLFW_JOYSTICK_16), Joystick'16 )
+    ]
+
+table_C_CUChar_JoystickButtonState :: [(CUChar, JoystickButtonState)]
+table_C_CUChar_JoystickButtonState =
+    [ ( (#const GLFW_PRESS),   JoystickButtonState'Pressed  )
+    , ( (#const GLFW_RELEASE), JoystickButtonState'Released )
+    ]
+
+table_C_CInt_MouseButton :: [(CInt, MouseButton)]
+table_C_CInt_MouseButton =
+    [ ( (#const GLFW_MOUSE_BUTTON_1), MouseButton'1 )
+    , ( (#const GLFW_MOUSE_BUTTON_2), MouseButton'2 )
+    , ( (#const GLFW_MOUSE_BUTTON_3), MouseButton'3 )
+    , ( (#const GLFW_MOUSE_BUTTON_4), MouseButton'4 )
+    , ( (#const GLFW_MOUSE_BUTTON_5), MouseButton'5 )
+    , ( (#const GLFW_MOUSE_BUTTON_6), MouseButton'6 )
+    , ( (#const GLFW_MOUSE_BUTTON_7), MouseButton'7 )
+    , ( (#const GLFW_MOUSE_BUTTON_8), MouseButton'8 )
+    ]
+
+table_C_CInt_MouseButtonState :: [(CInt, MouseButtonState)]
+table_C_CInt_MouseButtonState =
+    [ ( (#const GLFW_PRESS),   MouseButtonState'Pressed  )
+    , ( (#const GLFW_RELEASE), MouseButtonState'Released )
+    ]
+
+table_C_CInt_CursorState :: [(CInt, CursorState)]
+table_C_CInt_CursorState =
+    [ ( (#const GL_TRUE),  CursorState'InWindow    )
+    , ( (#const GL_FALSE), CursorState'NotInWindow )
+    ]
+
+table_C_CInt_CursorInputMode :: [(CInt, CursorInputMode)]
+table_C_CInt_CursorInputMode =
+    [ ( (#const GLFW_CURSOR_NORMAL),   CursorInputMode'Normal   )
+    , ( (#const GLFW_CURSOR_HIDDEN),   CursorInputMode'Hidden   )
+    , ( (#const GLFW_CURSOR_DISABLED), CursorInputMode'Disabled )
+    ]
+
+table_C_CInt_StickyKeysInputMode :: [(CInt, StickyKeysInputMode)]
+table_C_CInt_StickyKeysInputMode =
+    [ ( (#const GL_TRUE),  StickyKeysInputMode'Enabled )
+    , ( (#const GL_FALSE), StickyKeysInputMode'Disabled )
+    ]
+
+table_C_CInt_StickyMouseButtonsInputMode :: [(CInt, StickyMouseButtonsInputMode)]
+table_C_CInt_StickyMouseButtonsInputMode =
+    [ ( (#const GL_TRUE),  StickyMouseButtonsInputMode'Enabled )
+    , ( (#const GL_FALSE), StickyMouseButtonsInputMode'Disabled )
     ]
 
 {-# ANN module "HLint: ignore Use camelCase" #-}

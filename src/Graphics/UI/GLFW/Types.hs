@@ -30,6 +30,63 @@ data GlfwVideoMode = GlfwVideoMode
   } deriving (Eq, Show)
 
 --------------------------------------------------------------------------------
+-- Error handling
+
+data Error =
+    Error'NotInitialized
+  | Error'NoCurrentContext
+  | Error'InvalidEnum
+  | Error'InvalidValue
+  | Error'OutOfMemory
+  | Error'ApiUnavailable
+  | Error'VersionUnavailable
+  | Error'PlatformError
+  | Error'FormatUnavailable
+  deriving (Data, Eq, Show, Typeable)
+
+--------------------------------------------------------------------------------
+-- Initialization and version information
+
+data Version = Version
+  { versionMajor    :: Int
+  , versionMinor    :: Int
+  , versionRevision :: Int
+  } deriving (Data, Eq, Ord, Show, Typeable)
+
+--------------------------------------------------------------------------------
+-- Monitor handling
+
+newtype Monitor = Monitor
+  { unMonitor :: Ptr GlfwMonitor
+  } deriving (Data, Eq, Show, Typeable)
+
+data MonitorState =
+    MonitorState'Connected
+  | MonitorState'Disconnected
+  deriving (Data, Eq, Show, Typeable)
+
+data VideoMode = VideoMode
+  { videoModeWidth       :: Int
+  , videoModeHeight      :: Int
+  , videoModeRedBits     :: Int
+  , videoModeGreenBits   :: Int
+  , videoModeBlueBits    :: Int
+  , videoModeRefreshRate :: Int
+  } deriving (Data, Eq, Show, Typeable)
+
+data GammaRamp = GammaRamp
+  { gammaRampRed   :: [Int]
+  , gammaRampGreen :: [Int]
+  , gammaRampBlue  :: [Int]
+  , gammaRampSize  :: Int
+  } deriving (Data, Eq, Show, Typeable)
+
+--------------------------------------------------------------------------------
+-- Window handling
+
+newtype Window = Window
+  { unWindow :: Ptr GlfwWindow
+  } deriving (Data, Eq, Show, Typeable)
 
 data WindowHint =
     WindowHint'Resizable           Bool
@@ -59,9 +116,14 @@ data WindowHint =
   | WindowHint'OpenGLProfile       OpenGLProfile
   deriving (Data, Eq, Show, Typeable)
 
-data ClientAPI =
-    ClientAPI'OpenGL
-  | ClientAPI'OpenGLES
+data FocusState =
+    FocusState'Focused
+  | FocusState'Defocused
+  deriving (Data, Eq, Show, Typeable)
+
+data IconifyState =
+    IconifyState'Iconified
+  | IconifyState'NotIconified
   deriving (Data, Eq, Show, Typeable)
 
 data ContextRobustness =
@@ -76,89 +138,13 @@ data OpenGLProfile =
   | OpenGLProfile'Core
   deriving (Data, Eq, Show, Typeable)
 
-data CursorInputMode =
-    CursorInputMode'Normal
-  | CursorInputMode'Hidden
-  | CursorInputMode'Disabled
+data ClientAPI =
+    ClientAPI'OpenGL
+  | ClientAPI'OpenGLES
   deriving (Data, Eq, Show, Typeable)
 
-data StickyKeysInputMode =
-    StickyKeysInputMode'Enabled
-  | StickyKeysInputMode'Disabled
-  deriving (Data, Eq, Show, Typeable)
-
-data StickyMouseButtonsInputMode =
-    StickyMouseButtonsInputMode'Enabled
-  | StickyMouseButtonsInputMode'Disabled
-  deriving (Data, Eq, Show, Typeable)
-
-data GammaRamp = GammaRamp
-  { gammaRampRed   :: [Int]
-  , gammaRampGreen :: [Int]
-  , gammaRampBlue  :: [Int]
-  , gammaRampSize  :: Int
-  } deriving (Data, Eq, Show, Typeable)
-
-data Error =
-    Error'NotInitialized
-  | Error'NoCurrentContext
-  | Error'InvalidEnum
-  | Error'InvalidValue
-  | Error'OutOfMemory
-  | Error'ApiUnavailable
-  | Error'VersionUnavailable
-  | Error'PlatformError
-  | Error'FormatUnavailable
-  deriving (Data, Eq, Show, Typeable)
-
-data CursorState =
-    CursorState'InWindow
-  | CursorState'NotInWindow
-  deriving (Data, Eq, Show, Typeable)
-
-data FocusState =
-    FocusState'Focused
-  | FocusState'Defocused
-  deriving (Data, Eq, Show, Typeable)
-
-data IconifyState =
-    IconifyState'Iconified
-  | IconifyState'NotIconified
-  deriving (Data, Eq, Show, Typeable)
-
-data KeyState =
-    KeyState'Pressed
-  | KeyState'Released
-  | KeyState'Repeating
-  deriving (Data, Eq, Show, Typeable)
-
-data JoystickButtonState =
-    JoystickButtonState'Pressed
-  | JoystickButtonState'Released
-  deriving (Data, Eq, Show, Typeable)
-
-data MouseButtonState =
-    MouseButtonState'Pressed
-  | MouseButtonState'Released
-  deriving (Data, Eq, Show, Typeable)
-
-data MonitorState =
-    MonitorState'Connected
-  | MonitorState'Disconnected
-  deriving (Data, Eq, Show, Typeable)
-
-data ModifierKeys = ModifierKeys
-  { modifierKeysShift   :: Bool
-  , modifierKeysControl :: Bool
-  , modifierKeysAlt     :: Bool
-  , modifierKeysSuper   :: Bool
-  } deriving (Data, Eq, Show, Typeable)
-
-data Version = Version
-  { versionMajor    :: Int
-  , versionMinor    :: Int
-  , versionRevision :: Int
-  } deriving (Data, Eq, Ord, Show, Typeable)
+--------------------------------------------------------------------------------
+-- Input handling
 
 data Key =
     Key'Unknown
@@ -284,33 +270,11 @@ data Key =
   | Key'Menu
   deriving (Data, Eq, Show, Typeable)
 
-data MouseButton =
-    MouseButton'1
-  | MouseButton'2
-  | MouseButton'3
-  | MouseButton'4
-  | MouseButton'5
-  | MouseButton'6
-  | MouseButton'7
-  | MouseButton'8
+data KeyState =
+    KeyState'Pressed
+  | KeyState'Released
+  | KeyState'Repeating
   deriving (Data, Eq, Show, Typeable)
-
-newtype Window = Window
-  { unWindow :: Ptr GlfwWindow
-  } deriving (Data, Eq, Show, Typeable)
-
-newtype Monitor = Monitor
-  { unMonitor :: Ptr GlfwMonitor
-  } deriving (Data, Eq, Show, Typeable)
-
-data VideoMode = VideoMode
-  { videoModeWidth       :: Int
-  , videoModeHeight      :: Int
-  , videoModeRedBits     :: Int
-  , videoModeGreenBits   :: Int
-  , videoModeBlueBits    :: Int
-  , videoModeRefreshRate :: Int
-  } deriving (Data, Eq, Show, Typeable)
 
 data Joystick =
     Joystick'1
@@ -330,3 +294,52 @@ data Joystick =
   | Joystick'15
   | Joystick'16
   deriving (Data, Eq, Ord, Show, Typeable)
+
+data JoystickButtonState =
+    JoystickButtonState'Pressed
+  | JoystickButtonState'Released
+  deriving (Data, Eq, Show, Typeable)
+
+data MouseButton =
+    MouseButton'1
+  | MouseButton'2
+  | MouseButton'3
+  | MouseButton'4
+  | MouseButton'5
+  | MouseButton'6
+  | MouseButton'7
+  | MouseButton'8
+  deriving (Data, Eq, Show, Typeable)
+
+data MouseButtonState =
+    MouseButtonState'Pressed
+  | MouseButtonState'Released
+  deriving (Data, Eq, Show, Typeable)
+
+data CursorState =
+    CursorState'InWindow
+  | CursorState'NotInWindow
+  deriving (Data, Eq, Show, Typeable)
+
+data CursorInputMode =
+    CursorInputMode'Normal
+  | CursorInputMode'Hidden
+  | CursorInputMode'Disabled
+  deriving (Data, Eq, Show, Typeable)
+
+data StickyKeysInputMode =
+    StickyKeysInputMode'Enabled
+  | StickyKeysInputMode'Disabled
+  deriving (Data, Eq, Show, Typeable)
+
+data StickyMouseButtonsInputMode =
+    StickyMouseButtonsInputMode'Enabled
+  | StickyMouseButtonsInputMode'Disabled
+  deriving (Data, Eq, Show, Typeable)
+
+data ModifierKeys = ModifierKeys
+  { modifierKeysShift   :: Bool
+  , modifierKeysControl :: Bool
+  , modifierKeysAlt     :: Bool
+  , modifierKeysSuper   :: Bool
+  } deriving (Data, Eq, Show, Typeable)

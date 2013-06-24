@@ -24,7 +24,7 @@ main = do
 versionMajor, versionMinor, versionRevision :: Int
 versionMajor    = 3
 versionMinor    = 0
-versionRevision = 0
+versionRevision = 1
 
 glfwVersion :: GLFW.Version
 glfwVersion = GLFW.Version versionMajor versionMinor versionRevision

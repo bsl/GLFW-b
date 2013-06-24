@@ -79,5 +79,5 @@
 /* #undef _GLFW_USE_GLESV2 */
 
 // The GLFW version as used by glfwGetVersionString
-#define _GLFW_VERSION_FULL "3.0.0"
+#define _GLFW_VERSION_FULL "3.0.1"
 

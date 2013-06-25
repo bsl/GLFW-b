@@ -1,5 +1,4 @@
 import Control.Concurrent (threadDelay)
-import Control.Monad      (mapM, mapM_)
 import Data.List          (intercalate, isPrefixOf)
 import Data.Maybe         (isJust)
 
@@ -201,16 +200,16 @@ test_getVideoMode mon = do
 --     _ <- GLFW.setGamma mon 37
 --     return ()
 
-test_getGammaRamp :: GLFW.Monitor -> IO ()
-test_getGammaRamp mon = do
-    m <- GLFW.getGammaRamp mon
-    case m of
-      (Just gr) -> HU.assertBool "" $
-          let rl = length $ GLFW.gammaRampRed   gr
-              gl = length $ GLFW.gammaRampGreen gr
-              bl = length $ GLFW.gammaRampBlue  gr
-          in rl > 0 && rl == gl && gl == bl
-      Nothing -> HU.assertFailure ""
+-- test_getGammaRamp :: GLFW.Monitor -> IO ()
+-- test_getGammaRamp mon = do
+--     m <- GLFW.getGammaRamp mon
+--     case m of
+--       (Just gr) -> HU.assertBool "" $
+--           let rl = length $ GLFW.gammaRampRed   gr
+--               gl = length $ GLFW.gammaRampGreen gr
+--               bl = length $ GLFW.gammaRampBlue  gr
+--           in rl > 0 && rl == gl && gl == bl
+--       Nothing -> HU.assertFailure ""
 
 -- test_setGammaRamp :: GLFW.Monitor -> IO ()
 -- test_setGammaRamp mon =

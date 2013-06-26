@@ -14,7 +14,7 @@ description:
   with OpenGL contexts and managing input and events. See
   <http://www.glfw.org/>.
   .
-  The bound version GLFW is version 3.0.1, released 2013-06-17. See
+  The bound version of GLFW is version 3.0.1, released 2013-06-17. See
   <http://www.glfw.org/Version-3.0.1-released.html> for more information.
 
 cabal-version: >= 1.10

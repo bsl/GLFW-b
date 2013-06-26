@@ -74,12 +74,25 @@ data VideoMode = VideoMode
   , videoModeRefreshRate :: Int
   } deriving (Data, Eq, Show, Typeable)
 
+-- It would be bad to give clients a way to construct invalid gamma ramps with
+-- lists of unequal length, so this constructor should not be exported.
 data GammaRamp = GammaRamp
   { gammaRampRed   :: [Int]
   , gammaRampGreen :: [Int]
   , gammaRampBlue  :: [Int]
-  , gammaRampSize  :: Int
   } deriving (Data, Eq, Show, Typeable)
+
+-- Smart constructor for GammaRamp.
+makeGammaRamp :: [Int] -> [Int] -> [Int] -> Maybe GammaRamp
+makeGammaRamp rs gs bs
+    | lengthsEqual = Just $ GammaRamp rs gs bs
+    | otherwise    = Nothing
+  where
+    lengthsEqual =
+      let rsl = length rs
+          gsl = length gs
+          bsl = length bs
+      in rsl == gsl && gsl == bsl
 
 --------------------------------------------------------------------------------
 -- Window handling

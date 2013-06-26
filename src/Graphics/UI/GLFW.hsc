@@ -21,7 +21,8 @@ module Graphics.UI.GLFW
   , Monitor
   , MonitorState (..)
   , VideoMode    (..)
-  , GammaRamp    (..)  -- TODO: this should probably be protected by smart constructor
+  , GammaRamp
+  , makeGammaRamp
     --
   , getMonitors
   , getPrimaryMonitor
@@ -533,7 +534,6 @@ getGammaRamp m = do
             { gammaRampRed   = r
             , gammaRampGreen = g
             , gammaRampBlue  = b
-            , gammaRampSize  = n
             }
 
 setGammaRamp :: Monitor -> GammaRamp -> IO ()
@@ -541,7 +541,9 @@ setGammaRamp m gr =
     let r = map toC $ gammaRampRed   gr :: [CUShort]
         g = map toC $ gammaRampGreen gr :: [CUShort]
         b = map toC $ gammaRampBlue  gr :: [CUShort]
-        n =     toC $ gammaRampSize  gr :: CUInt
+        -- GammaRamp's smart constructor ensures that the RGB lists all have
+        -- equal length, so just use the number of reds.
+        n =     toC $ length r          :: CUInt
     in allocaBytes (#size GLFWgammaramp) $ \pgr ->
        withArray r $ \pr ->
        withArray g $ \pg ->

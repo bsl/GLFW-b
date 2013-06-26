@@ -1,3 +1,5 @@
+-- Lists of pairs for use with deriveC.
+
 #include <GLFW/glfw3.h>
 
 module Graphics.UI.GLFW.Internal.Tables where

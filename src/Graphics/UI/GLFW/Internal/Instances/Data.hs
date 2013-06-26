@@ -2,6 +2,9 @@
 {-# LANGUAGE    StandaloneDeriving #-}
 {-# OPTIONS_GHC -fno-warn-orphans  #-}
 
+-- To derive instances of C c h with deriveC, c and h must be instances of
+-- Data.
+
 module Graphics.UI.GLFW.Internal.Instances.Data where
 
 -- --------------------------------------------------------------------------------

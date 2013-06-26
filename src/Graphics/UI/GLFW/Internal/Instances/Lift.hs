@@ -1,6 +1,9 @@
 {-# LANGUAGE    TemplateHaskell   #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
+-- To derive instances of C c h with deriveC, c and h must be instances of
+-- Lift.
+
 module Graphics.UI.GLFW.Internal.Instances.Lift where
 
 --------------------------------------------------------------------------------

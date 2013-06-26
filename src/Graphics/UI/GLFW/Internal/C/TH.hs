@@ -1,5 +1,24 @@
 {-# LANGUAGE TemplateHaskell #-}
 
+-- deriveC creates an instance of C c h from [(c, h)].
+--
+-- Example:
+--
+-- > pairs :: [(CInt, Bool)]
+-- > pairs = [(0, False), (1, True)]
+-- >
+-- > deriveC ''CInt ''Bool pairs
+--
+-- would derive
+--
+-- > instance C CInt Bool where
+-- >   fromC 0 = False
+-- >   fromC 1 = True
+-- >   fromC _ = error ...
+-- >
+-- >   toC False = 0
+-- >   toC True  = 1
+
 module Graphics.UI.GLFW.Internal.C.TH
   ( deriveC
   ) where

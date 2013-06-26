@@ -244,6 +244,12 @@ type GlfwWindowPosCallback       = Ptr GlfwWindow -> CInt -> CInt               
 type GlfwWindowRefreshCallback   = Ptr GlfwWindow                                 -> IO ()
 type GlfwWindowSizeCallback      = Ptr GlfwWindow -> CInt -> CInt                 -> IO ()
 
+-- When we need to pass a Haskell function to C as a callback, we use the
+-- appropriate wrapGlfw*Callback function to get its FunPtr. This requires
+-- allocating space, so we have to free it with freeHaskellFunPtr after
+-- clearing the callback.
+-- See http://hackage.haskell.org/packages/archive/base/latest/doc/html/Foreign-Ptr.html#t:FunPtr
+
 foreign import ccall "wrapper" wrapGlfwErrorCallback           :: GlfwErrorCallback           -> IO (FunPtr GlfwErrorCallback          )
 foreign import ccall "wrapper" wrapGlfwMonitorCallback         :: GlfwMonitorCallback         -> IO (FunPtr GlfwMonitorCallback        )
 foreign import ccall "wrapper" wrapGlfwCharCallback            :: GlfwCharCallback            -> IO (FunPtr GlfwCharCallback           )
@@ -260,7 +266,9 @@ foreign import ccall "wrapper" wrapGlfwWindowPosCallback       :: GlfwWindowPosC
 foreign import ccall "wrapper" wrapGlfwWindowRefreshCallback   :: GlfwWindowRefreshCallback   -> IO (FunPtr GlfwWindowRefreshCallback  )
 foreign import ccall "wrapper" wrapGlfwWindowSizeCallback      :: GlfwWindowSizeCallback      -> IO (FunPtr GlfwWindowSizeCallback     )
 
--- TODO: write comment explaining stored callbacks
+-- We store FunPtrs from wrapGlfw*Callback in these stored*FunPtr IORefs.
+-- Initialized with unsafePerformIO, they are basically mutable global
+-- variables.
 
 storedCharFunPtr            :: IORef (FunPtr GlfwCharCallback)
 storedCursorEnterFunPtr     :: IORef (FunPtr GlfwCursorEnterCallback)
@@ -294,6 +302,9 @@ storedWindowPosFunPtr       = unsafePerformIO $ newIORef nullFunPtr
 storedWindowRefreshFunPtr   = unsafePerformIO $ newIORef nullFunPtr
 storedWindowSizeFunPtr      = unsafePerformIO $ newIORef nullFunPtr
 
+-- These NOINLINE pragmas are due to use of unsafePerformIO.
+-- See http://hackage.haskell.org/packages/archive/base/latest/doc/html/System-IO-Unsafe.html#v:unsafePerformIO .
+
 {-# NOINLINE storedCharFunPtr            #-}
 {-# NOINLINE storedCursorEnterFunPtr     #-}
 {-# NOINLINE storedCursorPosFunPtr       #-}
@@ -311,20 +322,26 @@ storedWindowSizeFunPtr      = unsafePerformIO $ newIORef nullFunPtr
 {-# NOINLINE storedWindowSizeFunPtr      #-}
 
 setCallback
-  :: (c -> IO (FunPtr c))          -- wrapper function
-  -> (h -> c)                      -- adapter function
-  -> (FunPtr c -> IO (FunPtr c))   -- glfwSet*Callback function
-  -> IORef (FunPtr c)              -- storage location
-  -> Maybe h                       -- Haskell callback
+  :: (c -> IO (FunPtr c))          -- wf   wrapper function
+  -> (h -> c)                      -- af   adapter function
+  -> (FunPtr c -> IO (FunPtr c))   -- gf   glfwSet*Callback function
+  -> IORef (FunPtr c)              -- ior  storage location
+  -> Maybe h                       -- mcb  Haskell callback
   -> IO ()
 setCallback wf af gf ior mcb = do
+    -- If mcb is Just, make ccb the FunPtr of the adapted callback. Otherwise a
+    -- null FunPtr.
     ccb <- maybe (return nullFunPtr) (wf . af) mcb
-    _   <- gf ccb
+    -- Call the GLFW callback-setting function
+    _ <- gf ccb
+    -- Store it.
     storeCallback ior ccb
 
 storeCallback :: IORef (FunPtr a) -> FunPtr a -> IO ()
 storeCallback ior new = do
+    -- Store the new FunPtr, retrieve the previous one.
     prev <- atomicModifyIORef' ior (\cur -> (new, cur))
+    -- Free the old FunPtr if necessary.
     when (prev /= nullFunPtr) $ freeHaskellFunPtr prev
 
 --------------------------------------------------------------------------------

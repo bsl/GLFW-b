@@ -1,0 +1,19 @@
+Improve everything about testing.
+Improve existing tests.
+Add more tests.
+
+Is there a better way to accomplish the translation done by the 'C' class that
+doesn't require TH?
+
+Coordinate with GLFW C-library maintainer about any strange behavior.
+1.) Cursor is in window. Left click.
+    Events seen:
+      cursor enter: CursorState'NotInWindow
+      cursor enter: CursorState'InWindow
+      mouse button: MouseButton'1 MouseButtonState'Pressed [mod keys: none]
+      mouse button: MouseButton'1 MouseButtonState'Released [mod keys: none]
+    The CursorState events seem spurious -- the cursor did not leave the
+    window.
+
+Coordinate with GLFW C-library maintainer about new functionality.
+1.) waitEvents with timeout?

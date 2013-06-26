@@ -403,10 +403,25 @@ init :: IO Bool
 init =
     fromC `fmap` glfwInit
 
--- TODO free stored callback FunPtrs here
 terminate :: IO ()
-terminate =
+terminate = do
     glfwTerminate
+    -- Ensure all stored callback FunPtrs are freed.
+    storeCallback storedCharFunPtr            nullFunPtr
+    storeCallback storedCursorEnterFunPtr     nullFunPtr
+    storeCallback storedCursorPosFunPtr       nullFunPtr
+    storeCallback storedErrorFunPtr           nullFunPtr
+    storeCallback storedFramebufferSizeFunPtr nullFunPtr
+    storeCallback storedKeyFunPtr             nullFunPtr
+    storeCallback storedMonitorFunPtr         nullFunPtr
+    storeCallback storedMouseButtonFunPtr     nullFunPtr
+    storeCallback storedScrollFunPtr          nullFunPtr
+    storeCallback storedWindowCloseFunPtr     nullFunPtr
+    storeCallback storedWindowFocusFunPtr     nullFunPtr
+    storeCallback storedWindowIconifyFunPtr   nullFunPtr
+    storeCallback storedWindowPosFunPtr       nullFunPtr
+    storeCallback storedWindowRefreshFunPtr   nullFunPtr
+    storeCallback storedWindowSizeFunPtr      nullFunPtr
 
 getVersion :: IO Version
 getVersion =

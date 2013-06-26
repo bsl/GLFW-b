@@ -24,23 +24,23 @@ import Graphics.UI.GLFW.Types
 --------------------------------------------------------------------------------
 
 deriveC ''CInt   ''Bool                        table_C_CInt_Bool
-deriveC ''CInt   ''CursorInputMode             table_C_CInt_CursorInputMode
-deriveC ''CInt   ''StickyKeysInputMode         table_C_CInt_StickyKeysInputMode
-deriveC ''CInt   ''StickyMouseButtonsInputMode table_C_CInt_StickyMouseButtonsInputMode
 deriveC ''CInt   ''ClientAPI                   table_C_CInt_ClientAPI
 deriveC ''CInt   ''ContextRobustness           table_C_CInt_ContextRobustness
-deriveC ''CInt   ''OpenGLProfile               table_C_CInt_OpenGLProfile
-deriveC ''CInt   ''Error                       table_C_CInt_Error
+deriveC ''CInt   ''CursorInputMode             table_C_CInt_CursorInputMode
 deriveC ''CInt   ''CursorState                 table_C_CInt_CursorState
+deriveC ''CInt   ''Error                       table_C_CInt_Error
 deriveC ''CInt   ''FocusState                  table_C_CInt_FocusState
 deriveC ''CInt   ''IconifyState                table_C_CInt_IconifyState
-deriveC ''CInt   ''KeyState                    table_C_CInt_KeyState
-deriveC ''CUChar ''JoystickButtonState         table_C_CUChar_JoystickButtonState
-deriveC ''CInt   ''MouseButtonState            table_C_CInt_MouseButtonState
-deriveC ''CInt   ''MonitorState                table_C_CInt_MonitorState
-deriveC ''CInt   ''Key                         table_C_CInt_Key
-deriveC ''CInt   ''MouseButton                 table_C_CInt_MouseButton
 deriveC ''CInt   ''Joystick                    table_C_CInt_Joystick
+deriveC ''CInt   ''Key                         table_C_CInt_Key
+deriveC ''CInt   ''KeyState                    table_C_CInt_KeyState
+deriveC ''CInt   ''MonitorState                table_C_CInt_MonitorState
+deriveC ''CInt   ''MouseButton                 table_C_CInt_MouseButton
+deriveC ''CInt   ''MouseButtonState            table_C_CInt_MouseButtonState
+deriveC ''CInt   ''OpenGLProfile               table_C_CInt_OpenGLProfile
+deriveC ''CInt   ''StickyKeysInputMode         table_C_CInt_StickyKeysInputMode
+deriveC ''CInt   ''StickyMouseButtonsInputMode table_C_CInt_StickyMouseButtonsInputMode
+deriveC ''CUChar ''JoystickButtonState         table_C_CUChar_JoystickButtonState
 
 instance C CInt Char where
   fromC = chr . fromIntegral

@@ -23,21 +23,21 @@ instance Lift CUChar where
   lift x = return (LitE (IntegerL (fromIntegral x)))
 
 deriveLiftMany
-  [ ''CursorInputMode
-  , ''StickyKeysInputMode
-  , ''StickyMouseButtonsInputMode
-  , ''ClientAPI
+  [ ''ClientAPI
   , ''ContextRobustness
-  , ''OpenGLProfile
-  , ''Error
+  , ''CursorInputMode
   , ''CursorState
+  , ''Error
   , ''FocusState
   , ''IconifyState
-  , ''KeyState
-  , ''JoystickButtonState
-  , ''MouseButtonState
-  , ''MonitorState
-  , ''Key
-  , ''MouseButton
   , ''Joystick
+  , ''JoystickButtonState
+  , ''Key
+  , ''KeyState
+  , ''MonitorState
+  , ''MouseButton
+  , ''MouseButtonState
+  , ''OpenGLProfile
+  , ''StickyKeysInputMode
+  , ''StickyMouseButtonsInputMode
   ]

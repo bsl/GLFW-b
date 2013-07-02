@@ -14,46 +14,12 @@ description:
   with OpenGL contexts and managing input and events. See
   <http://www.glfw.org/>.
   .
-  The bound version of GLFW is version 3.0.1, released 2013-06-17. See
-  <http://www.glfw.org/Version-3.0.1-released.html> for more information.
+  GLFW-b depends on bindings-GLFW, which, as of the time of this writing, binds
+  to GLFW 3.0.1, released 2013-06-17. See
+  <http://www.glfw.org/Version-3.0.1-released.html>.
 
 cabal-version: >= 1.10
-build-type:    Custom
-
---------------------------------------------------------------------------------
-
-extra-source-files:
-  README.md
-
-  Makefile
-  build/glfw/lib/cocoa/.build-tag
-
-  glfw/include/os/unix-like/config.h
-
-  glfw/include/GLFW/glfw3.h
-  glfw/include/GLFW/glfw3native.h
-
-  glfw/deps/EGL/eglext.h
-  glfw/deps/GL/glext.h
-  glfw/deps/GL/glxext.h
-  glfw/deps/GL/wglext.h
-
-  glfw/src/cocoa_clipboard.m
-  glfw/src/cocoa_gamma.c
-  glfw/src/cocoa_init.m
-  glfw/src/cocoa_joystick.m
-  glfw/src/cocoa_monitor.m
-  glfw/src/cocoa_platform.h
-  glfw/src/cocoa_time.c
-  glfw/src/cocoa_window.m
-  glfw/src/egl_context.c
-  glfw/src/egl_platform.h
-  glfw/src/glx_platform.h
-  glfw/src/internal.h
-  glfw/src/nsgl_context.m
-  glfw/src/nsgl_platform.h
-  glfw/src/wgl_context.c
-  glfw/src/wgl_platform.h
+build-type:    Simple
 
 --------------------------------------------------------------------------------
 
@@ -77,68 +43,10 @@ library
     Graphics.UI.GLFW.Types
 
   build-depends:
-    base             == 4.*,
-    template-haskell == 2.*,
-    th-lift          == 0.*
-
-  hs-source-dirs:
-    src
-
-  include-dirs:
-    glfw/include
-    glfw/src
-
-  if !os(darwin)
-    c-sources:
-      glfw/src/clipboard.c
-      glfw/src/context.c
-      glfw/src/gamma.c
-      glfw/src/init.c
-      glfw/src/input.c
-      glfw/src/joystick.c
-      glfw/src/monitor.c
-      glfw/src/time.c
-      glfw/src/window.c
-      glfw/src/glx_context.c
-
-  if os(linux) || os(freebsd)
-    include-dirs:
-      -- Note: glfw/include/os/unix-like/config.h is the config.h created by
-      --       CMake on my Linux system
-      glfw/include/os/unix-like
-    c-sources:
-      glfw/src/x11_clipboard.c
-      glfw/src/x11_gamma.c
-      glfw/src/x11_init.c
-      glfw/src/x11_joystick.c
-      glfw/src/x11_monitor.c
-      glfw/src/x11_time.c
-      glfw/src/x11_unicode.c
-      glfw/src/x11_window.c
-    extra-libraries:
-      GL
-      X11
-      Xi
-      Xrandr
-      Xxf86vm
-      pthread
-  else
-    if os(darwin)
-      extra-libraries: glfw
-      extra-lib-dirs: build
-      ghc-options: -fPIC
-    else
-      if os(mingw32)
-        c-sources:
-          glfw/src/win32_clipboard.c
-          glfw/src/win32_gamma.c
-          glfw/src/win32_init.c
-          glfw/src/win32_joystick.c
-          glfw/src/win32_monitor.c
-          glfw/src/win32_time.c
-          glfw/src/win32_window.c
-        extra-libraries:
-          opengl32
+    base              < 5,
+    bindings-GLFW    == 0.0.*,
+    template-haskell == 2.8.*,
+    th-lift          == 0.5.*
 
 --------------------------------------------------------------------------------
 
@@ -150,13 +58,17 @@ test-suite main
     ghc-options: -fwarn-tabs
 
   type: exitcode-stdio-1.0
+
   main-is: Test.hs
   build-depends:
-    GLFW-b,
-    HUnit                == 1.*,
-    base                 == 4.*,
-    test-framework       == 0.*,
-    test-framework-hunit == 0.*
+    GLFW-b               == 1.0.*,
+    HUnit                == 1.2.*,
+    base                  < 5,
+    bindings-GLFW        == 0.0.*,
+    template-haskell     == 2.8.*,
+    test-framework       == 0.8.*,
+    test-framework-hunit == 0.3.*,
+    th-lift              == 0.5.*
 
 --------------------------------------------------------------------------------
 

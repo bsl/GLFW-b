@@ -1,12 +1,18 @@
+-- base
 import Control.Concurrent (threadDelay)
+import Data.Char          (isAscii)
 import Data.List          (intercalate, isPrefixOf)
-import Data.Maybe         (isJust)
 
-import           Test.HUnit ((@?=))
-import qualified Test.Framework                 as TF
-import qualified Test.Framework.Providers.HUnit as TF
-import qualified Test.HUnit                     as HU
+-- HUnit
+import Test.HUnit ((@?=), assertBool, assertFailure)
 
+-- test-framework
+import Test.Framework (Test, defaultMain, testGroup)
+
+-- test-framework-hunit
+import Test.Framework.Providers.HUnit (testCase)
+
+-- GLFW-b
 import qualified Graphics.UI.GLFW as GLFW
 
 --------------------------------------------------------------------------------
@@ -17,13 +23,16 @@ main = do
         putStrLn $ unwords ["###", show e, show s]
 
     True <- GLFW.init
-    (Just mon) <- GLFW.getPrimaryMonitor
+
+    Just mon <- GLFW.getPrimaryMonitor
+
     GLFW.windowHint $ GLFW.WindowHint'Visible False
     mwin@(Just win) <- GLFW.createWindow 100 100 "GLFW-b test" Nothing Nothing
     GLFW.makeContextCurrent mwin
 
-    TF.defaultMain $ tests mon win
+    defaultMain $ tests mon win
 
+    -- TODO because of how defaultMain works, this code is not reached
     GLFW.destroyWindow win
     GLFW.terminate
 
@@ -60,76 +69,83 @@ joysticks =
     , GLFW.Joystick'16
     ]
 
+between :: Ord a => a -> (a,a) -> Bool
+between n (l,h) = n >= l && n <= h
+
+videoModeLooksValid :: GLFW.VideoMode -> Bool
+videoModeLooksValid vm = and
+    [ GLFW.videoModeWidth       vm `between` (0,4000)
+    , GLFW.videoModeHeight      vm `between` (0,2000)
+    , GLFW.videoModeRedBits     vm `between` (0,  32)
+    , GLFW.videoModeGreenBits   vm `between` (0,  32)
+    , GLFW.videoModeBlueBits    vm `between` (0,  32)
+    , GLFW.videoModeRefreshRate vm `between` (0, 120)
+    ]
+
 --------------------------------------------------------------------------------
 
-tests :: GLFW.Monitor -> GLFW.Window -> [TF.Test]
+tests :: GLFW.Monitor -> GLFW.Window -> [Test]
 tests mon win =
-    [ TF.testGroup "Initialization and version information"
-      [ TF.testCase "getVersion"       test_getVersion
-      , TF.testCase "getVersionString" test_getVersionString
+    [ testGroup "Initialization and version information"
+      [ testCase "getVersion"       test_getVersion
+      , testCase "getVersionString" test_getVersionString
       ]
-
-    , TF.testGroup "Monitor handling"
-      [ TF.testCase "getMonitors"              test_getMonitors
-      , TF.testCase "getPrimaryMonitor"        test_getPrimaryMonitor
-      , TF.testCase "getMonitorPos"          $ test_getMonitorPos mon
-      , TF.testCase "getMonitorPhysicalSize" $ test_getMonitorPhysicalSize mon
-      , TF.testCase "getMonitorName"         $ test_getMonitorName mon
-      , TF.testCase "getVideoModes"          $ test_getVideoModes mon
-      , TF.testCase "getVideoMode"           $ test_getVideoMode mon
-      -- , TF.testCase "setGamma"               $ test_setGamma mon
-      -- , TF.testCase "gamma ramp"             $ test_gamma_ramp mon
+    , testGroup "Monitor handling"
+      [ testCase "getMonitors"              test_getMonitors
+      , testCase "getPrimaryMonitor"        test_getPrimaryMonitor
+      , testCase "getMonitorPos"          $ test_getMonitorPos mon
+      , testCase "getMonitorPhysicalSize" $ test_getMonitorPhysicalSize mon
+      , testCase "getMonitorName"         $ test_getMonitorName mon
+      , testCase "getVideoModes"          $ test_getVideoModes mon
+      , testCase "getVideoMode"           $ test_getVideoMode mon
+      , testCase "getGamma"               $ test_getGammaRamp mon
+      -- , testCase "setGamma"               $ test_setGamma mon
+      -- , testCase "gamma ramp"             $ test_gamma_ramp mon
       ]
-
-    , TF.testGroup "Window handling"
-      [ TF.testCase "defaultWindowHints"             test_defaultWindowHints
-      , TF.testCase "window close flag"            $ test_window_close_flag win
-      , TF.testCase "setWindowTitle"               $ test_setWindowTitle win
-      , TF.testCase "window pos"                   $ test_window_pos win
-      , TF.testCase "window size"                  $ test_window_size win
-      , TF.testCase "getFramebufferSize"           $ test_getFramebufferSize win
-      , TF.testCase "iconification"                $ test_iconification win
-      , TF.testCase "show/hide"                    $ test_show_hide win
-      , TF.testCase "getWindowMonitor"             $ test_getWindowMonitor win mon
-      , TF.testCase "cursor pos"                   $ test_cursor_pos win
-      , TF.testCase "getWindowFocused"             $ test_getWindowFocused win
-      , TF.testCase "getWindowResizable"           $ test_getWindowResizable win
-      , TF.testCase "getWindowDecorated"           $ test_getWindowDecorated win
-      , TF.testCase "getWindowClientAPI"           $ test_getWindowClientAPI win
-      , TF.testCase "window context version"       $ test_window_context_version win
-      , TF.testCase "getWindowContextRobustness"   $ test_getWindowContextRobustness win
-      , TF.testCase "getWindowOpenGLForwardCompat" $ test_getWindowOpenGLForwardCompat win
-      , TF.testCase "getWindowOpenGLDebugContext"  $ test_getWindowOpenGLDebugContext win
-      , TF.testCase "getWindowOpenGLProfile"       $ test_getWindowOpenGLProfile win
-      , TF.testCase "pollEvents"                     test_pollEvents
-      , TF.testCase "waitEvents"                     test_waitEvents
+    , testGroup "Window handling"
+      [ testCase "defaultWindowHints"             test_defaultWindowHints
+      , testCase "window close flag"            $ test_window_close_flag win
+      , testCase "setWindowTitle"               $ test_setWindowTitle win
+      , testCase "window pos"                   $ test_window_pos win
+      , testCase "window size"                  $ test_window_size win
+      , testCase "getFramebufferSize"           $ test_getFramebufferSize win
+      , testCase "iconification"                $ test_iconification win
+      -- , testCase "show/hide"                    $ test_show_hide win
+      , testCase "getWindowMonitor"             $ test_getWindowMonitor win mon
+      , testCase "cursor pos"                   $ test_cursor_pos win
+      , testCase "getWindowFocused"             $ test_getWindowFocused win
+      , testCase "getWindowResizable"           $ test_getWindowResizable win
+      , testCase "getWindowDecorated"           $ test_getWindowDecorated win
+      , testCase "getWindowClientAPI"           $ test_getWindowClientAPI win
+      , testCase "window context version"       $ test_window_context_version win
+      , testCase "getWindowContextRobustness"   $ test_getWindowContextRobustness win
+      , testCase "getWindowOpenGLForwardCompat" $ test_getWindowOpenGLForwardCompat win
+      , testCase "getWindowOpenGLDebugContext"  $ test_getWindowOpenGLDebugContext win
+      , testCase "getWindowOpenGLProfile"       $ test_getWindowOpenGLProfile win
+      , testCase "pollEvents"                     test_pollEvents
+      , testCase "waitEvents"                     test_waitEvents
       ]
-
-    , TF.testGroup "Input handling"
-      [ TF.testCase "cursor input mode"               $ test_cursor_input_mode win
-      , TF.testCase "sticky keys input mode"          $ test_sticky_keys_input_mode win
-      , TF.testCase "sticky mouse buttons input mode" $ test_sticky_mouse_buttons_input_mode win
-        -- TODO callbacks
-      , TF.testCase "joystickPresent"                   test_joystickPresent
-      , TF.testCase "getJoystickAxes"                   test_getJoystickAxes
-      , TF.testCase "getJoystickButtons"                test_getJoystickButtons
-      , TF.testCase "getJoystickName"                   test_getJoystickName
+    , testGroup "Input handling"
+      [ testCase "cursor input mode"               $ test_cursor_input_mode win
+      , testCase "sticky keys input mode"          $ test_sticky_keys_input_mode win
+      , testCase "sticky mouse buttons input mode" $ test_sticky_mouse_buttons_input_mode win
+      , testCase "joystickPresent"                   test_joystickPresent
+      , testCase "getJoystickAxes"                   test_getJoystickAxes
+      , testCase "getJoystickButtons"                test_getJoystickButtons
+      , testCase "getJoystickName"                   test_getJoystickName
       ]
-
-    , TF.testGroup "Time"
-      [ TF.testCase "getTime" test_getTime
-      , TF.testCase "setTime" test_setTime
+    , testGroup "Time"
+      [ testCase "getTime" test_getTime
+      , testCase "setTime" test_setTime
       ]
-
-    , TF.testGroup "Context"
-      [ TF.testCase "getCurrentContext"  $ test_getCurrentContext win
-      , TF.testCase "swapBuffers"        $ test_swapBuffers win
-      , TF.testCase "swapInterval"         test_swapInterval
-      , TF.testCase "extensionSupported"   test_extensionSupported
+    , testGroup "Context"
+      [ testCase "getCurrentContext"  $ test_getCurrentContext win
+      , testCase "swapBuffers"        $ test_swapBuffers win
+      , testCase "swapInterval"         test_swapInterval
+      , testCase "extensionSupported"   test_extensionSupported
       ]
-
-    , TF.testGroup "Clipboard"
-      [ TF.testCase "clipboard" $ test_clipboard win
+    , testGroup "Clipboard"
+      [ testCase "clipboard" $ test_clipboard win
       ]
     ]
 
@@ -145,8 +161,10 @@ test_getVersion = do
 
 test_getVersionString :: IO ()
 test_getVersionString = do
-    vs <- GLFW.getVersionString
-    HU.assertBool "" $ v `isPrefixOf` vs
+    mvs <- GLFW.getVersionString
+    case mvs of
+      Just vs -> assertBool "" $ v `isPrefixOf` vs
+      Nothing -> assertFailure ""
   where
     v = intercalate "." $ map show [versionMajor, versionMinor, versionRevision]
 
@@ -154,65 +172,63 @@ test_getMonitors :: IO ()
 test_getMonitors = do
     r <- GLFW.getMonitors
     case r of
-      (Just ms) -> HU.assertBool "" $ (not . null) ms
-      Nothing   -> HU.assertFailure ""
+      Just ms -> assertBool "" $ (not . null) ms
+      Nothing -> assertFailure ""
 
 test_getPrimaryMonitor :: IO ()
 test_getPrimaryMonitor = do
     r <- GLFW.getPrimaryMonitor
     case r of
-      (Just _) -> return ()
-      Nothing  -> HU.assertFailure ""
+      Just _  -> return ()
+      Nothing -> assertFailure ""
 
 test_getMonitorPos :: GLFW.Monitor -> IO ()
 test_getMonitorPos mon = do
     (x, y) <- GLFW.getMonitorPos mon
-    HU.assertBool "" $ x >= 0
-    HU.assertBool "" $ y >= 0
+    assertBool "" $ x >= 0
+    assertBool "" $ y >= 0
 
 test_getMonitorPhysicalSize :: GLFW.Monitor -> IO ()
 test_getMonitorPhysicalSize mon = do
     (w, h) <- GLFW.getMonitorPhysicalSize mon
-    HU.assertBool "" $ w >= 0
-    HU.assertBool "" $ h >= 0
+    assertBool "" $ w `between` (0, 1000)
+    assertBool "" $ h `between` (0,  500)
 
 test_getMonitorName :: GLFW.Monitor -> IO ()
 test_getMonitorName mon = do
-    r <- GLFW.getMonitorName mon
-    HU.assertBool "" $ isJust r
+    mname <- GLFW.getMonitorName mon
+    case mname of
+      Nothing   -> assertFailure ""
+      Just name -> do
+          assertBool "" $ length name `between` (0, 20)
+          assertBool "" $ all isAscii name
 
 test_getVideoModes :: GLFW.Monitor -> IO ()
 test_getVideoModes mon = do
-    r <- GLFW.getVideoModes mon
-    case r of
-      (Just _) -> return ()  -- TODO do more strict checking here
-      Nothing  -> HU.assertFailure ""
+    mvms <- GLFW.getVideoModes mon
+    case mvms of
+      Nothing  -> assertFailure ""
+      Just vms -> assertBool "" $ all videoModeLooksValid vms
 
 test_getVideoMode :: GLFW.Monitor -> IO ()
 test_getVideoMode mon = do
-    r <- GLFW.getVideoMode mon
-    case r of
-      (Just _) -> return ()  -- TODO do more strict checking here
-      Nothing  -> HU.assertFailure ""
+    mvm <- GLFW.getVideoMode mon
+    case mvm of
+      Just vm -> assertBool "" $ videoModeLooksValid vm
+      Nothing -> assertFailure ""
 
--- test_setGamma :: GLFW.Monitor -> IO ()
--- test_setGamma mon = do
---     _ <- GLFW.setGamma mon 37
---     return ()
+test_getGammaRamp :: GLFW.Monitor -> IO ()
+test_getGammaRamp mon = do
+    mgr <- GLFW.getGammaRamp mon
+    case mgr of
+      Nothing -> assertFailure ""
+      Just gr -> assertBool "" $
+        let rsl = length $ GLFW.gammaRampRed   gr
+            gsl = length $ GLFW.gammaRampGreen gr
+            bsl = length $ GLFW.gammaRampBlue  gr
+        in rsl > 0 && rsl == gsl && gsl == bsl
 
--- test_getGammaRamp :: GLFW.Monitor -> IO ()
--- test_getGammaRamp mon = do
---     m <- GLFW.getGammaRamp mon
---     case m of
---       (Just gr) -> HU.assertBool "" $
---           let rl = length $ GLFW.gammaRampRed   gr
---               gl = length $ GLFW.gammaRampGreen gr
---               bl = length $ GLFW.gammaRampBlue  gr
---           in rl > 0 && rl == gl && gl == bl
---       Nothing -> HU.assertFailure ""
-
--- test_setGammaRamp :: GLFW.Monitor -> IO ()
--- test_setGammaRamp mon =
+--------------------------------------------------------------------------------
 
 test_defaultWindowHints :: IO ()
 test_defaultWindowHints =
@@ -233,7 +249,7 @@ test_window_close_flag win = do
 
 test_setWindowTitle :: GLFW.Window -> IO ()
 test_setWindowTitle win =
-    GLFW.setWindowTitle win "x"
+    GLFW.setWindowTitle win "some new title"
 
 -- This is a little strange. Depending on your window manager, etc, after
 -- setting the window position to (x,y), the actual new window position might
@@ -287,20 +303,20 @@ test_iconification win = do
 
     GLFW.restoreWindow win
 
-test_show_hide :: GLFW.Window -> IO ()
-test_show_hide win = do
-    v0 <- GLFW.getWindowVisible win
-    v0 @?= True
+-- test_show_hide :: GLFW.Window -> IO ()
+-- test_show_hide win = do
+--     v0 <- GLFW.getWindowVisible win
+--     v0 @?= True
 
-    -- GLFW.hideWindow win
-    -- giveItTime
-    -- v1 <- GLFW.getWindowVisible win
-    -- v1 @?= False
+--     GLFW.hideWindow win
+--     giveItTime
+--     v1 <- GLFW.getWindowVisible win
+--     v1 @?= False
 
-    -- GLFW.showWindow win
-    -- giveItTime
-    -- v2 <- GLFW.getWindowVisible win
-    -- v2 @?= True
+--     GLFW.showWindow win
+--     giveItTime
+--     v2 <- GLFW.getWindowVisible win
+--     v2 @?= True
 
 test_getWindowMonitor :: GLFW.Window -> GLFW.Monitor -> IO ()
 test_getWindowMonitor win _ = do
@@ -343,9 +359,7 @@ test_window_context_version win = do
     v0 <- GLFW.getWindowContextVersionMajor    win
     v1 <- GLFW.getWindowContextVersionMinor    win
     v2 <- GLFW.getWindowContextVersionRevision win
-    HU.assertBool "" $
-      all (\n -> n >= 0 && n < 10)
-          [v0, v1, v2]
+    assertBool "" $ all (`between` (0, 20)) [v0, v1, v2]
 
 test_getWindowContextRobustness :: GLFW.Window -> IO ()
 test_getWindowContextRobustness win = do
@@ -374,6 +388,8 @@ test_pollEvents =
 test_waitEvents :: IO ()
 test_waitEvents =
     GLFW.waitEvents
+
+--------------------------------------------------------------------------------
 
 test_cursor_input_mode :: GLFW.Window -> IO ()
 test_cursor_input_mode win = do
@@ -419,42 +435,46 @@ test_joystickPresent :: IO ()
 test_joystickPresent = do
     _ <- GLFW.joystickPresent GLFW.Joystick'1
     r <- GLFW.joystickPresent GLFW.Joystick'16
-    HU.assertBool "error" $ not r
+    assertBool "" $ not r
 
 test_getJoystickAxes :: IO ()
 test_getJoystickAxes =
     mapM_ GLFW.getJoystickAxes joysticks
 
-test_getJoystickName :: IO ()
-test_getJoystickName =
-    mapM_ GLFW.getJoystickName joysticks
-
 test_getJoystickButtons :: IO ()
 test_getJoystickButtons =
     mapM_ GLFW.getJoystickButtons joysticks
 
+test_getJoystickName :: IO ()
+test_getJoystickName =
+    mapM_ GLFW.getJoystickName joysticks
+
+--------------------------------------------------------------------------------
+
 test_getTime :: IO ()
 test_getTime = do
-    r <- GLFW.getTime
-    case r of
-      (Just _) -> return ()  -- TODO do more strict checking here
-      Nothing  -> HU.assertFailure ""
+    mt <- GLFW.getTime
+    case mt of
+      Nothing -> assertFailure ""
+      Just t  -> assertBool "" $ t `between` (0, 10)
 
 test_setTime :: IO ()
 test_setTime = do
     let t = 37
     GLFW.setTime t
-    r <- GLFW.getTime
-    case r of
-      (Just t') -> HU.assertBool "" (t' >= t)
-      Nothing   -> HU.assertFailure ""
+    mt <- GLFW.getTime
+    case mt of
+      Just t' -> assertBool "" $ t' `between` (t, t+10)
+      Nothing -> assertFailure ""
+
+--------------------------------------------------------------------------------
 
 test_getCurrentContext :: GLFW.Window -> IO ()
 test_getCurrentContext win = do
     mwin <- GLFW.getCurrentContext
     case mwin of
-      (Just win') -> win' @?= win
-      Nothing     -> HU.assertFailure ""
+      Nothing   -> assertFailure ""
+      Just win' -> win' @?= win
 
 test_swapBuffers :: GLFW.Window -> IO ()
 test_swapBuffers =
@@ -471,6 +491,8 @@ test_extensionSupported = do
     b1 <- GLFW.extensionSupported "bogus"
     b1 @?= False
 
+--------------------------------------------------------------------------------
+
 test_clipboard :: GLFW.Window -> IO ()
 test_clipboard win = do
     rs <- mapM setGet ss
@@ -483,5 +505,7 @@ test_clipboard win = do
     setGet s = do
         GLFW.setClipboardString win s
         GLFW.getClipboardString win
+
+--------------------------------------------------------------------------------
 
 {-# ANN module "HLint: ignore Use camelCase" #-}

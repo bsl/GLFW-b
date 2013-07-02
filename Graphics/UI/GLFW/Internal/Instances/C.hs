@@ -3,8 +3,6 @@
 {-# LANGUAGE    TemplateHaskell       #-}
 {-# OPTIONS_GHC -fno-warn-orphans     #-}
 
-#include <GLFW/glfw3.h>
-
 module Graphics.UI.GLFW.Internal.Instances.C where
 
 --------------------------------------------------------------------------------
@@ -14,6 +12,7 @@ import Data.Char       (chr, ord)
 import Foreign.C.Types (CDouble, CFloat, CInt, CUChar, CUInt, CUShort)
 import Foreign.Ptr     (Ptr)
 
+import Bindings.GLFW
 import Graphics.UI.GLFW.Internal.C              (C(..))
 import Graphics.UI.GLFW.Internal.C.TH           (deriveC)
 import Graphics.UI.GLFW.Internal.Instances.Data ()
@@ -46,6 +45,10 @@ instance C CInt Char where
   fromC = chr . fromIntegral
   toC   = fromIntegral . ord
 
+instance C CUInt Char where
+  fromC = chr . fromIntegral
+  toC   = fromIntegral . ord
+
 instance C CDouble Double where
   fromC = realToFrac
   toC   = realToFrac
@@ -66,30 +69,30 @@ instance C CFloat Double where
   fromC = realToFrac
   toC   = realToFrac
 
-instance C (Ptr GlfwMonitor) Monitor where
+instance C (Ptr C'GLFWmonitor) Monitor where
   fromC = Monitor
   toC   = unMonitor
 
-instance C (Ptr GlfwWindow) Window where
+instance C (Ptr C'GLFWwindow) Window where
   fromC = Window
   toC   = unWindow
 
 instance C CInt ModifierKeys where
   fromC v = ModifierKeys
-    { modifierKeysShift   = (v .&. (#const GLFW_MOD_SHIFT))   /= 0
-    , modifierKeysControl = (v .&. (#const GLFW_MOD_CONTROL)) /= 0
-    , modifierKeysAlt     = (v .&. (#const GLFW_MOD_ALT))     /= 0
-    , modifierKeysSuper   = (v .&. (#const GLFW_MOD_SUPER))   /= 0
+    { modifierKeysShift   = (v .&. c'GLFW_MOD_SHIFT)   /= 0
+    , modifierKeysControl = (v .&. c'GLFW_MOD_CONTROL) /= 0
+    , modifierKeysAlt     = (v .&. c'GLFW_MOD_ALT)     /= 0
+    , modifierKeysSuper   = (v .&. c'GLFW_MOD_SUPER)   /= 0
     }
   toC = undefined
 
-instance C GlfwVideoMode VideoMode where
+instance C C'GLFWvidmode VideoMode where
   fromC gvm = VideoMode
-    { videoModeWidth       = fromIntegral $ glfwVideoModeWidth       gvm
-    , videoModeHeight      = fromIntegral $ glfwVideoModeHeight      gvm
-    , videoModeRedBits     = fromIntegral $ glfwVideoModeRedBits     gvm
-    , videoModeGreenBits   = fromIntegral $ glfwVideoModeGreenBits   gvm
-    , videoModeBlueBits    = fromIntegral $ glfwVideoModeBlueBits    gvm
-    , videoModeRefreshRate = fromIntegral $ glfwVideoModeRefreshRate gvm
+    { videoModeWidth       = fromIntegral $ c'GLFWvidmode'width       gvm
+    , videoModeHeight      = fromIntegral $ c'GLFWvidmode'height      gvm
+    , videoModeRedBits     = fromIntegral $ c'GLFWvidmode'redBits     gvm
+    , videoModeGreenBits   = fromIntegral $ c'GLFWvidmode'greenBits   gvm
+    , videoModeBlueBits    = fromIntegral $ c'GLFWvidmode'blueBits    gvm
+    , videoModeRefreshRate = fromIntegral $ c'GLFWvidmode'refreshRate gvm
     }
   toC = undefined

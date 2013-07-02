@@ -1,33 +1,14 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE EmptyDataDecls     #-}
 
 module Graphics.UI.GLFW.Types where
 
 --------------------------------------------------------------------------------
 
-import Data.Data       (Data)
-import Data.Typeable   (Typeable)
-import Foreign.C.Types (CInt)
-import Foreign.Ptr     (Ptr)
+import Data.Data     (Data)
+import Data.Typeable (Typeable)
+import Foreign.Ptr   (Ptr)
 
---------------------------------------------------------------------------------
-
-data GlfwGammaRamp
-
-data GlfwMonitor = GlfwMonitor
-  deriving (Data, Typeable)
-
-data GlfwWindow = GlfwWindow
-  deriving (Data, Typeable)
-
-data GlfwVideoMode = GlfwVideoMode
-  { glfwVideoModeWidth       :: CInt
-  , glfwVideoModeHeight      :: CInt
-  , glfwVideoModeRedBits     :: CInt
-  , glfwVideoModeGreenBits   :: CInt
-  , glfwVideoModeBlueBits    :: CInt
-  , glfwVideoModeRefreshRate :: CInt
-  } deriving (Eq, Show)
+import Bindings.GLFW
 
 --------------------------------------------------------------------------------
 -- Error handling
@@ -51,13 +32,13 @@ data Version = Version
   { versionMajor    :: Int
   , versionMinor    :: Int
   , versionRevision :: Int
-  } deriving (Data, Eq, Ord, Show, Typeable)
+  } deriving (Data, Eq, Show, Typeable)
 
 --------------------------------------------------------------------------------
 -- Monitor handling
 
 newtype Monitor = Monitor
-  { unMonitor :: Ptr GlfwMonitor
+  { unMonitor :: Ptr C'GLFWmonitor
   } deriving (Data, Eq, Show, Typeable)
 
 data MonitorState =
@@ -98,7 +79,7 @@ makeGammaRamp rs gs bs
 -- Window handling
 
 newtype Window = Window
-  { unWindow :: Ptr GlfwWindow
+  { unWindow :: Ptr C'GLFWwindow
   } deriving (Data, Eq, Show, Typeable)
 
 data WindowHint =
@@ -356,3 +337,7 @@ data ModifierKeys = ModifierKeys
   , modifierKeysAlt     :: Bool
   , modifierKeysSuper   :: Bool
   } deriving (Data, Eq, Show, Typeable)
+
+--------------------------------------------------------------------------------
+
+{-# ANN module "HLint: ignore Use camelCase" #-}

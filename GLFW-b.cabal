@@ -10,13 +10,14 @@ license-file: LICENSE
 
 synopsis:     Bindings to GLFW OpenGL library
 description:
-  Bindings to GLFW, an Open Source, multi-platform library for creating windows
-  with OpenGL contexts and managing input and events. See
-  <http://www.glfw.org/>.
+  Bindings to <http://www.glfw.org/ GLFW>, an open source, multi-platform
+  library for creating windows with OpenGL contexts and managing input and
+  events.
   .
-  GLFW-b depends on bindings-GLFW, which, as of the time of this writing, binds
-  to GLFW 3.0.1, released 2013-06-17. See
-  <http://www.glfw.org/Version-3.0.1-released.html>.
+  GLFW-b depends on
+  <http://hackage.haskell.org/package/bindings-GLFW bindings-GLFW>, which, as
+  of the time of this writing, binds to
+  <http://www.glfw.org/Version-3.0.1-released.html GLFW 3.0.1, released 2013-06-17>.
 
 cabal-version: >= 1.10
 build-type:    Simple

@@ -18,6 +18,10 @@ description:
   <http://hackage.haskell.org/package/bindings-GLFW bindings-GLFW>, which, as
   of the time of this writing, binds to
   <http://www.glfw.org/Version-3.0.1-released.html GLFW 3.0.1, released 2013-06-17>.
+  .
+  If you've used GLFW before, you were probably using 2.7.x. There are some
+  significant differences in 3.0.x. Please see the
+  <http://www.glfw.org/docs/3.0/moving.html transition guide>.
 
 cabal-version: >= 1.10
 build-type:    Simple

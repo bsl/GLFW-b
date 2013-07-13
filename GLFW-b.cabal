@@ -59,6 +59,13 @@ library
     template-haskell == 2.8.*,
     th-lift          == 0.5.*
 
+  if impl(ghc == 7.4.1)
+    build-depends:
+      template-haskell == 2.7.*
+  else
+    build-depends:
+      template-haskell == 2.8.*
+
 --------------------------------------------------------------------------------
 
 test-suite main
@@ -76,10 +83,16 @@ test-suite main
     HUnit                == 1.2.*,
     base                  < 5,
     bindings-GLFW        == 0.0.*,
-    template-haskell     == 2.8.*,
     test-framework       == 0.8.*,
     test-framework-hunit == 0.3.*,
     th-lift              == 0.5.*
+
+  if impl(ghc == 7.4.1)
+    build-depends:
+      template-haskell == 2.7.*
+  else
+    build-depends:
+      template-haskell == 2.8.*
 
 --------------------------------------------------------------------------------
 

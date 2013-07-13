@@ -137,16 +137,16 @@ module Graphics.UI.GLFW
 import Prelude hiding (init)
 
 import Control.Monad         (when)
-import Data.IORef            (IORef, atomicModifyIORef', newIORef)
+import Data.IORef            (IORef, atomicModifyIORef, newIORef)
 import Foreign.C.String      (peekCString, withCString)
 import Foreign.C.Types       (CUInt, CUShort)
 import Foreign.Marshal.Alloc (alloca)
 import Foreign.Marshal.Array (advancePtr, allocaArray, peekArray, withArray)
 import Foreign.Ptr           (FunPtr, freeHaskellFunPtr, nullFunPtr, nullPtr)
-import Foreign.Storable      (Storable(..))
+import Foreign.Storable      (Storable (..))
 import System.IO.Unsafe      (unsafePerformIO)
 
-import Graphics.UI.GLFW.Internal.C           (C(..))
+import Graphics.UI.GLFW.Internal.C           (C (..))
 import Graphics.UI.GLFW.Internal.Instances.C ()
 import Graphics.UI.GLFW.Types
 
@@ -227,7 +227,7 @@ setCallback wf af gf ior mcb = do
 storeCallback :: IORef (FunPtr a) -> FunPtr a -> IO ()
 storeCallback ior new = do
     -- Store the new FunPtr, retrieve the previous one.
-    prev <- atomicModifyIORef' ior (\cur -> (new, cur))
+    prev <- atomicModifyIORef ior (\cur -> (new, cur))
     -- Free the old FunPtr if necessary.
     when (prev /= nullFunPtr) $ freeHaskellFunPtr prev
 

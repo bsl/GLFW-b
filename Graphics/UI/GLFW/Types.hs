@@ -23,7 +23,7 @@ data Error =
   | Error'VersionUnavailable
   | Error'PlatformError
   | Error'FormatUnavailable
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 --------------------------------------------------------------------------------
 -- Initialization and version information
@@ -113,29 +113,29 @@ data WindowHint =
 data FocusState =
     FocusState'Focused
   | FocusState'Defocused
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data IconifyState =
     IconifyState'Iconified
   | IconifyState'NotIconified
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data ContextRobustness =
     ContextRobustness'NoRobustness
   | ContextRobustness'NoResetNotification
   | ContextRobustness'LoseContextOnReset
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data OpenGLProfile =
     OpenGLProfile'Any
   | OpenGLProfile'Compat
   | OpenGLProfile'Core
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data ClientAPI =
     ClientAPI'OpenGL
   | ClientAPI'OpenGLES
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 --------------------------------------------------------------------------------
 -- Input handling
@@ -262,13 +262,13 @@ data Key =
   | Key'RightAlt
   | Key'RightSuper
   | Key'Menu
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data KeyState =
     KeyState'Pressed
   | KeyState'Released
   | KeyState'Repeating
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data Joystick =
     Joystick'1
@@ -287,12 +287,12 @@ data Joystick =
   | Joystick'14
   | Joystick'15
   | Joystick'16
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data JoystickButtonState =
     JoystickButtonState'Pressed
   | JoystickButtonState'Released
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data MouseButton =
     MouseButton'1
@@ -303,33 +303,33 @@ data MouseButton =
   | MouseButton'6
   | MouseButton'7
   | MouseButton'8
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data MouseButtonState =
     MouseButtonState'Pressed
   | MouseButtonState'Released
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data CursorState =
     CursorState'InWindow
   | CursorState'NotInWindow
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data CursorInputMode =
     CursorInputMode'Normal
   | CursorInputMode'Hidden
   | CursorInputMode'Disabled
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data StickyKeysInputMode =
     StickyKeysInputMode'Enabled
   | StickyKeysInputMode'Disabled
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data StickyMouseButtonsInputMode =
     StickyMouseButtonsInputMode'Enabled
   | StickyMouseButtonsInputMode'Disabled
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
 
 data ModifierKeys = ModifierKeys
   { modifierKeysShift   :: Bool

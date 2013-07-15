@@ -23,7 +23,7 @@ data Error =
   | Error'VersionUnavailable
   | Error'PlatformError
   | Error'FormatUnavailable
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 --------------------------------------------------------------------------------
 -- Initialization and version information
@@ -32,19 +32,19 @@ data Version = Version
   { versionMajor    :: Int
   , versionMinor    :: Int
   , versionRevision :: Int
-  } deriving (Data, Eq, Show, Typeable)
+  } deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 --------------------------------------------------------------------------------
 -- Monitor handling
 
 newtype Monitor = Monitor
   { unMonitor :: Ptr C'GLFWmonitor
-  } deriving (Data, Eq, Show, Typeable)
+  } deriving (Data, Eq, Ord, Show, Typeable)
 
 data MonitorState =
     MonitorState'Connected
   | MonitorState'Disconnected
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data VideoMode = VideoMode
   { videoModeWidth       :: Int
@@ -53,7 +53,7 @@ data VideoMode = VideoMode
   , videoModeGreenBits   :: Int
   , videoModeBlueBits    :: Int
   , videoModeRefreshRate :: Int
-  } deriving (Data, Eq, Show, Typeable)
+  } deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 -- It would be bad to give clients a way to construct invalid gamma ramps with
 -- lists of unequal length, so this constructor should not be exported.
@@ -61,7 +61,7 @@ data GammaRamp = GammaRamp
   { gammaRampRed   :: [Int]
   , gammaRampGreen :: [Int]
   , gammaRampBlue  :: [Int]
-  } deriving (Data, Eq, Show, Typeable)
+  } deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 -- Smart constructor for GammaRamp.
 makeGammaRamp :: [Int] -> [Int] -> [Int] -> Maybe GammaRamp
@@ -80,7 +80,7 @@ makeGammaRamp rs gs bs
 
 newtype Window = Window
   { unWindow :: Ptr C'GLFWwindow
-  } deriving (Data, Eq, Show, Typeable)
+  } deriving (Data, Eq, Ord, Show, Typeable)
 
 data WindowHint =
     WindowHint'Resizable           Bool
@@ -108,34 +108,34 @@ data WindowHint =
   | WindowHint'OpenGLForwardCompat Bool
   | WindowHint'OpenGLDebugContext  Bool
   | WindowHint'OpenGLProfile       OpenGLProfile
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data FocusState =
     FocusState'Focused
   | FocusState'Defocused
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data IconifyState =
     IconifyState'Iconified
   | IconifyState'NotIconified
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data ContextRobustness =
     ContextRobustness'NoRobustness
   | ContextRobustness'NoResetNotification
   | ContextRobustness'LoseContextOnReset
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data OpenGLProfile =
     OpenGLProfile'Any
   | OpenGLProfile'Compat
   | OpenGLProfile'Core
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data ClientAPI =
     ClientAPI'OpenGL
   | ClientAPI'OpenGLES
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 --------------------------------------------------------------------------------
 -- Input handling
@@ -262,13 +262,13 @@ data Key =
   | Key'RightAlt
   | Key'RightSuper
   | Key'Menu
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data KeyState =
     KeyState'Pressed
   | KeyState'Released
   | KeyState'Repeating
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data Joystick =
     Joystick'1
@@ -287,12 +287,12 @@ data Joystick =
   | Joystick'14
   | Joystick'15
   | Joystick'16
-  deriving (Data, Eq, Ord, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data JoystickButtonState =
     JoystickButtonState'Pressed
   | JoystickButtonState'Released
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data MouseButton =
     MouseButton'1
@@ -303,40 +303,40 @@ data MouseButton =
   | MouseButton'6
   | MouseButton'7
   | MouseButton'8
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data MouseButtonState =
     MouseButtonState'Pressed
   | MouseButtonState'Released
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data CursorState =
     CursorState'InWindow
   | CursorState'NotInWindow
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data CursorInputMode =
     CursorInputMode'Normal
   | CursorInputMode'Hidden
   | CursorInputMode'Disabled
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data StickyKeysInputMode =
     StickyKeysInputMode'Enabled
   | StickyKeysInputMode'Disabled
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data StickyMouseButtonsInputMode =
     StickyMouseButtonsInputMode'Enabled
   | StickyMouseButtonsInputMode'Disabled
-  deriving (Data, Eq, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 data ModifierKeys = ModifierKeys
   { modifierKeysShift   :: Bool
   , modifierKeysControl :: Bool
   , modifierKeysAlt     :: Bool
   , modifierKeysSuper   :: Bool
-  } deriving (Data, Eq, Show, Typeable)
+  } deriving (Data, Eq, Ord, Read, Show, Typeable)
 
 --------------------------------------------------------------------------------
 

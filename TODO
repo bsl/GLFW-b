@@ -15,5 +15,8 @@ Coordinate with GLFW C-library maintainer about any strange behavior.
     The CursorState events seem spurious -- the cursor did not leave the
     window.
 
+getPressedKeys?
+getJoystickAxesN?
+
 Coordinate with GLFW C-library maintainer about new functionality.
 1.) waitEvents with timeout?

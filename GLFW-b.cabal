@@ -1,5 +1,5 @@
 name:         GLFW-b
-version:      1.1.0
+version:      1.2.0
 category:     Graphics
 
 author:       Brian Lewis <brian@lorf.org>
@@ -65,7 +65,7 @@ test-suite main
 
   main-is: Test.hs
   build-depends:
-    GLFW-b               == 1.1.*,
+    GLFW-b               == 1.2.*,
     HUnit                == 1.2.*,
     base                  < 5,
     bindings-GLFW        == 0.0.*,

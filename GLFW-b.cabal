@@ -45,25 +45,12 @@ library
     Graphics.UI.GLFW
 
   other-modules:
-    Graphics.UI.GLFW.Internal.C
-    Graphics.UI.GLFW.Internal.C.TH
-    Graphics.UI.GLFW.Internal.Instances.C
-    Graphics.UI.GLFW.Internal.Instances.Data
-    Graphics.UI.GLFW.Internal.Instances.Lift
-    Graphics.UI.GLFW.Internal.Tables
+    Graphics.UI.GLFW.C
     Graphics.UI.GLFW.Types
 
   build-depends:
-    base              < 5,
-    bindings-GLFW    == 0.0.*,
-    th-lift          == 0.5.*
-
-  if impl(ghc < 7.6)
-    build-depends:
-      template-haskell == 2.7.*
-  else
-    build-depends:
-      template-haskell == 2.8.*
+    base           < 5,
+    bindings-GLFW == 0.0.*
 
 --------------------------------------------------------------------------------
 
@@ -83,15 +70,7 @@ test-suite main
     base                  < 5,
     bindings-GLFW        == 0.0.*,
     test-framework       == 0.8.*,
-    test-framework-hunit == 0.3.*,
-    th-lift              == 0.5.*
-
-  if impl(ghc < 7.6)
-    build-depends:
-      template-haskell == 2.7.*
-  else
-    build-depends:
-      template-haskell == 2.8.*
+    test-framework-hunit == 0.3.*
 
 --------------------------------------------------------------------------------
 

@@ -146,8 +146,7 @@ import Foreign.Ptr           (FunPtr, freeHaskellFunPtr, nullFunPtr, nullPtr)
 import Foreign.Storable      (Storable (..))
 import System.IO.Unsafe      (unsafePerformIO)
 
-import Graphics.UI.GLFW.Internal.C           (C (..))
-import Graphics.UI.GLFW.Internal.Instances.C ()
+import Graphics.UI.GLFW.C
 import Graphics.UI.GLFW.Types
 
 import Bindings.GLFW

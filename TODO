@@ -2,9 +2,6 @@ Improve everything about testing.
 Improve existing tests.
 Add more tests.
 
-Is there a better way to accomplish the translation done by the 'C' class that
-doesn't require TH?
-
 Coordinate with GLFW C-library maintainer about any strange behavior.
 1.) Cursor is in window. Left click.
     Events seen:

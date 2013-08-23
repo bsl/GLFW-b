@@ -136,13 +136,14 @@ module Graphics.UI.GLFW
 
 import Prelude hiding (init)
 
-import Control.Monad         (when)
-import Data.IORef            (IORef, atomicModifyIORef, newIORef)
+import Control.Monad         (when, liftM)
+import Data.IORef            (IORef, atomicModifyIORef, newIORef, readIORef)
 import Foreign.C.String      (peekCString, withCString)
 import Foreign.C.Types       (CUInt, CUShort)
 import Foreign.Marshal.Alloc (alloca)
 import Foreign.Marshal.Array (advancePtr, allocaArray, peekArray, withArray)
 import Foreign.Ptr           (FunPtr, freeHaskellFunPtr, nullFunPtr, nullPtr)
+import Foreign.StablePtr
 import Foreign.Storable      (Storable (..))
 import System.IO.Unsafe      (unsafePerformIO)
 
@@ -156,56 +157,30 @@ import Bindings.GLFW
 -- We store FunPtrs from mk'GLFW*fun in these stored*Fun IORefs. Initialized
 -- with unsafePerformIO, they are basically mutable global variables.
 
-storedCharFun            :: IORef C'GLFWcharfun
-storedCursorEnterFun     :: IORef C'GLFWcursorenterfun
-storedCursorPosFun       :: IORef C'GLFWcursorposfun
 storedErrorFun           :: IORef C'GLFWerrorfun
-storedFramebufferSizeFun :: IORef C'GLFWframebuffersizefun
-storedKeyFun             :: IORef C'GLFWkeyfun
 storedMonitorFun         :: IORef C'GLFWmonitorfun
-storedMouseButtonFun     :: IORef C'GLFWmousebuttonfun
-storedScrollFun          :: IORef C'GLFWscrollfun
-storedWindowCloseFun     :: IORef C'GLFWwindowclosefun
-storedWindowFocusFun     :: IORef C'GLFWwindowfocusfun
-storedWindowIconifyFun   :: IORef C'GLFWwindowiconifyfun
-storedWindowPosFun       :: IORef C'GLFWwindowposfun
-storedWindowRefreshFun   :: IORef C'GLFWwindowrefreshfun
-storedWindowSizeFun      :: IORef C'GLFWwindowsizefun
 
-storedCharFun            = unsafePerformIO $ newIORef nullFunPtr
-storedCursorEnterFun     = unsafePerformIO $ newIORef nullFunPtr
-storedCursorPosFun       = unsafePerformIO $ newIORef nullFunPtr
 storedErrorFun           = unsafePerformIO $ newIORef nullFunPtr
-storedFramebufferSizeFun = unsafePerformIO $ newIORef nullFunPtr
-storedKeyFun             = unsafePerformIO $ newIORef nullFunPtr
 storedMonitorFun         = unsafePerformIO $ newIORef nullFunPtr
-storedMouseButtonFun     = unsafePerformIO $ newIORef nullFunPtr
-storedScrollFun          = unsafePerformIO $ newIORef nullFunPtr
-storedWindowCloseFun     = unsafePerformIO $ newIORef nullFunPtr
-storedWindowFocusFun     = unsafePerformIO $ newIORef nullFunPtr
-storedWindowIconifyFun   = unsafePerformIO $ newIORef nullFunPtr
-storedWindowPosFun       = unsafePerformIO $ newIORef nullFunPtr
-storedWindowRefreshFun   = unsafePerformIO $ newIORef nullFunPtr
-storedWindowSizeFun      = unsafePerformIO $ newIORef nullFunPtr
 
 -- These NOINLINE pragmas are due to use of unsafePerformIO.
 -- See http://hackage.haskell.org/packages/archive/base/latest/doc/html/System-IO-Unsafe.html#v:unsafePerformIO .
 
-{-# NOINLINE storedCharFun            #-}
-{-# NOINLINE storedCursorEnterFun     #-}
-{-# NOINLINE storedCursorPosFun       #-}
 {-# NOINLINE storedErrorFun           #-}
-{-# NOINLINE storedFramebufferSizeFun #-}
-{-# NOINLINE storedKeyFun             #-}
 {-# NOINLINE storedMonitorFun         #-}
-{-# NOINLINE storedMouseButtonFun     #-}
-{-# NOINLINE storedScrollFun          #-}
-{-# NOINLINE storedWindowCloseFun     #-}
-{-# NOINLINE storedWindowFocusFun     #-}
-{-# NOINLINE storedWindowIconifyFun   #-}
-{-# NOINLINE storedWindowPosFun       #-}
-{-# NOINLINE storedWindowRefreshFun   #-}
-{-# NOINLINE storedWindowSizeFun      #-}
+
+setWindowCallback
+  :: (c -> IO (FunPtr c))                    -- wf   wrapper function
+  -> (h -> c)                                -- af   adapter function
+  -> (FunPtr c -> IO (FunPtr c))             -- gf   c'glfwSet*Callback function
+  -> (WindowCallbacks -> IORef (FunPtr c))   -- ior  accessor for storage location
+  -> Window                                  -- win  window
+  -> Maybe h                                 -- mcb  Haskell callback
+  -> IO ()
+setWindowCallback wr af gf ior win mcb = do
+    pcallbacks <- castPtrToStablePtr `liftM` c'glfwGetWindowUserPointer (unWindow win)
+    callbacks <- deRefStablePtr pcallbacks
+    setCallback wr af gf (ior callbacks) mcb
 
 setCallback
   :: (c -> IO (FunPtr c))          -- wf   wrapper function
@@ -271,21 +246,8 @@ terminate :: IO ()
 terminate = do
     c'glfwTerminate
     -- Free all stored FunPtrs.
-    storeCallback storedCharFun            nullFunPtr
-    storeCallback storedCursorEnterFun     nullFunPtr
-    storeCallback storedCursorPosFun       nullFunPtr
     storeCallback storedErrorFun           nullFunPtr
-    storeCallback storedFramebufferSizeFun nullFunPtr
-    storeCallback storedKeyFun             nullFunPtr
     storeCallback storedMonitorFun         nullFunPtr
-    storeCallback storedMouseButtonFun     nullFunPtr
-    storeCallback storedScrollFun          nullFunPtr
-    storeCallback storedWindowCloseFun     nullFunPtr
-    storeCallback storedWindowFocusFun     nullFunPtr
-    storeCallback storedWindowIconifyFun   nullFunPtr
-    storeCallback storedWindowPosFun       nullFunPtr
-    storeCallback storedWindowRefreshFun   nullFunPtr
-    storeCallback storedWindowSizeFun      nullFunPtr
 
 getVersion :: IO Version
 getVersion =
@@ -467,19 +429,69 @@ windowHint wh =
 createWindow :: Int -> Int -> String -> Maybe Monitor -> Maybe Window -> IO (Maybe Window)
 createWindow w h title mmon mwin =
     withCString title $ \ptitle -> do
+        charFun             <- newIORef nullFunPtr
+        cursorEnterFun      <- newIORef nullFunPtr
+        cursorPosFun        <- newIORef nullFunPtr
+        framebufferSizeFun  <- newIORef nullFunPtr
+        keyFun              <- newIORef nullFunPtr
+        mouseButtonFun      <- newIORef nullFunPtr
+        scrollFun           <- newIORef nullFunPtr
+        windowCloseFun      <- newIORef nullFunPtr
+        windowFocusFun      <- newIORef nullFunPtr
+        windowIconifyFun    <- newIORef nullFunPtr
+        windowPosFun        <- newIORef nullFunPtr
+        windowRefreshFun    <- newIORef nullFunPtr
+        windowSizeFun       <- newIORef nullFunPtr
+        let callbacks = WindowCallbacks
+              { storedCharFun             = charFun
+              , storedCursorEnterFun      = cursorEnterFun
+              , storedCursorPosFun        = cursorPosFun
+              , storedFramebufferSizeFun  = framebufferSizeFun
+              , storedKeyFun              = keyFun
+              , storedMouseButtonFun      = mouseButtonFun
+              , storedScrollFun           = scrollFun
+              , storedWindowCloseFun      = windowCloseFun
+              , storedWindowFocusFun      = windowFocusFun
+              , storedWindowIconifyFun    = windowIconifyFun
+              , storedWindowPosFun        = windowPosFun
+              , storedWindowRefreshFun    = windowRefreshFun
+              , storedWindowSizeFun       = windowSizeFun
+              }
         p'win <- c'glfwCreateWindow
           (toC w)
           (toC h)
           ptitle
           (maybe nullPtr toC mmon)
           (maybe nullPtr toC mwin)
-        return $ if p'win == nullPtr
-          then Nothing
-          else Just $ fromC p'win
+        if p'win == nullPtr
+          then return Nothing
+          else do callbackPtr <- newStablePtr callbacks
+                  c'glfwSetWindowUserPointer p'win (castStablePtrToPtr callbackPtr)
+                  return $ Just $ fromC p'win
 
 destroyWindow :: Window -> IO ()
-destroyWindow =
-    c'glfwDestroyWindow . toC
+destroyWindow win = do
+    pcb <- castPtrToStablePtr `liftM` c'glfwGetWindowUserPointer (toC win)
+    cbs <- deRefStablePtr pcb
+    c'glfwDestroyWindow (toC win)
+
+    let free callback = do funptr <- readIORef (callback cbs)
+                           when (funptr /= nullFunPtr) $ freeHaskellFunPtr funptr
+    free storedCharFun
+    free storedCursorEnterFun
+    free storedCursorPosFun
+    free storedFramebufferSizeFun
+    free storedKeyFun
+    free storedMouseButtonFun
+    free storedScrollFun
+    free storedWindowCloseFun
+    free storedWindowFocusFun
+    free storedWindowIconifyFun
+    free storedWindowPosFun
+    free storedWindowRefreshFun
+    free storedWindowSizeFun
+    freeStablePtr pcb
+
 
 windowShouldClose :: Window -> IO Bool
 windowShouldClose win =
@@ -615,55 +627,62 @@ getWindowOpenGLProfile win =
 -- end of functions related to c'glfwGetWindowAttrib
 
 setWindowPosCallback :: Window -> Maybe WindowPosCallback -> IO ()
-setWindowPosCallback win = setCallback
+setWindowPosCallback win = setWindowCallback
     mk'GLFWwindowposfun
     (\cb a0 a1 a2 ->
       cb (fromC a0) (fromC a1) (fromC a2))
     (c'glfwSetWindowPosCallback (toC win))
     storedWindowPosFun
+    win
 
 setWindowSizeCallback :: Window -> Maybe WindowSizeCallback -> IO ()
-setWindowSizeCallback win = setCallback
+setWindowSizeCallback win = setWindowCallback
     mk'GLFWwindowsizefun
     (\cb a0 a1 a2 ->
       cb (fromC a0) (fromC a1) (fromC a2))
     (c'glfwSetWindowSizeCallback (toC win))
     storedWindowSizeFun
+    win
 
 setWindowCloseCallback :: Window -> Maybe WindowCloseCallback -> IO ()
-setWindowCloseCallback win = setCallback
+setWindowCloseCallback win = setWindowCallback
     mk'GLFWwindowclosefun
     (. fromC)
     (c'glfwSetWindowCloseCallback (toC win))
     storedWindowCloseFun
+    win
 
 setWindowRefreshCallback :: Window -> Maybe WindowRefreshCallback -> IO ()
-setWindowRefreshCallback win = setCallback
+setWindowRefreshCallback win = setWindowCallback
     mk'GLFWwindowrefreshfun
     (. fromC)
     (c'glfwSetWindowRefreshCallback (toC win))
     storedWindowRefreshFun
+    win
 
 setWindowFocusCallback :: Window -> Maybe WindowFocusCallback -> IO ()
-setWindowFocusCallback win = setCallback
+setWindowFocusCallback win = setWindowCallback
     mk'GLFWwindowfocusfun
     (\cb a0 a1 -> cb (fromC a0) (fromC a1))
     (c'glfwSetWindowFocusCallback (toC win))
     storedWindowFocusFun
+    win
 
 setWindowIconifyCallback :: Window -> Maybe WindowIconifyCallback -> IO ()
-setWindowIconifyCallback win = setCallback
+setWindowIconifyCallback win = setWindowCallback
     mk'GLFWwindowiconifyfun
     (\cb a0 a1 -> cb (fromC a0) (fromC a1))
     (c'glfwSetWindowIconifyCallback (toC win))
     storedWindowIconifyFun
+    win
 
 setFramebufferSizeCallback :: Window -> Maybe FramebufferSizeCallback -> IO ()
-setFramebufferSizeCallback win = setCallback
+setFramebufferSizeCallback win = setWindowCallback
     mk'GLFWframebuffersizefun
     (\cb a0 a1 a2 -> cb (fromC a0) (fromC a1) (fromC a2))
     (c'glfwSetFramebufferSizeCallback (toC win))
     storedFramebufferSizeFun
+    win
 
 pollEvents :: IO ()
 pollEvents = c'glfwPollEvents
@@ -721,47 +740,53 @@ getCursorPos win =
         return (x, y)
 
 setKeyCallback :: Window -> Maybe KeyCallback -> IO ()
-setKeyCallback win = setCallback
+setKeyCallback win = setWindowCallback
     mk'GLFWkeyfun
     (\cb a0 a1 a2 a3 a4 ->
       cb (fromC a0) (fromC a1) (fromC a2) (fromC a3) (fromC a4))
     (c'glfwSetKeyCallback (toC win))
     storedKeyFun
+    win
 
 setCharCallback :: Window -> Maybe CharCallback -> IO ()
-setCharCallback win = setCallback
+setCharCallback win = setWindowCallback
     mk'GLFWcharfun
     (\cb a0 a1 -> cb (fromC a0) (fromC a1))
     (c'glfwSetCharCallback (toC win))
     storedCharFun
+    win
 
 setMouseButtonCallback :: Window -> Maybe MouseButtonCallback -> IO ()
-setMouseButtonCallback win = setCallback
+setMouseButtonCallback win = setWindowCallback
     mk'GLFWmousebuttonfun
     (\cb a0 a1 a2 a3 -> cb (fromC a0) (fromC a1) (fromC a2) (fromC a3))
     (c'glfwSetMouseButtonCallback (toC win))
     storedMouseButtonFun
+    win
 
 setCursorPosCallback :: Window -> Maybe CursorPosCallback -> IO ()
-setCursorPosCallback win = setCallback
+setCursorPosCallback win = setWindowCallback
     mk'GLFWcursorposfun
     (\cb a0 a1 a2 -> cb (fromC a0) (fromC a1) (fromC a2))
     (c'glfwSetCursorPosCallback (toC win))
     storedCursorPosFun
+    win
 
 setCursorEnterCallback :: Window -> Maybe CursorEnterCallback -> IO ()
-setCursorEnterCallback win = setCallback
+setCursorEnterCallback win = setWindowCallback
     mk'GLFWcursorenterfun
     (\cb a0 a1 -> cb (fromC a0) (fromC a1))
     (c'glfwSetCursorEnterCallback (toC win))
     storedCursorEnterFun
+    win
 
 setScrollCallback :: Window -> Maybe ScrollCallback -> IO ()
-setScrollCallback win = setCallback
+setScrollCallback win = setWindowCallback
     mk'GLFWscrollfun
     (\cb a0 a1 a2 -> cb (fromC a0) (fromC a1) (fromC a2))
     (c'glfwSetScrollCallback (toC win))
     storedScrollFun
+    win
 
 joystickPresent :: Joystick -> IO Bool
 joystickPresent js =

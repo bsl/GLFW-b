@@ -5,6 +5,7 @@ module Graphics.UI.GLFW.Types where
 --------------------------------------------------------------------------------
 
 import Data.Data     (Data)
+import Data.IORef    (IORef)
 import Data.Typeable (Typeable)
 import Foreign.Ptr   (Ptr)
 
@@ -77,6 +78,22 @@ makeGammaRamp rs gs bs
 
 --------------------------------------------------------------------------------
 -- Window handling
+
+data WindowCallbacks = WindowCallbacks
+  { storedCharFun             :: IORef C'GLFWcharfun
+  , storedCursorEnterFun      :: IORef C'GLFWcursorenterfun
+  , storedCursorPosFun        :: IORef C'GLFWcursorposfun
+  , storedFramebufferSizeFun  :: IORef C'GLFWframebuffersizefun
+  , storedKeyFun              :: IORef C'GLFWkeyfun
+  , storedMouseButtonFun      :: IORef C'GLFWmousebuttonfun
+  , storedScrollFun           :: IORef C'GLFWscrollfun
+  , storedWindowCloseFun      :: IORef C'GLFWwindowclosefun
+  , storedWindowFocusFun      :: IORef C'GLFWwindowfocusfun
+  , storedWindowIconifyFun    :: IORef C'GLFWwindowiconifyfun
+  , storedWindowPosFun        :: IORef C'GLFWwindowposfun
+  , storedWindowRefreshFun    :: IORef C'GLFWwindowrefreshfun
+  , storedWindowSizeFun       :: IORef C'GLFWwindowsizefun
+  }
 
 newtype Window = Window
   { unWindow :: Ptr C'GLFWwindow

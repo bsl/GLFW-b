@@ -38,13 +38,9 @@ main = do
 
 --------------------------------------------------------------------------------
 
-versionMajor, versionMinor, versionRevision :: Int
-versionMajor    = 3
-versionMinor    = 0
-versionRevision = 1
-
-version :: GLFW.Version
-version = GLFW.Version versionMajor versionMinor versionRevision
+versionMajor, versionMinor :: Int
+versionMajor = 3
+versionMinor = 0
 
 giveItTime :: IO ()
 giveItTime = threadDelay 250000
@@ -154,10 +150,8 @@ tests mon win =
 test_getVersion :: IO ()
 test_getVersion = do
     v <- GLFW.getVersion
-    v                      @?= version
-    GLFW.versionMajor    v @?= versionMajor
-    GLFW.versionMinor    v @?= versionMinor
-    GLFW.versionRevision v @?= versionRevision
+    GLFW.versionMajor v @?= versionMajor
+    GLFW.versionMinor v @?= versionMinor
 
 test_getVersionString :: IO ()
 test_getVersionString = do
@@ -166,7 +160,7 @@ test_getVersionString = do
       Just vs -> assertBool "" $ v `isPrefixOf` vs
       Nothing -> assertFailure ""
   where
-    v = intercalate "." $ map show [versionMajor, versionMinor, versionRevision]
+    v = intercalate "." $ map show [versionMajor, versionMinor]
 
 test_getMonitors :: IO ()
 test_getMonitors = do

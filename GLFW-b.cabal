@@ -66,7 +66,7 @@ test-suite main
 
   main-is: Test.hs
   build-depends:
-    GLFW-b               == 1.4.*,
+    GLFW-b,
     HUnit                == 1.2.*,
     base                  < 5,
     bindings-GLFW        == 3.0.*,

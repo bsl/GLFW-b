@@ -773,7 +773,7 @@ setKeyCallback :: Window -> Maybe KeyCallback -> IO ()
 setKeyCallback win = setWindowCallback
     mk'GLFWkeyfun
     (\cb a0 a1 a2 a3 a4 ->
-      cb (fromC a0) (fromC a1) (fromC a2) (fromC a3) (fromC a4))
+      schedule $ cb (fromC a0) (fromC a1) (fromC a2) (fromC a3) (fromC a4))
     (c'glfwSetKeyCallback (toC win))
     storedKeyFun
     win

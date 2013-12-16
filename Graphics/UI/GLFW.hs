@@ -226,8 +226,13 @@ type MonitorCallback         = Monitor -> MonitorState                          
 --------------------------------------------------------------------------------
 -- CB scheduling
 
-storedScheduledCallbacks :: IORef [IO ()]
-storedScheduledCallbacks = unsafePerformIO $ newIORef []
+data ScheduledCallbacks = ScheduledCallbacks
+  { _forward :: [IO ()] -- Execution iterates this list
+  , _backward :: [IO ()] -- New schedules prepend here
+  }
+
+storedScheduledCallbacks :: IORef ScheduledCallbacks
+storedScheduledCallbacks = unsafePerformIO . newIORef $ ScheduledCallbacks [] []
 
 -- This NOINLINE pragma is due to use of unsafePerformIO.
 -- See http://hackage.haskell.org/packages/archive/base/latest/doc/html/System-IO-Unsafe.html#v:unsafePerformIO .
@@ -245,13 +250,32 @@ atomicModifyIORef' ref f = do
     b `seq` return b
 
 schedule :: IO () -> IO ()
-schedule act = atomicModifyIORef' storedScheduledCallbacks (\old -> (act : old, ()))
+schedule act =
+  atomicModifyIORef' storedScheduledCallbacks $
+  \(ScheduledCallbacks oldForward oldBackward) ->
+  (ScheduledCallbacks oldForward (act : oldBackward), ())
 
-getScheduled :: IO [IO ()]
-getScheduled = fmap reverse $ atomicModifyIORef storedScheduledCallbacks (\old -> ([], old))
+splitFirst :: [a] -> (Maybe a, [a])
+splitFirst [] = (Nothing, [])
+splitFirst (x:xs) = (Just x, xs)
+
+getNextScheduled :: IO (Maybe (IO ()))
+getNextScheduled =
+  atomicModifyIORef storedScheduledCallbacks $
+  \(ScheduledCallbacks oldForward oldBackward) ->
+  case oldForward of
+    [] ->
+      let (mCb, newForward) = splitFirst (reverse oldBackward)
+      in (ScheduledCallbacks newForward [], mCb)
+    (cb:rest) ->                -- Eat forward first
+      (ScheduledCallbacks rest oldBackward, Just cb)
 
 executeScheduled :: IO ()
-executeScheduled = sequence_ =<< getScheduled
+executeScheduled = do
+  mcb <- getNextScheduled
+  case mcb of
+    Nothing -> return ()
+    Just cb -> cb >> executeScheduled
 
 --------------------------------------------------------------------------------
 -- Error handling

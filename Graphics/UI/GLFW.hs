@@ -224,6 +224,36 @@ type CharCallback            = Window -> Char                                   
 type MonitorCallback         = Monitor -> MonitorState                                   -> IO ()
 
 --------------------------------------------------------------------------------
+-- CB scheduling
+
+storedScheduledCallbacks :: IORef [IO ()]
+storedScheduledCallbacks = unsafePerformIO $ newIORef []
+
+-- This NOINLINE pragma is due to use of unsafePerformIO.
+-- See http://hackage.haskell.org/packages/archive/base/latest/doc/html/System-IO-Unsafe.html#v:unsafePerformIO .
+
+{-# NOINLINE storedScheduledCallbacks #-}
+
+-- This is provided in newer "base" versions. To avoid depending on
+-- it, it's reimplemented here. Should remove if/when compatibility
+-- with older base is not an issue:
+atomicModifyIORef' :: IORef a -> (a -> (a,b)) -> IO b
+atomicModifyIORef' ref f = do
+    b <- atomicModifyIORef ref
+            (\x -> let (a, b) = f x
+                    in (a, a `seq` b))
+    b `seq` return b
+
+schedule :: IO () -> IO ()
+schedule act = atomicModifyIORef' storedScheduledCallbacks (\old -> (act : old, ()))
+
+getScheduled :: IO [IO ()]
+getScheduled = fmap reverse $ atomicModifyIORef storedScheduledCallbacks (\old -> ([], old))
+
+executeScheduled :: IO ()
+executeScheduled = sequence_ =<< getScheduled
+
+--------------------------------------------------------------------------------
 -- Error handling
 
 setErrorCallback :: Maybe ErrorCallback -> IO ()
@@ -231,7 +261,7 @@ setErrorCallback = setCallback
     mk'GLFWerrorfun
     (\cb a0 a1 -> do
         s <- peekCString a1
-        cb (fromC a0) s)
+        schedule $ cb (fromC a0) s)
     c'glfwSetErrorCallback
     storedErrorFun
 
@@ -318,7 +348,7 @@ getMonitorName mon = do
 setMonitorCallback :: Maybe MonitorCallback -> IO ()
 setMonitorCallback = setCallback
     mk'GLFWmonitorfun
-    (\cb a0 a1 -> cb (fromC a0) (fromC a1))
+    (\cb a0 a1 -> schedule $ cb (fromC a0) (fromC a1))
     c'glfwSetMonitorCallback
     storedMonitorFun
 
@@ -630,7 +660,7 @@ setWindowPosCallback :: Window -> Maybe WindowPosCallback -> IO ()
 setWindowPosCallback win = setWindowCallback
     mk'GLFWwindowposfun
     (\cb a0 a1 a2 ->
-      cb (fromC a0) (fromC a1) (fromC a2))
+      schedule $ cb (fromC a0) (fromC a1) (fromC a2))
     (c'glfwSetWindowPosCallback (toC win))
     storedWindowPosFun
     win
@@ -639,7 +669,7 @@ setWindowSizeCallback :: Window -> Maybe WindowSizeCallback -> IO ()
 setWindowSizeCallback win = setWindowCallback
     mk'GLFWwindowsizefun
     (\cb a0 a1 a2 ->
-      cb (fromC a0) (fromC a1) (fromC a2))
+      schedule $ cb (fromC a0) (fromC a1) (fromC a2))
     (c'glfwSetWindowSizeCallback (toC win))
     storedWindowSizeFun
     win
@@ -663,7 +693,7 @@ setWindowRefreshCallback win = setWindowCallback
 setWindowFocusCallback :: Window -> Maybe WindowFocusCallback -> IO ()
 setWindowFocusCallback win = setWindowCallback
     mk'GLFWwindowfocusfun
-    (\cb a0 a1 -> cb (fromC a0) (fromC a1))
+    (\cb a0 a1 -> schedule $ cb (fromC a0) (fromC a1))
     (c'glfwSetWindowFocusCallback (toC win))
     storedWindowFocusFun
     win
@@ -671,7 +701,7 @@ setWindowFocusCallback win = setWindowCallback
 setWindowIconifyCallback :: Window -> Maybe WindowIconifyCallback -> IO ()
 setWindowIconifyCallback win = setWindowCallback
     mk'GLFWwindowiconifyfun
-    (\cb a0 a1 -> cb (fromC a0) (fromC a1))
+    (\cb a0 a1 -> schedule $ cb (fromC a0) (fromC a1))
     (c'glfwSetWindowIconifyCallback (toC win))
     storedWindowIconifyFun
     win
@@ -679,16 +709,16 @@ setWindowIconifyCallback win = setWindowCallback
 setFramebufferSizeCallback :: Window -> Maybe FramebufferSizeCallback -> IO ()
 setFramebufferSizeCallback win = setWindowCallback
     mk'GLFWframebuffersizefun
-    (\cb a0 a1 a2 -> cb (fromC a0) (fromC a1) (fromC a2))
+    (\cb a0 a1 a2 -> schedule $ cb (fromC a0) (fromC a1) (fromC a2))
     (c'glfwSetFramebufferSizeCallback (toC win))
     storedFramebufferSizeFun
     win
 
 pollEvents :: IO ()
-pollEvents = c'glfwPollEvents
+pollEvents = c'glfwPollEvents >> executeScheduled
 
 waitEvents :: IO ()
-waitEvents = c'glfwWaitEvents
+waitEvents = c'glfwWaitEvents >> executeScheduled
 
 --------------------------------------------------------------------------------
 -- Input handling
@@ -751,7 +781,7 @@ setKeyCallback win = setWindowCallback
 setCharCallback :: Window -> Maybe CharCallback -> IO ()
 setCharCallback win = setWindowCallback
     mk'GLFWcharfun
-    (\cb a0 a1 -> cb (fromC a0) (fromC a1))
+    (\cb a0 a1 -> schedule $ cb (fromC a0) (fromC a1))
     (c'glfwSetCharCallback (toC win))
     storedCharFun
     win
@@ -759,7 +789,7 @@ setCharCallback win = setWindowCallback
 setMouseButtonCallback :: Window -> Maybe MouseButtonCallback -> IO ()
 setMouseButtonCallback win = setWindowCallback
     mk'GLFWmousebuttonfun
-    (\cb a0 a1 a2 a3 -> cb (fromC a0) (fromC a1) (fromC a2) (fromC a3))
+    (\cb a0 a1 a2 a3 -> schedule $ cb (fromC a0) (fromC a1) (fromC a2) (fromC a3))
     (c'glfwSetMouseButtonCallback (toC win))
     storedMouseButtonFun
     win
@@ -767,7 +797,7 @@ setMouseButtonCallback win = setWindowCallback
 setCursorPosCallback :: Window -> Maybe CursorPosCallback -> IO ()
 setCursorPosCallback win = setWindowCallback
     mk'GLFWcursorposfun
-    (\cb a0 a1 a2 -> cb (fromC a0) (fromC a1) (fromC a2))
+    (\cb a0 a1 a2 -> schedule $ cb (fromC a0) (fromC a1) (fromC a2))
     (c'glfwSetCursorPosCallback (toC win))
     storedCursorPosFun
     win
@@ -775,7 +805,7 @@ setCursorPosCallback win = setWindowCallback
 setCursorEnterCallback :: Window -> Maybe CursorEnterCallback -> IO ()
 setCursorEnterCallback win = setWindowCallback
     mk'GLFWcursorenterfun
-    (\cb a0 a1 -> cb (fromC a0) (fromC a1))
+    (\cb a0 a1 -> schedule $ cb (fromC a0) (fromC a1))
     (c'glfwSetCursorEnterCallback (toC win))
     storedCursorEnterFun
     win
@@ -783,7 +813,7 @@ setCursorEnterCallback win = setWindowCallback
 setScrollCallback :: Window -> Maybe ScrollCallback -> IO ()
 setScrollCallback win = setWindowCallback
     mk'GLFWscrollfun
-    (\cb a0 a1 a2 -> cb (fromC a0) (fromC a1) (fromC a2))
+    (\cb a0 a1 a2 -> schedule $ cb (fromC a0) (fromC a1) (fromC a2))
     (c'glfwSetScrollCallback (toC win))
     storedScrollFun
     win

@@ -1,2 +1,5 @@
 cabal-dev/
 dist/
+*.sw[a-z]
+cabal.sandbox.config
+.cabal-sandbox/

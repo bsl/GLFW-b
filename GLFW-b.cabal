@@ -1,9 +1,9 @@
 name:         GLFW-b
-version:      1.4.6
+version:      1.4.7
 category:     Graphics
 
 author:       Brian Lewis <brian@lorf.org>
-maintainer:   Brian Lewis <brian@lorf.org>
+maintainer:   Brian Lewis <brian@lorf.org>, Schell Scivally <schell.scivally@synapsegroup.com>
 
 license:      BSD3
 license-file: LICENSE
@@ -16,12 +16,11 @@ description:
   .
   GLFW-b depends on bindings-GLFW
   (<http://hackage.haskell.org/package/bindings-GLFW>), which, as of the time
-  of this writing, binds to GLFW 3.0.3, released 2013-09-24
-  (<http://www.glfw.org/Version-3.0.3-released.html>
+  of this writing, binds to GLFW 3.1, released 2015-01-18
+  (<http://www.glfw.org/Version-3.1-released.html>
   <http://www.glfw.org/changelog.html>).
   .
-  If you've used GLFW before, you were probably using 2.7.x. There are some
-  significant differences in 3.0.x. Please see the transition guide
+  If you've used GLFW < 3 before, you should read the transition guide
   (<http://www.glfw.org/docs/3.0/moving.html>).
 
 cabal-version: >= 1.10
@@ -51,7 +50,7 @@ library
 
   build-depends:
     base           < 5,
-    bindings-GLFW == 3.0.*
+    bindings-GLFW == 3.1.*
 
 --------------------------------------------------------------------------------
 
@@ -69,7 +68,7 @@ test-suite main
     GLFW-b,
     HUnit                == 1.2.*,
     base                  < 5,
-    bindings-GLFW        == 3.0.*,
+    bindings-GLFW        == 3.1.*,
     test-framework       == 0.8.*,
     test-framework-hunit == 0.3.*
 

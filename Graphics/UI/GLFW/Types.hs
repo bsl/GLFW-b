@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Graphics.UI.GLFW.Types where
 
@@ -8,6 +9,7 @@ import Data.Data     (Data)
 import Data.IORef    (IORef)
 import Data.Typeable (Typeable)
 import Foreign.Ptr   (Ptr)
+import GHC.Generics
 
 import Bindings.GLFW
 
@@ -24,7 +26,7 @@ data Error =
   | Error'VersionUnavailable
   | Error'PlatformError
   | Error'FormatUnavailable
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 --------------------------------------------------------------------------------
 -- Initialization and version information
@@ -33,19 +35,19 @@ data Version = Version
   { versionMajor    :: Int
   , versionMinor    :: Int
   , versionRevision :: Int
-  } deriving (Data, Eq, Ord, Read, Show, Typeable)
+  } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 --------------------------------------------------------------------------------
 -- Monitor handling
 
 newtype Monitor = Monitor
   { unMonitor :: Ptr C'GLFWmonitor
-  } deriving (Data, Eq, Ord, Show, Typeable)
+  } deriving (Data, Eq, Ord, Show, Typeable, Generic)
 
 data MonitorState =
     MonitorState'Connected
   | MonitorState'Disconnected
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 data VideoMode = VideoMode
   { videoModeWidth       :: Int
@@ -54,7 +56,7 @@ data VideoMode = VideoMode
   , videoModeGreenBits   :: Int
   , videoModeBlueBits    :: Int
   , videoModeRefreshRate :: Int
-  } deriving (Data, Eq, Ord, Read, Show, Typeable)
+  } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 -- It would be bad to give clients a way to construct invalid gamma ramps with
 -- lists of unequal length, so this constructor should not be exported.
@@ -62,7 +64,7 @@ data GammaRamp = GammaRamp
   { gammaRampRed   :: [Int]
   , gammaRampGreen :: [Int]
   , gammaRampBlue  :: [Int]
-  } deriving (Data, Eq, Ord, Read, Show, Typeable)
+  } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 -- Smart constructor for GammaRamp.
 makeGammaRamp :: [Int] -> [Int] -> [Int] -> Maybe GammaRamp
@@ -97,7 +99,7 @@ data WindowCallbacks = WindowCallbacks
 
 newtype Window = Window
   { unWindow :: Ptr C'GLFWwindow
-  } deriving (Data, Eq, Ord, Show, Typeable)
+  } deriving (Data, Eq, Ord, Show, Typeable, Generic)
 
 data WindowHint =
     WindowHint'Resizable           Bool
@@ -125,34 +127,34 @@ data WindowHint =
   | WindowHint'OpenGLForwardCompat Bool
   | WindowHint'OpenGLDebugContext  Bool
   | WindowHint'OpenGLProfile       OpenGLProfile
-  deriving (Data, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 data FocusState =
     FocusState'Focused
   | FocusState'Defocused
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data IconifyState =
     IconifyState'Iconified
   | IconifyState'NotIconified
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data ContextRobustness =
     ContextRobustness'NoRobustness
   | ContextRobustness'NoResetNotification
   | ContextRobustness'LoseContextOnReset
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data OpenGLProfile =
     OpenGLProfile'Any
   | OpenGLProfile'Compat
   | OpenGLProfile'Core
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data ClientAPI =
     ClientAPI'OpenGL
   | ClientAPI'OpenGLES
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 --------------------------------------------------------------------------------
 -- Input handling
@@ -279,13 +281,13 @@ data Key =
   | Key'RightAlt
   | Key'RightSuper
   | Key'Menu
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data KeyState =
     KeyState'Pressed
   | KeyState'Released
   | KeyState'Repeating
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data Joystick =
     Joystick'1
@@ -304,12 +306,12 @@ data Joystick =
   | Joystick'14
   | Joystick'15
   | Joystick'16
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data JoystickButtonState =
     JoystickButtonState'Pressed
   | JoystickButtonState'Released
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data MouseButton =
     MouseButton'1
@@ -320,40 +322,40 @@ data MouseButton =
   | MouseButton'6
   | MouseButton'7
   | MouseButton'8
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data MouseButtonState =
     MouseButtonState'Pressed
   | MouseButtonState'Released
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data CursorState =
     CursorState'InWindow
   | CursorState'NotInWindow
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data CursorInputMode =
     CursorInputMode'Normal
   | CursorInputMode'Hidden
   | CursorInputMode'Disabled
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data StickyKeysInputMode =
     StickyKeysInputMode'Enabled
   | StickyKeysInputMode'Disabled
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data StickyMouseButtonsInputMode =
     StickyMouseButtonsInputMode'Enabled
   | StickyMouseButtonsInputMode'Disabled
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable)
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 data ModifierKeys = ModifierKeys
   { modifierKeysShift   :: Bool
   , modifierKeysControl :: Bool
   , modifierKeysAlt     :: Bool
   , modifierKeysSuper   :: Bool
-  } deriving (Data, Eq, Ord, Read, Show, Typeable)
+  } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 --------------------------------------------------------------------------------
 

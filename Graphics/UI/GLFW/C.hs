@@ -12,7 +12,7 @@ module Graphics.UI.GLFW.C where
 
 import Data.Bits       ((.&.))
 import Data.Char       (chr, ord)
-import Foreign.C.Types (CDouble, CFloat, CInt, CUChar, CUInt, CUShort)
+import Foreign.C.Types (CDouble, CFloat, CInt, CChar, CUChar, CUInt, CUShort)
 import Foreign.Ptr     (Ptr)
 
 import Bindings.GLFW
@@ -25,6 +25,10 @@ class C c h where
   toC   :: h -> c
 
 --------------------------------------------------------------------------------
+
+instance C CChar Char where
+  fromC = chr . fromIntegral
+  toC = fromIntegral . ord
 
 instance C CInt Char where
   fromC = chr . fromIntegral

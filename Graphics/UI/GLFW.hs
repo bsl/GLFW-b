@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fdefer-type-errors #-}
 module Graphics.UI.GLFW
   ( -- * Error handling
     Error (..)
@@ -111,6 +112,7 @@ module Graphics.UI.GLFW
   , setCursorPosCallback,   CursorPosCallback
   , setCursorEnterCallback, CursorEnterCallback
   , setScrollCallback,      ScrollCallback
+  , setDropCallback,        DropCallback
   , joystickPresent
   , getJoystickAxes
   , getJoystickButtons
@@ -222,6 +224,12 @@ type ScrollCallback          = Window -> Double -> Double                       
 type KeyCallback             = Window -> Key -> Int -> KeyState -> ModifierKeys          -> IO ()
 type CharCallback            = Window -> Char                                            -> IO ()
 type MonitorCallback         = Monitor -> MonitorState                                   -> IO ()
+
+-- 3.1 additions
+
+type DropCallback = Window    -- ^ The window that received the event.
+                  -> [String] -- ^ The file and/or directory path names
+                  -> IO ()
 
 --------------------------------------------------------------------------------
 -- CB scheduling
@@ -496,6 +504,7 @@ createWindow w h title mmon mwin =
         windowPosFun        <- newIORef nullFunPtr
         windowRefreshFun    <- newIORef nullFunPtr
         windowSizeFun       <- newIORef nullFunPtr
+        dropFun             <- newIORef nullFunPtr
         let callbacks = WindowCallbacks
               { storedCharFun             = charFun
               , storedCursorEnterFun      = cursorEnterFun
@@ -510,6 +519,7 @@ createWindow w h title mmon mwin =
               , storedWindowPosFun        = windowPosFun
               , storedWindowRefreshFun    = windowRefreshFun
               , storedWindowSizeFun       = windowSizeFun
+              , storedDropFun             = dropFun
               }
         p'win <- c'glfwCreateWindow
           (toC w)
@@ -800,6 +810,22 @@ setKeyCallback win = setWindowCallback
       schedule $ cb (fromC a0) (fromC a1) (fromC a2) (fromC a3) (fromC a4))
     (c'glfwSetKeyCallback (toC win))
     storedKeyFun
+    win
+
+-- | This function sets the file drop callback of the specified window, which
+-- is called when one or more dragged files are dropped on the window.
+setDropCallback :: Window -> Maybe DropCallback -> IO ()
+setDropCallback win = setWindowCallback
+    mk'GLFWdropfun
+    (\cb w c fs -> do
+        let count = fromC c
+        fps <- flip mapM [0..count-1] $ \i -> do
+            let p = advancePtr fs i
+            p' <- peek p
+            peekCString p'
+        schedule $ cb (fromC w) count fps)
+    (c'glfwSetDropCallback (toC win))
+    storedDropFun
     win
 
 setCharCallback :: Window -> Maybe CharCallback -> IO ()

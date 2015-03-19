@@ -95,6 +95,7 @@ data WindowCallbacks = WindowCallbacks
   , storedWindowPosFun        :: IORef C'GLFWwindowposfun
   , storedWindowRefreshFun    :: IORef C'GLFWwindowrefreshfun
   , storedWindowSizeFun       :: IORef C'GLFWwindowsizefun
+  , storedDropFun             :: IORef C'GLFWdropfun
   }
 
 newtype Window = Window

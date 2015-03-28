@@ -823,7 +823,7 @@ setDropCallback win = setWindowCallback
             let p = advancePtr fs i
             p' <- peek p
             peekCString p'
-        schedule $ cb (fromC w) count fps)
+        schedule $ cb (fromC w) fps)
     (c'glfwSetDropCallback (toC win))
     storedDropFun
     win

@@ -488,6 +488,9 @@ windowHint wh =
       (WindowHint'OpenGLDebugContext  x) -> (c'GLFW_OPENGL_DEBUG_CONTEXT,  toC x)
       (WindowHint'OpenGLProfile       x) -> (c'GLFW_OPENGL_PROFILE,        toC x)
 
+-- | Creates a new window.
+-- Note: If running in GHCI don't forget to `:set -fno-ghci-sandbox` or you
+-- may run into an assertion failure, segfault or other nasty crash.
 createWindow :: Int -> Int -> String -> Maybe Monitor -> Maybe Window -> IO (Maybe Window)
 createWindow w h title mmon mwin =
     withCString title $ \ptitle -> do

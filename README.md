@@ -6,6 +6,13 @@ binds to GLFW 3.1, [released 2015-01-18][4].
 
 For a demonstration of GLFW-b, see [GLFW-b-demo][5].
 
+When running GLFW-b in GHCI, don't forget to 
+
+    :set -fno-ghci-sandbox
+
+since GHCI can (and might) run each line of your code in a fresh unbounded 
+thread.
+
 [1]: http://www.haskell.org/
 [2]: http://www.glfw.org/
 [3]: https://github.com/bsl/bindings-GLFW

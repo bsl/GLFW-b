@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -fdefer-type-errors #-}
 module Graphics.UI.GLFW
   ( -- * Error handling
     Error (..)
@@ -95,6 +94,9 @@ module Graphics.UI.GLFW
   , StickyKeysInputMode         (..)
   , StickyMouseButtonsInputMode (..)
   , ModifierKeys                (..)
+  , Image                       (..)
+  , Cursor                      (..)
+  , StandardCursorShape         (..)
     --
     -- related to c'glfwSetInputMode ----.
   , getCursorInputMode                -- |
@@ -111,6 +113,10 @@ module Graphics.UI.GLFW
   , setMouseButtonCallback, MouseButtonCallback
   , setCursorPosCallback,   CursorPosCallback
   , setCursorEnterCallback, CursorEnterCallback
+  , createCursor
+  , createStandardCursor
+  , setCursor
+  , destroyCursor
   , setScrollCallback,      ScrollCallback
   , setDropCallback,        DropCallback
   , joystickPresent
@@ -226,10 +232,6 @@ type CharCallback            = Window -> Char                                   
 type MonitorCallback         = Monitor -> MonitorState                                   -> IO ()
 
 -- 3.1 additions
-
-type DropCallback = Window    -- ^ The window that received the event.
-                  -> [String] -- ^ The file and/or directory path names
-                  -> IO ()
 
 --------------------------------------------------------------------------------
 -- CB scheduling
@@ -815,21 +817,6 @@ setKeyCallback win = setWindowCallback
     storedKeyFun
     win
 
--- | This function sets the file drop callback of the specified window, which
--- is called when one or more dragged files are dropped on the window.
-setDropCallback :: Window -> Maybe DropCallback -> IO ()
-setDropCallback win = setWindowCallback
-    mk'GLFWdropfun
-    (\cb w c fs -> do
-        let count = fromC c
-        fps <- flip mapM [0..count-1] $ \i -> do
-            let p = advancePtr fs i
-            p' <- peek p
-            peekCString p'
-        schedule $ cb (fromC w) fps)
-    (c'glfwSetDropCallback (toC win))
-    storedDropFun
-    win
 
 setCharCallback :: Window -> Maybe CharCallback -> IO ()
 setCharCallback win = setWindowCallback
@@ -954,3 +941,68 @@ getClipboardString win = do
     if p's == nullPtr
       then return Nothing
       else Just `fmap` peekCString p's
+
+--------------------------------------------------------------------------------
+-- 3.1 additions (http://www.glfw.org/docs/latest/news.html#news_31)
+--------------------------------------------------------------------------------
+
+-- Cursor Objects
+-- http://www.glfw.org/docs/latest/input.html#cursor_object
+
+-- | Creates a new cursor.
+createCursor :: Image -- ^ The desired cursor image.
+             -> Int   -- ^ The desired x-coordinate, in pixels, of the cursor
+                      --   hotspot.
+             -> Int   -- ^ The desired y-coordinate, in pixels, of the cursor
+                      --   hotspot.
+             -> IO Cursor
+createCursor (Image w h pxs) x y =
+    alloca        $ \p'img ->
+    withArray pxs $ \p'pxs -> do
+        let img = C'GLFWimage (toC w)
+                              (toC h)
+                              p'pxs
+        poke p'img img
+        Cursor <$> c'glfwCreateCursor p'img (toC x) (toC y)
+
+-- | Creates a cursor with a standard shape that can be set for a window with
+-- setCursor.
+createStandardCursor :: StandardCursorShape -> IO Cursor
+createStandardCursor = (Cursor <$>) . c'glfwCreateStandardCursor . toC
+
+-- | Sets the cursor image to be used when the cursor is over the client area
+-- of the specified window. The set cursor will only be visible when the cursor
+-- mode of the window is GLFW_CURSOR_NORMAL.
+
+-- On some platforms, the set cursor may not be visible unless the window also
+-- has input focus.
+setCursor :: Window -> Cursor -> IO ()
+setCursor (Window wptr) (Cursor cptr) = c'glfwSetCursor wptr cptr
+
+-- | Destroys a cursor previously created with `createCursor`. Any remaining
+-- cursors will be destroyed by `terminate`.
+destroyCursor :: Cursor -> IO ()
+destroyCursor = c'glfwDestroyCursor . unCursor
+
+-- Path Drop Input
+-- http://www.glfw.org/docs/latest/input.html#path_drop
+
+type DropCallback = Window    -- ^ The window that received the event.
+                  -> [String] -- ^ The file and/or directory path names
+                  -> IO ()
+
+-- | Sets the file drop callback of the specified window, which is called when
+-- one or more dragged files are dropped on the window.
+setDropCallback :: Window -> Maybe DropCallback -> IO ()
+setDropCallback win = setWindowCallback
+    mk'GLFWdropfun
+    (\cb w c fs -> do
+        let count = fromC c
+        fps <- flip mapM [0..count-1] $ \i -> do
+            let p = advancePtr fs i
+            p' <- peek p
+            peekCString p'
+        schedule $ cb (fromC w) fps)
+    (c'glfwSetDropCallback (toC win))
+    storedDropFun
+    win

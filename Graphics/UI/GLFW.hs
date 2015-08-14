@@ -81,6 +81,7 @@ module Graphics.UI.GLFW
   , setFramebufferSizeCallback, FramebufferSizeCallback
   , pollEvents
   , waitEvents
+  , postEmptyEvent
 
     -- * Input handling
   , Key                         (..)
@@ -746,6 +747,9 @@ pollEvents = c'glfwPollEvents >> executeScheduled
 
 waitEvents :: IO ()
 waitEvents = c'glfwWaitEvents >> executeScheduled
+
+postEmptyEvent :: IO ()
+postEmptyEvent = c'glfwPostEmptyEvent
 
 --------------------------------------------------------------------------------
 -- Input handling

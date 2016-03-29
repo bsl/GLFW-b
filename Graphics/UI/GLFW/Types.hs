@@ -1,14 +1,17 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Graphics.UI.GLFW.Types where
 
 --------------------------------------------------------------------------------
 
-import Data.Data     (Data)
-import Data.IORef    (IORef)
-import Data.Typeable (Typeable)
-import Foreign.Ptr   (Ptr)
+import Data.Data        (Data)
+import Data.IORef       (IORef)
+import Data.Typeable    (Typeable)
+import Foreign.Ptr      (Ptr)
+import Foreign.C.Types  (CUChar(..))
 import GHC.Generics
 
 import Bindings.GLFW
@@ -95,6 +98,7 @@ data WindowCallbacks = WindowCallbacks
   , storedWindowPosFun        :: IORef C'GLFWwindowposfun
   , storedWindowRefreshFun    :: IORef C'GLFWwindowrefreshfun
   , storedWindowSizeFun       :: IORef C'GLFWwindowsizefun
+  , storedDropFun             :: IORef C'GLFWdropfun
   }
 
 newtype Window = Window
@@ -356,6 +360,31 @@ data ModifierKeys = ModifierKeys
   , modifierKeysAlt     :: Bool
   , modifierKeysSuper   :: Bool
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
+
+--------------------------------------------------------------------------------
+-- 3.1 Additions
+--------------------------------------------------------------------------------
+
+deriving instance Data CUChar
+
+data Image = Image
+  { imageWidth  :: Int
+  , imageHeight :: Int
+  , imagePixels :: [CUChar]
+  } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
+
+newtype Cursor = Cursor
+  { unCursor :: Ptr C'GLFWcursor
+  } deriving (Data, Eq, Ord, Show, Typeable, Generic)
+
+data StandardCursorShape =
+    StandardCursorShape'Arrow
+  | StandardCursorShape'IBeam
+  | StandardCursorShape'Crosshair
+  | StandardCursorShape'Hand
+  | StandardCursorShape'HResize
+  | StandardCursorShape'VResize
+  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 --------------------------------------------------------------------------------
 

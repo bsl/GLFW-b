@@ -12,7 +12,7 @@ module Graphics.UI.GLFW.C where
 
 import Data.Bits       ((.&.))
 import Data.Char       (chr, ord)
-import Foreign.C.Types (CDouble, CFloat, CInt, CUChar, CUInt, CUShort)
+import Foreign.C.Types (CDouble, CFloat, CInt, CChar, CUChar, CUInt, CUShort)
 import Foreign.Ptr     (Ptr)
 
 import Bindings.GLFW
@@ -25,6 +25,10 @@ class C c h where
   toC   :: h -> c
 
 --------------------------------------------------------------------------------
+
+instance C CChar Char where
+  fromC = chr . fromIntegral
+  toC = fromIntegral . ord
 
 instance C CInt Char where
   fromC = chr . fromIntegral
@@ -527,6 +531,26 @@ instance C CInt StickyMouseButtonsInputMode where
     | otherwise = error $ "C CInt StickyMouseButtonsInputMode fromC: " ++ show v
   toC StickyMouseButtonsInputMode'Enabled = c'GL_TRUE
   toC StickyMouseButtonsInputMode'Disabled = c'GL_FALSE
+
+--------------------------------------------------------------------------------
+-- 3.1 Additions
+--------------------------------------------------------------------------------
+
+instance C CInt StandardCursorShape where
+    fromC v
+        | v == c'GLFW_ARROW_CURSOR     = StandardCursorShape'Arrow
+        | v == c'GLFW_IBEAM_CURSOR     = StandardCursorShape'IBeam
+        | v == c'GLFW_CROSSHAIR_CURSOR = StandardCursorShape'Crosshair
+        | v == c'GLFW_HAND_CURSOR      = StandardCursorShape'Hand
+        | v == c'GLFW_HRESIZE_CURSOR   = StandardCursorShape'HResize
+        | v == c'GLFW_VRESIZE_CURSOR   = StandardCursorShape'VResize
+        | otherwise = error $ "C CInt StandardCursorShape fromC: " ++ show v
+    toC  StandardCursorShape'Arrow     = c'GLFW_ARROW_CURSOR
+    toC  StandardCursorShape'IBeam     = c'GLFW_IBEAM_CURSOR
+    toC  StandardCursorShape'Crosshair = c'GLFW_CROSSHAIR_CURSOR
+    toC  StandardCursorShape'Hand      = c'GLFW_HAND_CURSOR
+    toC  StandardCursorShape'HResize   = c'GLFW_HRESIZE_CURSOR
+    toC  StandardCursorShape'VResize   = c'GLFW_VRESIZE_CURSOR
 
 --------------------------------------------------------------------------------
 

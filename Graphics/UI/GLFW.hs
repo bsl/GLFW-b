@@ -95,6 +95,9 @@ module Graphics.UI.GLFW
   , StickyKeysInputMode         (..)
   , StickyMouseButtonsInputMode (..)
   , ModifierKeys                (..)
+  , Image                       (..)
+  , Cursor                      (..)
+  , StandardCursorShape         (..)
     --
     -- related to c'glfwSetInputMode ----.
   , getCursorInputMode                -- |
@@ -111,7 +114,12 @@ module Graphics.UI.GLFW
   , setMouseButtonCallback, MouseButtonCallback
   , setCursorPosCallback,   CursorPosCallback
   , setCursorEnterCallback, CursorEnterCallback
+  , createCursor
+  , createStandardCursor
+  , setCursor
+  , destroyCursor
   , setScrollCallback,      ScrollCallback
+  , setDropCallback,        DropCallback
   , joystickPresent
   , getJoystickAxes
   , getJoystickButtons
@@ -223,6 +231,8 @@ type ScrollCallback          = Window -> Double -> Double                       
 type KeyCallback             = Window -> Key -> Int -> KeyState -> ModifierKeys          -> IO ()
 type CharCallback            = Window -> Char                                            -> IO ()
 type MonitorCallback         = Monitor -> MonitorState                                   -> IO ()
+
+-- 3.1 additions
 
 --------------------------------------------------------------------------------
 -- CB scheduling
@@ -500,6 +510,7 @@ createWindow w h title mmon mwin =
         windowPosFun        <- newIORef nullFunPtr
         windowRefreshFun    <- newIORef nullFunPtr
         windowSizeFun       <- newIORef nullFunPtr
+        dropFun             <- newIORef nullFunPtr
         let callbacks = WindowCallbacks
               { storedCharFun             = charFun
               , storedCursorEnterFun      = cursorEnterFun
@@ -514,6 +525,7 @@ createWindow w h title mmon mwin =
               , storedWindowPosFun        = windowPosFun
               , storedWindowRefreshFun    = windowRefreshFun
               , storedWindowSizeFun       = windowSizeFun
+              , storedDropFun             = dropFun
               }
         p'win <- c'glfwCreateWindow
           (toC w)
@@ -809,6 +821,7 @@ setKeyCallback win = setWindowCallback
     storedKeyFun
     win
 
+
 setCharCallback :: Window -> Maybe CharCallback -> IO ()
 setCharCallback win = setWindowCallback
     mk'GLFWcharfun
@@ -932,3 +945,68 @@ getClipboardString win = do
     if p's == nullPtr
       then return Nothing
       else Just `fmap` peekCString p's
+
+--------------------------------------------------------------------------------
+-- 3.1 additions (http://www.glfw.org/docs/latest/news.html#news_31)
+--------------------------------------------------------------------------------
+
+-- Cursor Objects
+-- http://www.glfw.org/docs/latest/input.html#cursor_object
+
+-- | Creates a new cursor.
+createCursor :: Image -- ^ The desired cursor image.
+             -> Int   -- ^ The desired x-coordinate, in pixels, of the cursor
+                      --   hotspot.
+             -> Int   -- ^ The desired y-coordinate, in pixels, of the cursor
+                      --   hotspot.
+             -> IO Cursor
+createCursor (Image w h pxs) x y =
+    alloca        $ \p'img ->
+    withArray pxs $ \p'pxs -> do
+        let img = C'GLFWimage (toC w)
+                              (toC h)
+                              p'pxs
+        poke p'img img
+        Cursor <$> c'glfwCreateCursor p'img (toC x) (toC y)
+
+-- | Creates a cursor with a standard shape that can be set for a window with
+-- setCursor.
+createStandardCursor :: StandardCursorShape -> IO Cursor
+createStandardCursor = (Cursor <$>) . c'glfwCreateStandardCursor . toC
+
+-- | Sets the cursor image to be used when the cursor is over the client area
+-- of the specified window. The set cursor will only be visible when the cursor
+-- mode of the window is GLFW_CURSOR_NORMAL.
+
+-- On some platforms, the set cursor may not be visible unless the window also
+-- has input focus.
+setCursor :: Window -> Cursor -> IO ()
+setCursor (Window wptr) (Cursor cptr) = c'glfwSetCursor wptr cptr
+
+-- | Destroys a cursor previously created with `createCursor`. Any remaining
+-- cursors will be destroyed by `terminate`.
+destroyCursor :: Cursor -> IO ()
+destroyCursor = c'glfwDestroyCursor . unCursor
+
+-- Path Drop Input
+-- http://www.glfw.org/docs/latest/input.html#path_drop
+
+type DropCallback = Window    -- ^ The window that received the event.
+                  -> [String] -- ^ The file and/or directory path names
+                  -> IO ()
+
+-- | Sets the file drop callback of the specified window, which is called when
+-- one or more dragged files are dropped on the window.
+setDropCallback :: Window -> Maybe DropCallback -> IO ()
+setDropCallback win = setWindowCallback
+    mk'GLFWdropfun
+    (\cb w c fs -> do
+        let count = fromC c
+        fps <- flip mapM [0..count-1] $ \i -> do
+            let p = advancePtr fs i
+            p' <- peek p
+            peekCString p'
+        schedule $ cb (fromC w) fps)
+    (c'glfwSetDropCallback (toC win))
+    storedDropFun
+    win

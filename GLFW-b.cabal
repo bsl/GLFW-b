@@ -1,5 +1,5 @@
 name:         GLFW-b
-version:      1.4.7.3
+version:      1.4.8.0
 category:     Graphics
 
 author:       Brian Lewis <brian@lorf.org>
@@ -50,7 +50,7 @@ library
 
   build-depends:
     base           < 5,
-    bindings-GLFW >= 3.1.1.4
+    bindings-GLFW >= 3.1.2.0
 
 --------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ test-suite main
     GLFW-b,
     HUnit                == 1.2.*,
     base                  < 5,
-    bindings-GLFW        >= 3.1.1.4,
+    bindings-GLFW        >= 3.1.2.0,
     test-framework       == 0.8.*,
     test-framework-hunit == 0.3.*
 

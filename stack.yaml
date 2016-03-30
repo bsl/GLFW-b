@@ -1,0 +1,11 @@
+flags: {}
+packages: 
+- '.'
+
+- location:
+    git: https://github.com/bsl/bindings-GLFW.git
+    commit: 2ff8cea47fdda7c7bdfd3a8cc477134bcb24c0e1
+  extra-dep: true
+
+extra-deps: []
+resolver: lts-5.2

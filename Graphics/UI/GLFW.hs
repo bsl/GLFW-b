@@ -494,7 +494,13 @@ windowHint wh =
 -- | Creates a new window.
 -- Note: If running in GHCI don't forget to `:set -fno-ghci-sandbox` or you
 -- may run into an assertion failure, segfault or other nasty crash.
-createWindow :: Int -> Int -> String -> Maybe Monitor -> Maybe Window -> IO (Maybe Window)
+createWindow :: Int -- ^ Desired width for the window.
+             -> Int -- ^ Desired height for the window.
+             -> String -- ^ Desired title for the window.
+             -> Maybe Monitor -- ^ Monitor to use in fullscreen mode.
+             -> Maybe Window  -- ^ Window for context object sharing, see
+                              -- <http://www.glfw.org/docs/latest/context.html#context_sharing here>.
+             -> IO (Maybe Window)
 createWindow w h title mmon mwin =
     withCString title $ \ptitle -> do
         charFun             <- newIORef nullFunPtr

@@ -1,3 +1,7 @@
+This package is looking for a new maintainer
+============================================
+`bindings-GLFW` and `GLFW-b` are looking for a new maintainer. Please comment in [this issue](https://github.com/bsl/bindings-GLFW/issues/39) if you would like to take maintainership.
+
 GLFW-b
 ======
 [![Hackage](https://img.shields.io/hackage/v/GLFW-b.svg)](http://hackage.haskell.org/package/GLFW-b)

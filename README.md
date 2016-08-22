@@ -1,5 +1,7 @@
 This package is looking for a new maintainer
 ============================================
+
+[![Join the chat at https://gitter.im/haskell-glfw/Lobby](https://badges.gitter.im/haskell-glfw/Lobby.svg)](https://gitter.im/haskell-glfw/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 `bindings-GLFW` and `GLFW-b` are looking for a new maintainer. Please comment in [this issue](https://github.com/bsl/bindings-GLFW/issues/39) if you would like to take maintainership.
 
 GLFW-b

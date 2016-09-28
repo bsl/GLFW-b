@@ -15,8 +15,6 @@ import Test.Framework.Providers.HUnit (testCase)
 -- GLFW-b
 import qualified Graphics.UI.GLFW as GLFW
 
-import Debug.Trace
-
 --------------------------------------------------------------------------------
 
 main :: IO ()
@@ -287,8 +285,8 @@ test_getFramebufferSize win = do
     -- Window size and framebuffer size are not always equal, an example are
     -- retina screens. But maybe it's safe to assume they'll always be scaled
     -- equally in both dimensions?
-    let ww = fromIntegral fw / fromIntegral w
-        hh = fromIntegral fh / fromIntegral h
+    let ww = ( fromIntegral fw / fromIntegral w ) :: Double
+        hh = ( fromIntegral fh / fromIntegral h ) :: Double
     ww @?= hh
     assertBool "" $ fw /= 0
     assertBool "" $ fh /= 0

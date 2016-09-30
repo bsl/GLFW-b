@@ -27,6 +27,8 @@ This package uses git-flow as development model, in short that means that:
 2. "master" branch is reserved for stable releases.
 3. Patches for bugs related with previous releases should always be done in
     "hotfixes" branch.
+4. All merge commits to master from "develop" and "hotfixes" should be done
+    using the "--no-ff" flag.
 
 Until we have a defined road-map we are going to leave out "release
 "branches" and "feature branches". For more information about this development

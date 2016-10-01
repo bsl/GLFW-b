@@ -19,7 +19,7 @@ When running GLFW-b in GHCI, don't forget to
 since GHCI can (and might) run each line of your code in a fresh unbounded
 thread.
 
-## For devs
+## Contributing
 
 This package uses git-flow as development model, in short that means that:
 
@@ -27,8 +27,8 @@ This package uses git-flow as development model, in short that means that:
 2. "master" branch is reserved for stable releases.
 3. Patches for bugs related with previous releases should always be done in
     "hotfixes" branch.
-4. All merge commits to master from "develop" and "hotfixes" should be done
-    using the "--no-ff" flag.
+4. All merge commits to master from "hotfixes" should be done
+    using the "--no-ff" flag and from "develop" should avoid merging commits.
 
 Until we have a defined road-map we are going to leave out "release
 "branches" and "feature branches". For more information about this development

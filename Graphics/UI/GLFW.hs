@@ -973,12 +973,12 @@ createCursor (Image w h pxs) x y =
                               (toC h)
                               p'pxs
         poke p'img img
-        Cursor <$> c'glfwCreateCursor p'img (toC x) (toC y)
+        Cursor `fmap` c'glfwCreateCursor p'img (toC x) (toC y)
 
 -- | Creates a cursor with a standard shape that can be set for a window with
 -- setCursor.
 createStandardCursor :: StandardCursorShape -> IO Cursor
-createStandardCursor = (Cursor <$>) . c'glfwCreateStandardCursor . toC
+createStandardCursor = (fmap Cursor) . c'glfwCreateStandardCursor . toC
 
 -- | Sets the cursor image to be used when the cursor is over the client area
 -- of the specified window. The set cursor will only be visible when the cursor

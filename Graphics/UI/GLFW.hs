@@ -1,3 +1,15 @@
+{-|
+
+Threading restrictions which apply to the C version of GLFW still apply when writing @GLFW-b@ programs.
+See <http://www.glfw.org/docs/latest/intro_guide.html#thread_safety GLFW thread safety documentation> (applies here).
+
+Current context restructions which apply to the C version of GLFW still apply.
+See <http://www.glfw.org/docs/latest/context_guide.html#context_current  GLFW current context documentation> (applies here).
+
+@GLFW-b@ wraps callbacks and schedules them to be run after 'pollEvents' and 'waitEvents' in the normal GHC runtime where they aren't subject to the usual GLFW reentrancy restrictions.
+See <http://www.glfw.org/docs/latest/intro_guide.html#reentrancy GLFW reentrancy documentation> (does not apply here).
+
+-}
 module Graphics.UI.GLFW
   ( -- * Error handling
     Error (..)

@@ -157,7 +157,7 @@ module Graphics.UI.GLFW
 
 import Prelude hiding (init)
 
-import Control.Monad         (when, liftM)
+import Control.Monad         (when, liftM, forM)
 import Data.IORef            (IORef, atomicModifyIORef, newIORef, readIORef)
 import Foreign.C.String      (peekCString, withCString)
 import Foreign.C.Types       (CUInt, CUShort)
@@ -240,6 +240,7 @@ type MouseButtonCallback     = Window -> MouseButton -> MouseButtonState -> Modi
 type CursorPosCallback       = Window -> Double -> Double                                -> IO ()
 type CursorEnterCallback     = Window -> CursorState                                     -> IO ()
 type ScrollCallback          = Window -> Double -> Double                                -> IO ()
+type DropCallback            = Window -> [FilePath]                                      -> IO ()
 type KeyCallback             = Window -> Key -> Int -> KeyState -> ModifierKeys          -> IO ()
 type CharCallback            = Window -> Char                                            -> IO ()
 type MonitorCallback         = Monitor -> MonitorState                                   -> IO ()
@@ -522,6 +523,7 @@ createWindow w h title mmon mwin =
         keyFun              <- newIORef nullFunPtr
         mouseButtonFun      <- newIORef nullFunPtr
         scrollFun           <- newIORef nullFunPtr
+        dropFun             <- newIORef nullFunPtr
         windowCloseFun      <- newIORef nullFunPtr
         windowFocusFun      <- newIORef nullFunPtr
         windowIconifyFun    <- newIORef nullFunPtr
@@ -537,6 +539,7 @@ createWindow w h title mmon mwin =
               , storedKeyFun              = keyFun
               , storedMouseButtonFun      = mouseButtonFun
               , storedScrollFun           = scrollFun
+              , storedDropFun             = dropFun
               , storedWindowCloseFun      = windowCloseFun
               , storedWindowFocusFun      = windowFocusFun
               , storedWindowIconifyFun    = windowIconifyFun
@@ -572,6 +575,7 @@ destroyWindow win = do
     free storedKeyFun
     free storedMouseButtonFun
     free storedScrollFun
+    free storedDropFun
     free storedWindowCloseFun
     free storedWindowFocusFun
     free storedWindowIconifyFun
@@ -878,6 +882,18 @@ setScrollCallback win = setWindowCallback
     (\cb a0 a1 a2 -> schedule $ cb (fromC a0) (fromC a1) (fromC a2))
     (c'glfwSetScrollCallback (toC win))
     storedScrollFun
+    win
+
+setDropCallback :: Window -> Maybe DropCallback -> IO ()
+setDropCallback win = setWindowCallback
+    mk'GLFWdropfun
+    (\cb a0 count ptrPaths -> do
+     strs <-
+         forM [0..fromC count-1] $ \i ->
+         peek (advancePtr ptrPaths i) >>= peekCString
+     schedule $ cb (fromC a0) strs)
+    (c'glfwSetDropCallback (toC win))
+    storedDropFun
     win
 
 joystickPresent :: Joystick -> IO Bool

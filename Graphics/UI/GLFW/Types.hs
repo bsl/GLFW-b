@@ -92,6 +92,7 @@ data WindowCallbacks = WindowCallbacks
   , storedKeyFun              :: IORef C'GLFWkeyfun
   , storedMouseButtonFun      :: IORef C'GLFWmousebuttonfun
   , storedScrollFun           :: IORef C'GLFWscrollfun
+  , storedDropFun             :: IORef C'GLFWdropfun
   , storedWindowCloseFun      :: IORef C'GLFWwindowclosefun
   , storedWindowFocusFun      :: IORef C'GLFWwindowfocusfun
   , storedWindowIconifyFun    :: IORef C'GLFWwindowiconifyfun

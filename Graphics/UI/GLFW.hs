@@ -1,13 +1,19 @@
 {-|
 
-Threading restrictions which apply to the C version of GLFW still apply when writing @GLFW-b@ programs.
-See <http://www.glfw.org/docs/latest/intro_guide.html#thread_safety GLFW thread safety documentation> (applies here).
+Threading restrictions which apply to the C version of GLFW still apply when
+writing @GLFW-b@ programs. See
+<http://www.glfw.org/docs/3.1/intro.html#thread_safety GLFW thread safety documentation>
+(applies here).
 
 Current context restructions which apply to the C version of GLFW still apply.
-See <http://www.glfw.org/docs/latest/context_guide.html#context_current  GLFW current context documentation> (applies here).
+See <http://www.glfw.org/docs/3.1/context.html#context_current  GLFW current context documentation>
+(applies here).
 
-@GLFW-b@ wraps callbacks and schedules them to be run after 'pollEvents' and 'waitEvents' in the normal GHC runtime where they aren't subject to the usual GLFW reentrancy restrictions.
-See <http://www.glfw.org/docs/latest/intro_guide.html#reentrancy GLFW reentrancy documentation> (does not apply here).
+@GLFW-b@ wraps callbacks and schedules them to be run after 'pollEvents' and
+'waitEvents' in the normal GHC runtime where they aren't subject to the usual
+GLFW reentrancy restrictions. See
+<http://www.glfw.org/docs/3.1/intro.html#reentrancy GLFW reentrancy documentation>
+(does not apply here).
 
 -}
 module Graphics.UI.GLFW
@@ -228,6 +234,7 @@ storeCallback ior new = do
 
 --------------------------------------------------------------------------------
 
+-- | The error code and also a human-readable error message.
 type ErrorCallback           = Error -> String                                           -> IO ()
 type WindowPosCallback       = Window -> Int -> Int                                      -> IO ()
 type WindowSizeCallback      = Window -> Int -> Int                                      -> IO ()
@@ -303,6 +310,8 @@ executeScheduled = do
 --------------------------------------------------------------------------------
 -- Error handling
 
+-- | Can (and probably should) be used before GLFW initialization.
+-- See <http://www.glfw.org/docs/3.1/group__init.html#gaa5d796c3cf7c1a7f02f845486333fb5f glfwSetErrorCallback>
 setErrorCallback :: Maybe ErrorCallback -> IO ()
 setErrorCallback = setCallback
     mk'GLFWerrorfun
@@ -315,10 +324,20 @@ setErrorCallback = setCallback
 --------------------------------------------------------------------------------
 -- Initialization and version information
 
+-- | Attempts to initialize the GLFW library. When the library is not initialized, the only
+-- allowed functions to call are 'getVersion', 'getVersionString', 'setErrorCallback',
+-- 'init', and 'terminate'. Returns if the initialization was successful or not.
+-- See <http://www.glfw.org/docs/3.1/group__init.html#ga317aac130a235ab08c6db0834907d85e glfwInit>
+-- and <http://www.glfw.org/docs/3.1/intro.html#intro_init Initialization and Termination>
 init :: IO Bool
 init =
     fromC `fmap` c'glfwInit
 
+-- | Cleans up GLFW and puts the library into an uninitialized state.
+-- Once you call this, you must initilize the library again.
+-- Warning: No window's context may be current in another thread when this is called.
+-- See <http://www.glfw.org/docs/3.1/group__init.html#gaaae48c0a18607ea4a4ba951d939f0901 glfwTerminate>
+-- and <http://www.glfw.org/docs/3.1/intro.html#intro_init Initialization and Termination>
 terminate :: IO ()
 terminate = do
     c'glfwTerminate
@@ -326,6 +345,8 @@ terminate = do
     storeCallback storedErrorFun           nullFunPtr
     storeCallback storedMonitorFun         nullFunPtr
 
+-- | Gets the version of the GLFW library that's being used with the current program.
+-- See <http://www.glfw.org/docs/3.1/group__init.html#ga9f8ffaacf3c269cc48eafbf8b9b71197 glfwGetVersion>
 getVersion :: IO Version
 getVersion =
     allocaArray 3 $ \p -> do
@@ -338,6 +359,10 @@ getVersion =
         v2 <- fromC `fmap` peek p2
         return $ Version v0 v1 v2
 
+-- | Gets the compile-time version string of the GLFW library binary.
+-- Gives extra info like platform and compile time options used, but you should not
+-- attempt to parse this to get the GLFW version number. Use 'getVersion' instead.
+-- See <http://www.glfw.org/docs/3.1/group__init.html#ga23d47dc013fce2bf58036da66079a657 glfwGetVersionString>
 getVersionString :: IO (Maybe String)
 getVersionString = do
     p'vs <- c'glfwGetVersionString
@@ -912,6 +937,10 @@ getJoystickName js = do
 --------------------------------------------------------------------------------
 -- Time
 
+-- | Returns the time (in seconds) of the GLFW timer.
+-- This is the amount of time since GLFW was initialized, unless 'setTime' was used.
+-- The exact resolution is system dependent.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gaa6cf4e7a77158a3b8fd00328b1720a4a glfwGetTime>
 getTime :: IO (Maybe Double)
 getTime = do
     t <- fromC `fmap` c'glfwGetTime
@@ -919,6 +948,10 @@ getTime = do
       then Nothing
       else Just t
 
+-- | Sets the GLFW timer to the specified value, which is measured in seconds, and must be positive.
+-- The value must also be less than ~584 years in seconds (18446744073.0).
+-- After this the timer begins to count upward at the normal rate.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gaf59589ef6e8b8c8b5ad184b25afd4dc0 glfwSetTime>
 setTime :: Double -> IO ()
 setTime =
     c'glfwSetTime . toC
@@ -926,10 +959,16 @@ setTime =
 --------------------------------------------------------------------------------
 -- Context
 
+-- | Makes the context of the specified window the current one for the calling thread.
+-- A context can only be made current on a single thread at a time,
+-- and each thread can have only a single current context at a time.
+-- See <http://www.glfw.org/docs/3.1/group__context.html#ga1c04dc242268f827290fe40aa1c91157 glfwMakeContextCurrent>
 makeContextCurrent :: Maybe Window -> IO ()
 makeContextCurrent =
     c'glfwMakeContextCurrent . maybe nullPtr toC
 
+-- | Obtains which window owns the current context of the calling thread.
+-- See <http://www.glfw.org/docs/3.1/group__context.html#gac84759b1f6c2d271a4fea8ae89ec980d glfwGetCurrentContext>
 getCurrentContext :: IO (Maybe Window)
 getCurrentContext = do
     p'win <- c'glfwGetCurrentContext
@@ -937,14 +976,22 @@ getCurrentContext = do
       then Nothing
       else Just $ fromC p'win
 
+-- | Swaps the front and back buffers of the window.
+-- See <http://www.glfw.org/docs/3.1/group__window.html#ga15a5a1ee5b3c2ca6b15ca209a12efd14 glfwSwapBuffers>
 swapBuffers :: Window -> IO ()
 swapBuffers =
     c'glfwSwapBuffers . toC
 
+-- | Sets the number of screen updates that the GPU should wait after 'swapBuffers' before actually swapping the buffers.
+-- Generates 'Error'NoCurrentContext' if no context is current.
+-- See <http://www.glfw.org/docs/3.1/group__context.html#ga6d4e0cdf151b5e579bd67f13202994ed glfwSwapInterval>
 swapInterval :: Int -> IO ()
 swapInterval =
     c'glfwSwapInterval . toC
 
+-- | If the current OpenGL or OpenGL ES context supports the extension specified.
+-- Generates 'Error'NoCurrentContext' if no context is current.
+-- See <http://www.glfw.org/docs/3.1/group__context.html#ga87425065c011cef1ebd6aac75e059dfa glfwExtensionSupported>
 extensionSupported :: String -> IO Bool
 extensionSupported ext =
     withCString ext $ \p'ext ->
@@ -952,11 +999,17 @@ extensionSupported ext =
 
 --------------------------------------------------------------------------------
 -- Clipboard
+-- http://www.glfw.org/docs/3.1/input.html#clipboard
 
+-- | The window that will own the clipboard contents, and also the clipboard string.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gaba1f022c5eb07dfac421df34cdcd31dd glfwSetClipboardString>
 setClipboardString :: Window -> String -> IO ()
 setClipboardString win s =
     withCString s (c'glfwSetClipboardString (toC win))
 
+-- | Obtains the contents of the system keyboard, if possible.
+-- Generates 'Error'FormatUnavailable' if the system clipboard is empty or if it's not a UTF-8 string.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#ga5aba1d704d9ab539282b1fbe9f18bb94 glfwGetClipboardString>
 getClipboardString :: Window -> IO (Maybe String)
 getClipboardString win = do
     p's <- c'glfwGetClipboardString (toC win)
@@ -969,7 +1022,7 @@ getClipboardString win = do
 --------------------------------------------------------------------------------
 
 -- Cursor Objects
--- http://www.glfw.org/docs/latest/input.html#cursor_object
+-- http://www.glfw.org/docs/3.1/input.html#cursor_object
 
 -- | Creates a new cursor.
 createCursor :: Image -- ^ The desired cursor image.

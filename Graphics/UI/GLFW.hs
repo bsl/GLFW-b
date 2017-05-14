@@ -236,19 +236,33 @@ storeCallback ior new = do
 
 -- | The error code and also a human-readable error message.
 type ErrorCallback           = Error -> String                                           -> IO ()
+-- | Fires when the window position changes.
 type WindowPosCallback       = Window -> Int -> Int                                      -> IO ()
+-- | Fires when the window is resized (in Screen Coordinates, which might not map 1:1 with pixels).
 type WindowSizeCallback      = Window -> Int -> Int                                      -> IO ()
+-- | Fires when the user is attempting to close the window
 type WindowCloseCallback     = Window                                                    -> IO ()
+-- | Fires when the contents of the window are damaged and they must be refreshed.
 type WindowRefreshCallback   = Window                                                    -> IO ()
+-- | Fires when the window gains or loses input focus.
 type WindowFocusCallback     = Window -> FocusState                                      -> IO ()
+-- | Fires when the window is iconified (minimized) or not.
 type WindowIconifyCallback   = Window -> IconifyState                                    -> IO ()
+-- | Fires when the size of the framebuffer for the window changes (in Pixels).
 type FramebufferSizeCallback = Window -> Int -> Int                                      -> IO ()
+-- | Fires whenever a mouse button is clicked.
 type MouseButtonCallback     = Window -> MouseButton -> MouseButtonState -> ModifierKeys -> IO ()
+-- | Fires every time the cursor position changes. Sub-pixel accuracy is used, when available.
 type CursorPosCallback       = Window -> Double -> Double                                -> IO ()
+-- | Fires when the cursor enters or exits the client area of the window.
 type CursorEnterCallback     = Window -> CursorState                                     -> IO ()
+-- | Fires when the user scrolls the mouse wheel or via touch gesture.
 type ScrollCallback          = Window -> Double -> Double                                -> IO ()
+-- | Fires for each press or repeat of keyboard keys (regardless of if it has textual meaning or not, eg Shift)
 type KeyCallback             = Window -> Key -> Int -> KeyState -> ModifierKeys          -> IO ()
+-- | Fires when a complete character codepoint is typed by the user, Shift then 'b' generates "B".
 type CharCallback            = Window -> Char                                            -> IO ()
+-- | Fires when a monitor is connected or disconnected.
 type MonitorCallback         = Monitor -> MonitorState                                   -> IO ()
 
 -- 3.1 additions
@@ -373,6 +387,7 @@ getVersionString = do
 --------------------------------------------------------------------------------
 -- Monitor handling
 
+-- | Gets the list of available monitors
 getMonitors :: IO (Maybe [Monitor])
 getMonitors =
     alloca $ \p'n -> do
@@ -382,6 +397,7 @@ getMonitors =
           then return Nothing
           else (Just . map fromC) `fmap` peekArray n p'mon
 
+-- | Gets the primary monitor.
 getPrimaryMonitor :: IO (Maybe Monitor)
 getPrimaryMonitor = do
     p'mon <- c'glfwGetPrimaryMonitor
@@ -390,6 +406,7 @@ getPrimaryMonitor = do
         then Nothing
         else Just $ fromC p'mon
 
+-- | Gets the position of the specified monitor within the coordinate space.
 getMonitorPos :: Monitor -> IO (Int, Int)
 getMonitorPos mon =
     allocaArray 2 $ \p -> do
@@ -400,6 +417,7 @@ getMonitorPos mon =
         y <- fromC `fmap` peek p'y
         return (x, y)
 
+-- | The physical width and height of the monitor.
 getMonitorPhysicalSize :: Monitor -> IO (Int, Int)
 getMonitorPhysicalSize mon =
     allocaArray 2 $ \p -> do
@@ -410,6 +428,7 @@ getMonitorPhysicalSize mon =
         h <- fromC `fmap` peek p'h
         return (w, h)
 
+-- | A human-readable name for the monitor specified.
 getMonitorName :: Monitor -> IO (Maybe String)
 getMonitorName mon = do
     p'name <- c'glfwGetMonitorName (toC mon)
@@ -417,6 +436,7 @@ getMonitorName mon = do
       then return Nothing
       else Just `fmap` peekCString p'name
 
+-- | Sets a callback for when a monitor is connected or disconnected.
 setMonitorCallback :: Maybe MonitorCallback -> IO ()
 setMonitorCallback = setCallback
     mk'GLFWmonitorfun
@@ -424,6 +444,7 @@ setMonitorCallback = setCallback
     c'glfwSetMonitorCallback
     storedMonitorFun
 
+-- | Obtains the possible video modes of the monitor.
 getVideoModes :: Monitor -> IO (Maybe [VideoMode])
 getVideoModes mon =
     alloca $ \p'n -> do
@@ -433,6 +454,7 @@ getVideoModes mon =
           then return Nothing
           else (Just . map fromC) `fmap` peekArray n p'vms
 
+-- | Gets the active video mode of the monitor.
 getVideoMode :: Monitor -> IO (Maybe VideoMode)
 getVideoMode mon = do
     p'vm <- c'glfwGetVideoMode (toC mon)
@@ -440,10 +462,12 @@ getVideoMode mon = do
       then return Nothing
       else (Just . fromC) `fmap` peek p'vm
 
+-- | Sets the gamma of a monitor.
 setGamma :: Monitor -> Double -> IO ()
 setGamma mon e =
     c'glfwSetGamma (toC mon) (toC e)
 
+-- | Gets the gamma ramp in use with the monitor.
 getGammaRamp :: Monitor -> IO (Maybe GammaRamp)
 getGammaRamp m = do
     p'ggr <- c'glfwGetGammaRamp (toC m)
@@ -468,6 +492,7 @@ getGammaRamp m = do
                   , gammaRampBlue  = bs
                   }
 
+-- | Assigns a gamma ramp to use with the given monitor.
 setGammaRamp :: Monitor -> GammaRamp -> IO ()
 setGammaRamp mon gr =
     let rs = map toC $ gammaRampRed   gr :: [CUShort]
@@ -492,10 +517,12 @@ setGammaRamp mon gr =
 --------------------------------------------------------------------------------
 -- Window handling
 
+-- | Sets all the window hints to default.
 defaultWindowHints :: IO ()
 defaultWindowHints =
     c'glfwDefaultWindowHints
 
+-- | Hints something to the GLFW windowing system.
 windowHint :: WindowHint -> IO ()
 windowHint wh =
     let (t, v) = unpack
@@ -582,6 +609,7 @@ createWindow w h title mmon mwin =
                   c'glfwSetWindowUserPointer p'win (castStablePtrToPtr callbackPtr)
                   return $ Just $ fromC p'win
 
+-- | Cleans up a window and all associated resources
 destroyWindow :: Window -> IO ()
 destroyWindow win = do
     pcb <- castPtrToStablePtr `liftM` c'glfwGetWindowUserPointer (toC win)
@@ -605,19 +633,22 @@ destroyWindow win = do
     free storedWindowSizeFun
     freeStablePtr pcb
 
-
+-- | If the window should close or not.
 windowShouldClose :: Window -> IO Bool
 windowShouldClose win =
     fromC `fmap` c'glfwWindowShouldClose (toC win)
 
+-- | Sets if the window should close or not.
 setWindowShouldClose :: Window -> Bool -> IO ()
 setWindowShouldClose win b =
     c'glfwSetWindowShouldClose (toC win) (toC b)
 
+-- | Sets the Title string of the window.
 setWindowTitle :: Window -> String -> IO ()
 setWindowTitle win title =
     withCString title $ c'glfwSetWindowTitle (toC win)
 
+-- | Gets the window's position (in Screen Coordinates).
 getWindowPos :: Window -> IO (Int, Int)
 getWindowPos win =
     allocaArray 2 $ \p -> do
@@ -628,10 +659,12 @@ getWindowPos win =
         y <- fromC `fmap` peek p'y
         return (x, y)
 
+-- | Sets the window's position (in Screen Coordinates).
 setWindowPos :: Window -> Int -> Int -> IO ()
 setWindowPos win x y =
     c'glfwSetWindowPos (toC win) (toC x) (toC y)
 
+-- | Gets the size of the window (in Screen Coordinates).
 getWindowSize :: Window -> IO (Int, Int)
 getWindowSize win =
     allocaArray 2 $ \p -> do
@@ -642,10 +675,12 @@ getWindowSize win =
         h <- fromC `fmap` peek p'h
         return (w, h)
 
+-- | Sets the size of the client area for the window (in Screen Coordinates).
 setWindowSize :: Window -> Int -> Int -> IO ()
 setWindowSize win w h =
     c'glfwSetWindowSize (toC win) (toC w) (toC h)
 
+-- | The size of the framebuffer (in Pixels)
 getFramebufferSize :: Window -> IO (Int, Int)
 getFramebufferSize win =
     allocaArray 2 $ \p -> do
@@ -656,22 +691,27 @@ getFramebufferSize win =
         h <- fromC `fmap` peek p'h
         return (w, h)
 
+-- | Iconifies (minimizes) the window.
 iconifyWindow :: Window -> IO ()
 iconifyWindow =
     c'glfwIconifyWindow . toC
 
+-- | Restores the window from an iconified/minimized state.
 restoreWindow :: Window -> IO ()
 restoreWindow =
     c'glfwRestoreWindow . toC
 
+-- | Shows the window.
 showWindow :: Window -> IO ()
 showWindow =
     c'glfwShowWindow . toC
 
+-- | Hides the window.
 hideWindow :: Window -> IO ()
 hideWindow =
     c'glfwHideWindow . toC
 
+-- | Gets the monitor that this window is running on.
 getWindowMonitor :: Window -> IO (Maybe Monitor)
 getWindowMonitor win = do
     p'mon <- c'glfwGetWindowMonitor (toC win)
@@ -679,66 +719,81 @@ getWindowMonitor win = do
       then Nothing
       else Just $ fromC p'mon
 
+-- | Sets the position of the cursor within the window.
 setCursorPos :: Window -> Double -> Double -> IO ()
 setCursorPos win x y =
     c'glfwSetCursorPos (toC win) (toC x) (toC y)
 
 -- start of functions related to c'glfwGetWindowAttrib
 
+-- | If the window has focus or not.
 getWindowFocused :: Window -> IO FocusState
 getWindowFocused win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_FOCUSED
 
+-- | If the window is iconified (minimized) or not.
 getWindowIconified :: Window -> IO IconifyState
 getWindowIconified win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_ICONIFIED
 
+-- | If the window is resizable or not.
 getWindowResizable :: Window -> IO Bool
 getWindowResizable win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_RESIZABLE
 
+-- | If the window is decorated or not.
 getWindowDecorated :: Window -> IO Bool
 getWindowDecorated win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_DECORATED
 
+-- | If the window is visible or not.
 getWindowVisible :: Window -> IO Bool
 getWindowVisible win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_VISIBLE
 
+-- | The client api for this window.
 getWindowClientAPI :: Window -> IO ClientAPI
 getWindowClientAPI win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CLIENT_API
 
+-- | The context's "major" version, x.0.0
 getWindowContextVersionMajor :: Window -> IO Int
 getWindowContextVersionMajor win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_VERSION_MAJOR
 
+-- | The context's "minor" version, 0.y.0
 getWindowContextVersionMinor :: Window -> IO Int
 getWindowContextVersionMinor win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_VERSION_MINOR
 
+-- | The context's "revision" version, 0.0.z
 getWindowContextVersionRevision :: Window -> IO Int
 getWindowContextVersionRevision win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_REVISION
 
+-- | The context robustness of this window.
 getWindowContextRobustness :: Window -> IO ContextRobustness
 getWindowContextRobustness win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_ROBUSTNESS
 
+-- | If this window is set for opengl to be forward compatible.
 getWindowOpenGLForwardCompat :: Window -> IO Bool
 getWindowOpenGLForwardCompat win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_OPENGL_FORWARD_COMPAT
 
+-- | If the window has an opengl debug context
 getWindowOpenGLDebugContext :: Window -> IO Bool
 getWindowOpenGLDebugContext win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_OPENGL_DEBUG_CONTEXT
 
+-- | Obtains the current opengl profile.
 getWindowOpenGLProfile :: Window -> IO OpenGLProfile
 getWindowOpenGLProfile win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_OPENGL_PROFILE
 
 -- end of functions related to c'glfwGetWindowAttrib
 
+-- | Sets the callback to use when the window position changes.
 setWindowPosCallback :: Window -> Maybe WindowPosCallback -> IO ()
 setWindowPosCallback win = setWindowCallback
     mk'GLFWwindowposfun
@@ -748,6 +803,7 @@ setWindowPosCallback win = setWindowCallback
     storedWindowPosFun
     win
 
+-- | Sets the callback to use when the window's size changes.
 setWindowSizeCallback :: Window -> Maybe WindowSizeCallback -> IO ()
 setWindowSizeCallback win = setWindowCallback
     mk'GLFWwindowsizefun
@@ -757,6 +813,7 @@ setWindowSizeCallback win = setWindowCallback
     storedWindowSizeFun
     win
 
+-- | Sets the callback to use when the user attempts to close the window.
 setWindowCloseCallback :: Window -> Maybe WindowCloseCallback -> IO ()
 setWindowCloseCallback win = setWindowCallback
     mk'GLFWwindowclosefun
@@ -765,6 +822,7 @@ setWindowCloseCallback win = setWindowCallback
     storedWindowCloseFun
     win
 
+-- | Sets the callback to use when the window's data is partly dead and it should refresh.
 setWindowRefreshCallback :: Window -> Maybe WindowRefreshCallback -> IO ()
 setWindowRefreshCallback win = setWindowCallback
     mk'GLFWwindowrefreshfun
@@ -773,6 +831,7 @@ setWindowRefreshCallback win = setWindowCallback
     storedWindowRefreshFun
     win
 
+-- | Sets the callback to use when the window gains or loses focus.
 setWindowFocusCallback :: Window -> Maybe WindowFocusCallback -> IO ()
 setWindowFocusCallback win = setWindowCallback
     mk'GLFWwindowfocusfun
@@ -781,6 +840,7 @@ setWindowFocusCallback win = setWindowCallback
     storedWindowFocusFun
     win
 
+-- | Sets the callback to use when the window is iconified or not (aka, minimized or not).
 setWindowIconifyCallback :: Window -> Maybe WindowIconifyCallback -> IO ()
 setWindowIconifyCallback win = setWindowCallback
     mk'GLFWwindowiconifyfun
@@ -789,6 +849,7 @@ setWindowIconifyCallback win = setWindowCallback
     storedWindowIconifyFun
     win
 
+-- | Sets the callback to use when the framebuffer's size changes.
 setFramebufferSizeCallback :: Window -> Maybe FramebufferSizeCallback -> IO ()
 setFramebufferSizeCallback win = setWindowCallback
     mk'GLFWframebuffersizefun
@@ -797,12 +858,23 @@ setFramebufferSizeCallback win = setWindowCallback
     storedFramebufferSizeFun
     win
 
+-- | Checks for any pending events, processes them, and then immediately returns.
+-- This is most useful for continual rendering, such as games.
+-- See the <http://www.glfw.org/docs/3.1/input.html#events Event Processing Guide>
 pollEvents :: IO ()
 pollEvents = c'glfwPollEvents >> executeScheduled
 
+-- | Waits until at least one event is in the queue then processes the queue and returns.
+-- Requires at least one window to be active for it to sleep. This saves a lot of CPU, and
+-- is better if you're doing only periodic rendering, such as with an editor program.
+-- See the <http://www.glfw.org/docs/3.1/input.html#events Event Processing Guide>
 waitEvents :: IO ()
 waitEvents = c'glfwWaitEvents >> executeScheduled
 
+-- | Creates an empty event within the event queue. Can be called from any
+-- thread, so you can use this to wake up the main thread that's using
+-- 'waitEvents' from a secondary thread.
+-- See the <http://www.glfw.org/docs/3.1/input.html#events Event Processing Guide>
 postEmptyEvent :: IO ()
 postEmptyEvent = c'glfwPostEmptyEvent
 
@@ -811,40 +883,62 @@ postEmptyEvent = c'glfwPostEmptyEvent
 
 -- start of glfw{GS}etInputMode-related functions
 
+-- | Gets the current cursor input mode.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 getCursorInputMode :: Window -> IO CursorInputMode
 getCursorInputMode win =
     fromC `fmap` c'glfwGetInputMode (toC win) c'GLFW_CURSOR
 
+-- | Set the cursor input mode.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 setCursorInputMode :: Window -> CursorInputMode -> IO ()
 setCursorInputMode win c =
     c'glfwSetInputMode (toC win) c'GLFW_CURSOR (toC c)
 
+-- | Gets the current sticky keys mode.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 getStickyKeysInputMode :: Window -> IO StickyKeysInputMode
 getStickyKeysInputMode win =
     fromC `fmap` c'glfwGetInputMode (toC win) c'GLFW_STICKY_KEYS
 
+-- | Sets if sticky keys should be used or not.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 setStickyKeysInputMode :: Window -> StickyKeysInputMode -> IO ()
 setStickyKeysInputMode win sk =
     c'glfwSetInputMode (toC win) c'GLFW_STICKY_KEYS (toC sk)
 
+-- | Gets if sticky mouse buttons are on or not.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 getStickyMouseButtonsInputMode :: Window -> IO StickyMouseButtonsInputMode
 getStickyMouseButtonsInputMode win =
     fromC `fmap` c'glfwGetInputMode (toC win) c'GLFW_STICKY_MOUSE_BUTTONS
 
+-- | Sets if sticky mouse buttons should be used or not.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 setStickyMouseButtonsInputMode :: Window -> StickyMouseButtonsInputMode -> IO ()
 setStickyMouseButtonsInputMode win smb =
     c'glfwSetInputMode (toC win) c'GLFW_STICKY_MOUSE_BUTTONS (toC smb)
 
 -- end of glfw{GS}etInputMode-related functions
 
+-- | Gets the state of the specified key. If Stickey Keys isn't enabled then it's possible for
+-- keyboard polling to miss individual key presses. Use the callback to avoid this.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gadd341da06bc8d418b4dc3a3518af9ad2 glfwGetKey>
 getKey :: Window -> Key -> IO KeyState
 getKey win k =
     fromC `fmap` c'glfwGetKey (toC win) (toC k)
 
+-- | Gets the state of a single specified mouse button. If sticky mouse button
+-- mode isn't enabled it's possible for mouse polling to miss individual mouse events. Use
+-- the call back to avoid this.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gac1473feacb5996c01a7a5a33b5066704 glfwGetMouseButton>
 getMouseButton :: Window -> MouseButton -> IO MouseButtonState
 getMouseButton win b =
     fromC `fmap` c'glfwGetMouseButton (toC win) (toC b)
 
+-- | Returns the position, in screen coodinates, relative to the upper left.
+-- If the 'CursorInputMode' is "disabled", then results are unbounded by the window size.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#ga01d37b6c40133676b9cea60ca1d7c0cc glfwGetCursorPos>
 getCursorPos :: Window -> IO (Double, Double)
 getCursorPos win =
     allocaArray 2 $ \p -> do
@@ -855,6 +949,8 @@ getCursorPos win =
         y <- fromC `fmap` peek p'y
         return (x, y)
 
+-- | Assigns the given callback to use for all keyboard presses and repeats.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#ga7e496507126f35ea72f01b2e6ef6d155 glfwSetKeyCallback>
 setKeyCallback :: Window -> Maybe KeyCallback -> IO ()
 setKeyCallback win = setWindowCallback
     mk'GLFWkeyfun
@@ -864,7 +960,8 @@ setKeyCallback win = setWindowCallback
     storedKeyFun
     win
 
-
+-- | Sets the callback to use when the user types a character
+-- See <http://www.glfw.org/docs/3.1/group__input.html#ga556239421c6a5a243c66fca28da9f742 glfwSetCharCallback>
 setCharCallback :: Window -> Maybe CharCallback -> IO ()
 setCharCallback win = setWindowCallback
     mk'GLFWcharfun
@@ -873,6 +970,8 @@ setCharCallback win = setWindowCallback
     storedCharFun
     win
 
+-- | Assigns the callback to run whenver a mouse button is clicked.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gaef49b72d84d615bca0a6ed65485e035d glfwSetMouseButtonCallback>
 setMouseButtonCallback :: Window -> Maybe MouseButtonCallback -> IO ()
 setMouseButtonCallback win = setWindowCallback
     mk'GLFWmousebuttonfun
@@ -881,6 +980,8 @@ setMouseButtonCallback win = setWindowCallback
     storedMouseButtonFun
     win
 
+-- | Assigns the callback to run whenver the cursor position changes.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#ga7dad39486f2c7591af7fb25134a2501d glfwSetCursorPosCallback>
 setCursorPosCallback :: Window -> Maybe CursorPosCallback -> IO ()
 setCursorPosCallback win = setWindowCallback
     mk'GLFWcursorposfun
@@ -889,6 +990,8 @@ setCursorPosCallback win = setWindowCallback
     storedCursorPosFun
     win
 
+-- | Sets the callback for when the cursor enters or leaves the client area.
+-- See <http://www.glfw.org/docs/3.1/input.html#cursor_enter Cursor Enter/Leave Events>
 setCursorEnterCallback :: Window -> Maybe CursorEnterCallback -> IO ()
 setCursorEnterCallback win = setWindowCallback
     mk'GLFWcursorenterfun
@@ -897,6 +1000,8 @@ setCursorEnterCallback win = setWindowCallback
     storedCursorEnterFun
     win
 
+-- | Sets the callback to run when the user scrolls with the mouse wheel or a touch gesture.
+-- See <http://www.glfw.org/docs/3.1/input.html#scrolling Scroll Input>
 setScrollCallback :: Window -> Maybe ScrollCallback -> IO ()
 setScrollCallback win = setWindowCallback
     mk'GLFWscrollfun
@@ -905,10 +1010,14 @@ setScrollCallback win = setWindowCallback
     storedScrollFun
     win
 
+-- | Tests if the joystick is present at all
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gaffcbd9ac8ee737fcdd25475123a3c790 glfwJoystickPresent>
 joystickPresent :: Joystick -> IO Bool
 joystickPresent js =
     fromC `fmap` c'glfwJoystickPresent (toC js)
 
+-- | Returns the values of all axes of the specified joystick, normalized to between -1.0 and 1.0
+-- See <http://www.glfw.org/docs/3.1/group__input.html#ga6271d46a5901ec2c99601ccf4dd14731 glfwGetJoystickAxes>
 getJoystickAxes :: Joystick -> IO (Maybe [Double])
 getJoystickAxes js =
     alloca $ \p'n -> do
@@ -918,6 +1027,8 @@ getJoystickAxes js =
           then return Nothing
           else (Just . map fromC) `fmap` peekArray n p'axes
 
+-- | Returns a list of all joystick button states for the specified joystick.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gace54cd930dcd502e118fe4021384ce1b glfwGetJoystickButtons>
 getJoystickButtons :: Joystick -> IO (Maybe [JoystickButtonState])
 getJoystickButtons js =
     alloca $ \p'n -> do
@@ -927,6 +1038,8 @@ getJoystickButtons js =
           then return Nothing
           else (Just . map fromC) `fmap` peekArray n p'buttons
 
+-- | A human-readable name for a Joystick. Not guranteed to be unique.
+-- See <http://www.glfw.org/docs/3.1/group__input.html#gac8d7f6107e05cfd106cfba973ab51e19 glfwGetJoystickName>
 getJoystickName :: Joystick -> IO (Maybe String)
 getJoystickName js = do
     p'name <- c'glfwGetJoystickName (toC js)
@@ -1059,9 +1172,7 @@ setCursor (Window wptr) (Cursor cptr) = c'glfwSetCursor wptr cptr
 destroyCursor :: Cursor -> IO ()
 destroyCursor = c'glfwDestroyCursor . unCursor
 
--- Path Drop Input
--- http://www.glfw.org/docs/latest/input.html#path_drop
-
+-- | A callback that allows for drag and drop support.
 type DropCallback = Window    -- ^ The window that received the event.
                   -> [String] -- ^ The file and/or directory path names
                   -> IO ()

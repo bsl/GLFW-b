@@ -70,7 +70,7 @@ data VideoMode = VideoMode
   , videoModeRefreshRate :: Int
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
--- | Lets you adjust the gamma of a monitor. To ensure that only valid values are created, use 'makeGammeRamp'.
+-- | Lets you adjust the gamma of a monitor. To ensure that only valid values are created, use 'makeGammaRamp'.
 -- See <http://www.glfw.org/docs/3.1/monitor.html#monitor_gamma Gamma Ramp>.
 data GammaRamp = GammaRamp
   -- NOTE: It would be bad to give clients a way to construct invalid gamma ramps
@@ -80,7 +80,7 @@ data GammaRamp = GammaRamp
   , gammaRampBlue  :: [Int]
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
--- | Smart constructor for a GammaRamp.
+-- | Smart constructor for a 'GammaRamp'.
 makeGammaRamp :: [Int] -> [Int] -> [Int] -> Maybe GammaRamp
 makeGammaRamp rs gs bs
     | lengthsEqual = Just $ GammaRamp rs gs bs

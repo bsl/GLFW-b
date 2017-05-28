@@ -64,6 +64,10 @@ test-suite main
   type: exitcode-stdio-1.0
 
   main-is: Test.hs
+  other-modules:
+    Graphics.UI.GLFW
+    Graphics.UI.GLFW.C
+    Graphics.UI.GLFW.Types
   build-depends:
     GLFW-b,
     HUnit                == 1.3.*,

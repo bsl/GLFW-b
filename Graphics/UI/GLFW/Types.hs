@@ -9,6 +9,7 @@ module Graphics.UI.GLFW.Types where
 
 --------------------------------------------------------------------------------
 
+import Control.DeepSeq  (NFData)
 import Data.Data        (Data)
 import Data.IORef       (IORef)
 import Data.Typeable    (Typeable)
@@ -34,6 +35,8 @@ data Error =
   | Error'FormatUnavailable -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#ga196e125ef261d94184e2b55c05762f14 doc>
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData Error
+
 --------------------------------------------------------------------------------
 -- Initialization and version information
 
@@ -44,6 +47,8 @@ data Version = Version
   , versionMinor    :: Int
   , versionRevision :: Int
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData Version
 
 --------------------------------------------------------------------------------
 -- Monitor handling
@@ -60,6 +65,8 @@ data MonitorState =
   | MonitorState'Disconnected
   deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData MonitorState
+
 -- | See <http://www.glfw.org/docs/3.1/monitor.html#monitor_modes Video Modes>
 data VideoMode = VideoMode
   { videoModeWidth       :: Int
@@ -70,6 +77,8 @@ data VideoMode = VideoMode
   , videoModeRefreshRate :: Int
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData VideoMode
+
 -- | Lets you adjust the gamma of a monitor. To ensure that only valid values are created, use 'makeGammaRamp'.
 -- See <http://www.glfw.org/docs/3.1/monitor.html#monitor_gamma Gamma Ramp>.
 data GammaRamp = GammaRamp
@@ -79,6 +88,8 @@ data GammaRamp = GammaRamp
   , gammaRampGreen :: [Int]
   , gammaRampBlue  :: [Int]
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData GammaRamp
 
 -- | Smart constructor for a 'GammaRamp'.
 makeGammaRamp :: [Int] -> [Int] -> [Int] -> Maybe GammaRamp
@@ -150,17 +161,23 @@ data WindowHint =
   | WindowHint'OpenGLProfile       OpenGLProfile
   deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData WindowHint
+
 -- | For use with the focus callback.
 data FocusState =
     FocusState'Focused
   | FocusState'Defocused
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData FocusState
+
 -- | For use with the iconify callback. (note: iconified means minimized)
 data IconifyState =
     IconifyState'Iconified
   | IconifyState'NotIconified
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData IconifyState
 
 -- | The OpenGL robustness strategy.
 data ContextRobustness =
@@ -169,6 +186,8 @@ data ContextRobustness =
   | ContextRobustness'LoseContextOnReset
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData ContextRobustness
+
 -- | The OpenGL profile.
 data OpenGLProfile =
     OpenGLProfile'Any
@@ -176,11 +195,15 @@ data OpenGLProfile =
   | OpenGLProfile'Core
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData OpenGLProfile
+
 -- | The type of OpenGL to create a context for.
 data ClientAPI =
     ClientAPI'OpenGL
   | ClientAPI'OpenGLES
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData ClientAPI
 
 --------------------------------------------------------------------------------
 -- Input handling
@@ -310,12 +333,16 @@ data Key =
   | Key'Menu
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData Key
+
 -- | The state of an individual key when 'getKey' is called.
 data KeyState =
     KeyState'Pressed
   | KeyState'Released
   | KeyState'Repeating
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData KeyState
 
 -- | For use with the <http://www.glfw.org/docs/3.1/input.html#joystick Joystick Input> system.
 data Joystick =
@@ -337,11 +364,15 @@ data Joystick =
   | Joystick'16
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData Joystick
+
 -- | If a given joystick button is pressed or not when 'getJoystickButtons' is called.
 data JoystickButtonState =
     JoystickButtonState'Pressed
   | JoystickButtonState'Released
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData JoystickButtonState
 
 -- | Part of the <http://www.glfw.org/docs/3.1/input.html#input_mouse Mouse Input> system.
 data MouseButton =
@@ -355,17 +386,23 @@ data MouseButton =
   | MouseButton'8
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData MouseButton
+
 -- | If the mouse button is pressed or not when 'getMouseButton' is called.
 data MouseButtonState =
     MouseButtonState'Pressed
   | MouseButtonState'Released
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData MouseButtonState
+
 -- | If the mouse's cursor is in the window or not.
 data CursorState =
     CursorState'InWindow
   | CursorState'NotInWindow
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData CursorState
 
 -- | Allows for special forms of mouse input.
 -- See <http://www.glfw.org/docs/3.1/input.html#cursor_mode Cursor Modes>
@@ -374,6 +411,8 @@ data CursorInputMode =
   | CursorInputMode'Hidden
   | CursorInputMode'Disabled
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData CursorInputMode
 
 -- | When sticky keys is enabled, once a key is pressed it will remain pressed
 -- at least until the state is polled with 'getKey'. After that, if the key has
@@ -386,11 +425,15 @@ data StickyKeysInputMode =
   | StickyKeysInputMode'Disabled
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
+instance NFData StickyKeysInputMode
+
 -- | This is the mouse version of "StickyKeysInputMode".
 data StickyMouseButtonsInputMode =
     StickyMouseButtonsInputMode'Enabled
   | StickyMouseButtonsInputMode'Disabled
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData StickyMouseButtonsInputMode
 
 -- | Modifier keys that were pressed as part of another keypress event.
 data ModifierKeys = ModifierKeys
@@ -399,6 +442,8 @@ data ModifierKeys = ModifierKeys
   , modifierKeysAlt     :: Bool
   , modifierKeysSuper   :: Bool
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData ModifierKeys
 
 --------------------------------------------------------------------------------
 -- 3.1 Additions
@@ -412,6 +457,8 @@ data Image = Image
   , imageHeight :: Int
   , imagePixels :: [CUChar]
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData Image
 
 -- | Reprisents a GLFW cursor.
 newtype Cursor = Cursor
@@ -429,6 +476,8 @@ data StandardCursorShape =
   | StandardCursorShape'HResize
   | StandardCursorShape'VResize
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData StandardCursorShape
 
 --------------------------------------------------------------------------------
 

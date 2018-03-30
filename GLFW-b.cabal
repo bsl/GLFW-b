@@ -49,8 +49,9 @@ library
     Graphics.UI.GLFW.Types
 
   build-depends:
-    base           < 5,
-    bindings-GLFW >= 3.1.2.0
+      base           < 5
+    , deepseq
+    , bindings-GLFW >= 3.1.2.0
 
 --------------------------------------------------------------------------------
 

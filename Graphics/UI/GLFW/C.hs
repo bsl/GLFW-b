@@ -12,7 +12,7 @@ module Graphics.UI.GLFW.C where
 
 import Data.Bits       ((.&.))
 import Data.Char       (chr, ord)
-import Foreign.C.Types (CDouble, CFloat, CInt, CChar, CUChar, CUInt, CUShort)
+import Foreign.C.Types (CDouble, CFloat, CInt, CUChar, CUInt, CUShort)
 import Foreign.Ptr     (Ptr)
 
 import Bindings.GLFW
@@ -25,10 +25,6 @@ class C c h where
   toC   :: h -> c
 
 --------------------------------------------------------------------------------
-
-instance C CChar Char where
-  fromC = chr . fromIntegral
-  toC = fromIntegral . ord
 
 instance C CInt Char where
   fromC = chr . fromIntegral
@@ -90,11 +86,11 @@ instance C C'GLFWvidmode VideoMode where
 
 instance C CInt Bool where
   fromC v
-    | v == c'GL_FALSE = False
-    | v == c'GL_TRUE = True
+    | v == c'GLFW_FALSE = False
+    | v == c'GLFW_TRUE = True
     | otherwise = error $ "C CInt Bool fromC: " ++ show v
-  toC False = c'GL_FALSE
-  toC True = c'GL_TRUE
+  toC False = c'GLFW_FALSE
+  toC True = c'GLFW_TRUE
 
 instance C CInt Error where
   fromC v
@@ -120,27 +116,27 @@ instance C CInt Error where
 
 instance C CInt MonitorState where
   fromC v
-    | v == c'GL_TRUE = MonitorState'Connected
-    | v == c'GL_FALSE = MonitorState'Disconnected
+    | v == c'GLFW_TRUE = MonitorState'Connected
+    | v == c'GLFW_FALSE = MonitorState'Disconnected
     | otherwise = error $ "C CInt MonitorState fromC: " ++ show v
-  toC MonitorState'Connected = c'GL_TRUE
-  toC MonitorState'Disconnected = c'GL_FALSE
+  toC MonitorState'Connected = c'GLFW_TRUE
+  toC MonitorState'Disconnected = c'GLFW_FALSE
 
 instance C CInt FocusState where
   fromC v
-    | v == c'GL_TRUE = FocusState'Focused
-    | v == c'GL_FALSE = FocusState'Defocused
+    | v == c'GLFW_TRUE = FocusState'Focused
+    | v == c'GLFW_FALSE = FocusState'Defocused
     | otherwise = error $ "C CInt FocusState fromC: " ++ show v
-  toC FocusState'Focused = c'GL_TRUE
-  toC FocusState'Defocused = c'GL_FALSE
+  toC FocusState'Focused = c'GLFW_TRUE
+  toC FocusState'Defocused = c'GLFW_FALSE
 
 instance C CInt IconifyState where
   fromC v
-    | v == c'GL_TRUE = IconifyState'Iconified
-    | v == c'GL_FALSE = IconifyState'NotIconified
+    | v == c'GLFW_TRUE = IconifyState'Iconified
+    | v == c'GLFW_FALSE = IconifyState'NotIconified
     | otherwise = error $ "C CInt IconifyState fromC: " ++ show v
-  toC IconifyState'Iconified = c'GL_TRUE
-  toC IconifyState'NotIconified = c'GL_FALSE
+  toC IconifyState'Iconified = c'GLFW_TRUE
+  toC IconifyState'NotIconified = c'GLFW_FALSE
 
 instance C CInt ContextRobustness where
   fromC v
@@ -500,11 +496,11 @@ instance C CInt MouseButtonState where
 
 instance C CInt CursorState where
   fromC v
-    | v == c'GL_TRUE = CursorState'InWindow
-    | v == c'GL_FALSE = CursorState'NotInWindow
+    | v == c'GLFW_TRUE = CursorState'InWindow
+    | v == c'GLFW_FALSE = CursorState'NotInWindow
     | otherwise = error $ "C CInt CursorState fromC: " ++ show v
-  toC CursorState'InWindow = c'GL_TRUE
-  toC CursorState'NotInWindow = c'GL_FALSE
+  toC CursorState'InWindow = c'GLFW_TRUE
+  toC CursorState'NotInWindow = c'GLFW_FALSE
 
 instance C CInt CursorInputMode where
   fromC v
@@ -518,39 +514,19 @@ instance C CInt CursorInputMode where
 
 instance C CInt StickyKeysInputMode where
   fromC v
-    | v == c'GL_TRUE = StickyKeysInputMode'Enabled
-    | v == c'GL_FALSE = StickyKeysInputMode'Disabled
+    | v == c'GLFW_TRUE = StickyKeysInputMode'Enabled
+    | v == c'GLFW_FALSE = StickyKeysInputMode'Disabled
     | otherwise = error $ "C CInt StickyKeysInputMode fromC: " ++ show v
-  toC StickyKeysInputMode'Enabled = c'GL_TRUE
-  toC StickyKeysInputMode'Disabled = c'GL_FALSE
+  toC StickyKeysInputMode'Enabled = c'GLFW_TRUE
+  toC StickyKeysInputMode'Disabled = c'GLFW_FALSE
 
 instance C CInt StickyMouseButtonsInputMode where
   fromC v
-    | v == c'GL_TRUE = StickyMouseButtonsInputMode'Enabled
-    | v == c'GL_FALSE = StickyMouseButtonsInputMode'Disabled
+    | v == c'GLFW_TRUE = StickyMouseButtonsInputMode'Enabled
+    | v == c'GLFW_FALSE = StickyMouseButtonsInputMode'Disabled
     | otherwise = error $ "C CInt StickyMouseButtonsInputMode fromC: " ++ show v
-  toC StickyMouseButtonsInputMode'Enabled = c'GL_TRUE
-  toC StickyMouseButtonsInputMode'Disabled = c'GL_FALSE
-
---------------------------------------------------------------------------------
--- 3.1 Additions
---------------------------------------------------------------------------------
-
-instance C CInt StandardCursorShape where
-    fromC v
-        | v == c'GLFW_ARROW_CURSOR     = StandardCursorShape'Arrow
-        | v == c'GLFW_IBEAM_CURSOR     = StandardCursorShape'IBeam
-        | v == c'GLFW_CROSSHAIR_CURSOR = StandardCursorShape'Crosshair
-        | v == c'GLFW_HAND_CURSOR      = StandardCursorShape'Hand
-        | v == c'GLFW_HRESIZE_CURSOR   = StandardCursorShape'HResize
-        | v == c'GLFW_VRESIZE_CURSOR   = StandardCursorShape'VResize
-        | otherwise = error $ "C CInt StandardCursorShape fromC: " ++ show v
-    toC  StandardCursorShape'Arrow     = c'GLFW_ARROW_CURSOR
-    toC  StandardCursorShape'IBeam     = c'GLFW_IBEAM_CURSOR
-    toC  StandardCursorShape'Crosshair = c'GLFW_CROSSHAIR_CURSOR
-    toC  StandardCursorShape'Hand      = c'GLFW_HAND_CURSOR
-    toC  StandardCursorShape'HResize   = c'GLFW_HRESIZE_CURSOR
-    toC  StandardCursorShape'VResize   = c'GLFW_VRESIZE_CURSOR
+  toC StickyMouseButtonsInputMode'Enabled = c'GLFW_TRUE
+  toC StickyMouseButtonsInputMode'Disabled = c'GLFW_FALSE
 
 --------------------------------------------------------------------------------
 

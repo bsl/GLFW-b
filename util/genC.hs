@@ -172,8 +172,8 @@ data CInfo = CInfo String String [(String, String)]
 cInfos :: [CInfo]
 cInfos =
     [ CInfo "CInt" "Bool"
-        [ ( "c'GL_FALSE", "False" )
-        , ( "c'GL_TRUE",  "True"  )
+        [ ( "c'GLFW_FALSE", "False" )
+        , ( "c'GLFW_TRUE",  "True"  )
         ]
     , CInfo "CInt" "Error"
         [ ( "c'GLFW_NOT_INITIALIZED",     "Error'NotInitialized"     )
@@ -187,16 +187,16 @@ cInfos =
         , ( "c'GLFW_FORMAT_UNAVAILABLE",  "Error'FormatUnavailable"  )
         ]
     , CInfo "CInt" "MonitorState"
-        [ ( "c'GL_TRUE",  "MonitorState'Connected"    )
-        , ( "c'GL_FALSE", "MonitorState'Disconnected" )
+        [ ( "c'GLFW_TRUE",  "MonitorState'Connected"    )
+        , ( "c'GLFW_FALSE", "MonitorState'Disconnected" )
         ]
     , CInfo "CInt" "FocusState"
-        [ ( "c'GL_TRUE",  "FocusState'Focused"   )
-        , ( "c'GL_FALSE", "FocusState'Defocused" )
+        [ ( "c'GLFW_TRUE",  "FocusState'Focused"   )
+        , ( "c'GLFW_FALSE", "FocusState'Defocused" )
         ]
     , CInfo "CInt" "IconifyState"
-        [ ( "c'GL_TRUE",  "IconifyState'Iconified"    )
-        , ( "c'GL_FALSE", "IconifyState'NotIconified" )
+        [ ( "c'GLFW_TRUE",  "IconifyState'Iconified"    )
+        , ( "c'GLFW_FALSE", "IconifyState'NotIconified" )
         ]
     , CInfo "CInt" "ContextRobustness"
         [ ( "c'GLFW_NO_ROBUSTNESS",         "ContextRobustness'NoRobustness"        )
@@ -377,8 +377,8 @@ cInfos =
         , ( "c'GLFW_RELEASE", "MouseButtonState'Released" )
         ]
     , CInfo "CInt" "CursorState"
-        [ ( "c'GL_TRUE",  "CursorState'InWindow"    )
-        , ( "c'GL_FALSE", "CursorState'NotInWindow" )
+        [ ( "c'GLFW_TRUE",  "CursorState'InWindow"    )
+        , ( "c'GLFW_FALSE", "CursorState'NotInWindow" )
         ]
     , CInfo "CInt" "CursorInputMode"
         [ ( "c'GLFW_CURSOR_NORMAL",   "CursorInputMode'Normal"   )
@@ -386,11 +386,11 @@ cInfos =
         , ( "c'GLFW_CURSOR_DISABLED", "CursorInputMode'Disabled" )
         ]
     , CInfo "CInt" "StickyKeysInputMode"
-        [ ( "c'GL_TRUE",  "StickyKeysInputMode'Enabled" )
-        , ( "c'GL_FALSE", "StickyKeysInputMode'Disabled" )
+        [ ( "c'GLFW_TRUE",  "StickyKeysInputMode'Enabled" )
+        , ( "c'GLFW_FALSE", "StickyKeysInputMode'Disabled" )
         ]
     , CInfo "CInt" "StickyMouseButtonsInputMode"
-        [ ( "c'GL_TRUE",  "StickyMouseButtonsInputMode'Enabled" )
-        , ( "c'GL_FALSE", "StickyMouseButtonsInputMode'Disabled" )
+        [ ( "c'GLFW_TRUE",  "StickyMouseButtonsInputMode'Enabled" )
+        , ( "c'GLFW_FALSE", "StickyMouseButtonsInputMode'Disabled" )
         ]
     ]

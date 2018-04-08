@@ -1,11 +1,7 @@
 flags: {}
 packages: 
-- '.'
-
-- location:
-    git: https://github.com/bsl/bindings-GLFW.git
-    commit: HEAD
-  extra-dep: true
+- .
+- ../bindings-GLFW
 
 extra-deps: []
-resolver: lts-11.1
+resolver: nightly-2018-04-08

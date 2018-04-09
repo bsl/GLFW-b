@@ -227,7 +227,8 @@ cInfos =
         , ( "c'GLFW_OPENGL_CORE_PROFILE",   "OpenGLProfile'Core"   )
         ]
     , CInfo "CInt" "ClientAPI"
-        [ ( "c'GLFW_OPENGL_API",    "ClientAPI'OpenGL"   )
+        [ ( "c'GLFW_NO_API",        "ClientAPI'NoAPI"    )
+        , ( "c'GLFW_OPENGL_API",    "ClientAPI'OpenGL"   )
         , ( "c'GLFW_OPENGL_ES_API", "ClientAPI'OpenGLES" )
         ]
     , CInfo "CInt" "Key"

@@ -176,9 +176,11 @@ instance C CInt OpenGLProfile where
 
 instance C CInt ClientAPI where
   fromC v
+    | v == c'GLFW_NO_API = ClientAPI'NoAPI
     | v == c'GLFW_OPENGL_API = ClientAPI'OpenGL
     | v == c'GLFW_OPENGL_ES_API = ClientAPI'OpenGLES
     | otherwise = error $ "C CInt ClientAPI fromC: " ++ show v
+  toC ClientAPI'NoAPI = c'GLFW_NO_API
   toC ClientAPI'OpenGL = c'GLFW_OPENGL_API
   toC ClientAPI'OpenGLES = c'GLFW_OPENGL_ES_API
 

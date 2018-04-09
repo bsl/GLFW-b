@@ -199,7 +199,8 @@ instance NFData OpenGLProfile
 
 -- | The type of OpenGL to create a context for.
 data ClientAPI =
-    ClientAPI'OpenGL
+    ClientAPI'NoAPI
+  | ClientAPI'OpenGL
   | ClientAPI'OpenGLES
   deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 

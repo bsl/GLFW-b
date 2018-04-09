@@ -157,6 +157,13 @@ module Graphics.UI.GLFW
     -- * Clipboard
   , getClipboardString
   , setClipboardString
+
+    -- * Vulkan-related functions
+  , vulkanSupported
+  , getRequiredInstanceExtensions
+  , getInstanceProcAddress
+  , getPhysicalDevicePresentationSupport
+  , createWindowSurface
   ) where
 
 --------------------------------------------------------------------------------
@@ -165,11 +172,13 @@ import Prelude hiding (init)
 
 import Control.Monad         (when, liftM)
 import Data.IORef            (IORef, atomicModifyIORef, newIORef, readIORef)
-import Foreign.C.String      (peekCString, withCString)
+import Data.Word             (Word32)
+import Foreign.C.String      (peekCString, withCString, CString)
 import Foreign.C.Types       (CUInt, CUShort)
 import Foreign.Marshal.Alloc (alloca)
 import Foreign.Marshal.Array (advancePtr, allocaArray, peekArray, withArray)
-import Foreign.Ptr           (FunPtr, freeHaskellFunPtr, nullFunPtr, nullPtr)
+import Foreign.Ptr           (FunPtr, freeHaskellFunPtr, nullFunPtr, nullPtr
+                             ,Ptr)
 import Foreign.StablePtr
 import Foreign.Storable      (Storable (..))
 import System.IO.Unsafe      (unsafePerformIO)
@@ -1241,3 +1250,64 @@ setDropCallback win = setWindowCallback
     (c'glfwSetDropCallback (toC win))
     storedDropFun
     win
+
+
+--------------------------------------------------------------------------------
+-- Vulkan-related functions
+--------------------------------------------------------------------------------
+
+-- | This function returns whether the Vulkan loader has been found.
+--   This check is performed by `init`.
+vulkanSupported :: IO Bool
+vulkanSupported = (c'GLFW_TRUE ==) <$> c'glfwVulkanSupported
+
+-- | Get required vulkan extensions;
+--   Pointer memory is managed by GLFW, destroyed by `terminate` call.
+--
+--   The returned extension names are kept in `CString` type, because
+--   they are expected to be consumed by vulkan device initialization functions.
+getRequiredInstanceExtensions :: IO [CString]
+getRequiredInstanceExtensions = alloca $ \countPtr -> do
+    extsPtrPtr <- c'glfwGetRequiredInstanceExtensions countPtr
+    count <- fromIntegral <$> peek countPtr
+    peekArray count extsPtrPtr
+
+-- | Returns the address of the specified Vulkan instance function.
+getInstanceProcAddress :: Ptr vkInstance
+                          -- ^ VkInstance.
+                          --   Note, the returned function must be used
+                          --   with the same instance or its child.
+                       -> String
+                          -- ^ Function name
+                       -> IO (FunPtr vkProc)
+getInstanceProcAddress i procName
+  = withCString procName (c'glfwGetInstanceProcAddress i)
+
+-- | Returns whether the specified queue family can present images.
+getPhysicalDevicePresentationSupport ::
+       Ptr vkInstance
+       -- ^ VkInstance
+    -> Ptr vkPhysicalDevice
+       -- ^ VkPhysicalDevice
+    -> Word32
+       -- ^ Index of a queue family to query.
+       --   This is an index in the array returned by
+       --   @vkGetPhysicalDeviceQueueFamilyProperties@ function.
+    -> IO Bool
+getPhysicalDevicePresentationSupport inst dev i
+  = (c'GLFW_TRUE ==) <$> c'glfwGetPhysicalDevicePresentationSupport inst dev i
+
+-- | Creates a Vulkan surface for the specified window
+createWindowSurface :: Enum vkResult
+                    => Ptr vkInstance
+                       -- ^ VkInstance
+                    -> Window
+                       -- ^ GLFWwindow *window
+                    -> Ptr vkAllocationCallbacks
+                       -- ^ const VkAllocationCallbacks *allocator
+                    -> Ptr vkSurfaceKHR
+                       -- ^ VkSurfaceKHR *surface
+                    -> IO vkResult
+createWindowSurface i win acs s
+  = toEnum . fromIntegral
+  <$> c'glfwCreateWindowSurface i (toC win) acs s

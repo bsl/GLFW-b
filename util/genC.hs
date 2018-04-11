@@ -163,6 +163,24 @@ simpleCInfos =
       , "  }"
       ]
       ["toC = undefined"]
+
+  , SimpleCInfo "CInt" "StandardCursorShape"
+      [ "fromC v"
+      , "  | v == c'GLFW_ARROW_CURSOR     = StandardCursorShape'Arrow"
+      , "  | v == c'GLFW_IBEAM_CURSOR     = StandardCursorShape'IBeam"
+      , "  | v == c'GLFW_CROSSHAIR_CURSOR = StandardCursorShape'Crosshair"
+      , "  | v == c'GLFW_HAND_CURSOR      = StandardCursorShape'Hand"
+      , "  | v == c'GLFW_HRESIZE_CURSOR   = StandardCursorShape'HResize"
+      , "  | v == c'GLFW_VRESIZE_CURSOR   = StandardCursorShape'VResize"
+      , "  | otherwise = error $ \"C CInt StandardCursorShape fromC: \" ++ show v"
+      ]
+      [ "toC  StandardCursorShape'Arrow     = c'GLFW_ARROW_CURSOR"
+      , "toC  StandardCursorShape'IBeam     = c'GLFW_IBEAM_CURSOR"
+      , "toC  StandardCursorShape'Crosshair = c'GLFW_CROSSHAIR_CURSOR"
+      , "toC  StandardCursorShape'Hand      = c'GLFW_HAND_CURSOR"
+      , "toC  StandardCursorShape'HResize   = c'GLFW_HRESIZE_CURSOR"
+      , "toC  StandardCursorShape'VResize   = c'GLFW_VRESIZE_CURSOR"
+      ]
    ]
 
 --------------------------------------------------------------------------------

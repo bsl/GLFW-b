@@ -33,7 +33,7 @@ data Error =
   | Error'VersionUnavailable -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#gad16c5565b4a69f9c2a9ac2c0dbc89462 doc>
   | Error'PlatformError -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#gad44162d78100ea5e87cdd38426b8c7a1 doc>
   | Error'FormatUnavailable -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#ga196e125ef261d94184e2b55c05762f14 doc>
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData Error
 
@@ -167,7 +167,7 @@ instance NFData WindowHint
 data FocusState =
     FocusState'Focused
   | FocusState'Defocused
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData FocusState
 
@@ -175,7 +175,7 @@ instance NFData FocusState
 data IconifyState =
     IconifyState'Iconified
   | IconifyState'NotIconified
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData IconifyState
 
@@ -184,7 +184,7 @@ data ContextRobustness =
     ContextRobustness'NoRobustness
   | ContextRobustness'NoResetNotification
   | ContextRobustness'LoseContextOnReset
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData ContextRobustness
 
@@ -193,7 +193,7 @@ data OpenGLProfile =
     OpenGLProfile'Any
   | OpenGLProfile'Compat
   | OpenGLProfile'Core
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData OpenGLProfile
 
@@ -202,7 +202,7 @@ data ClientAPI =
     ClientAPI'NoAPI
   | ClientAPI'OpenGL
   | ClientAPI'OpenGLES
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData ClientAPI
 
@@ -332,7 +332,7 @@ data Key =
   | Key'RightAlt
   | Key'RightSuper
   | Key'Menu
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData Key
 
@@ -341,7 +341,7 @@ data KeyState =
     KeyState'Pressed
   | KeyState'Released
   | KeyState'Repeating
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData KeyState
 
@@ -363,7 +363,7 @@ data Joystick =
   | Joystick'14
   | Joystick'15
   | Joystick'16
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData Joystick
 
@@ -371,7 +371,7 @@ instance NFData Joystick
 data JoystickButtonState =
     JoystickButtonState'Pressed
   | JoystickButtonState'Released
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData JoystickButtonState
 
@@ -385,7 +385,7 @@ data MouseButton =
   | MouseButton'6
   | MouseButton'7
   | MouseButton'8
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData MouseButton
 
@@ -393,7 +393,7 @@ instance NFData MouseButton
 data MouseButtonState =
     MouseButtonState'Pressed
   | MouseButtonState'Released
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData MouseButtonState
 
@@ -401,7 +401,7 @@ instance NFData MouseButtonState
 data CursorState =
     CursorState'InWindow
   | CursorState'NotInWindow
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData CursorState
 
@@ -411,7 +411,7 @@ data CursorInputMode =
     CursorInputMode'Normal
   | CursorInputMode'Hidden
   | CursorInputMode'Disabled
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData CursorInputMode
 
@@ -424,7 +424,7 @@ instance NFData CursorInputMode
 data StickyKeysInputMode =
     StickyKeysInputMode'Enabled
   | StickyKeysInputMode'Disabled
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData StickyKeysInputMode
 
@@ -432,7 +432,7 @@ instance NFData StickyKeysInputMode
 data StickyMouseButtonsInputMode =
     StickyMouseButtonsInputMode'Enabled
   | StickyMouseButtonsInputMode'Disabled
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData StickyMouseButtonsInputMode
 
@@ -476,7 +476,7 @@ data StandardCursorShape =
   | StandardCursorShape'Hand
   | StandardCursorShape'HResize
   | StandardCursorShape'VResize
-  deriving (Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData StandardCursorShape
 

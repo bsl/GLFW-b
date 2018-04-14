@@ -40,10 +40,10 @@ main = do
 
 versionMajor, versionMinor :: Int
 versionMajor = 3
-versionMinor = 1
+versionMinor = 2
 
 giveItTime :: IO ()
-giveItTime = threadDelay 250000
+giveItTime = threadDelay 500000
 
 joysticks :: [GLFW.Joystick]
 joysticks =

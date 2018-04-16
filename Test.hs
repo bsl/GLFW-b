@@ -30,6 +30,10 @@ main = do
     mwin@(Just win) <- GLFW.createWindow 100 100 "GLFW-b test" Nothing Nothing
     GLFW.makeContextCurrent mwin
 
+    -- Mostly check for compiling
+    GLFW.setJoystickCallback $ Just $ \j c -> putStrLn $ concat
+      [ show j, " changed state: ", show c ]
+
     defaultMain $ tests mon win
 
     -- TODO because of how defaultMain works, this code is not reached

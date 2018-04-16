@@ -142,6 +142,7 @@ module Graphics.UI.GLFW
   , getJoystickAxes
   , getJoystickButtons
   , getJoystickName
+  , setJoystickCallback,    JoystickCallback
 
     -- * Time
   , getTime
@@ -195,15 +196,18 @@ import Bindings.GLFW
 
 storedErrorFun           :: IORef C'GLFWerrorfun
 storedMonitorFun         :: IORef C'GLFWmonitorfun
+storedJoystickFun        :: IORef C'GLFWjoystickfun
 
 storedErrorFun           = unsafePerformIO $ newIORef nullFunPtr
 storedMonitorFun         = unsafePerformIO $ newIORef nullFunPtr
+storedJoystickFun        = unsafePerformIO $ newIORef nullFunPtr
 
 -- These NOINLINE pragmas are due to use of unsafePerformIO.
 -- See http://hackage.haskell.org/packages/archive/base/latest/doc/html/System-IO-Unsafe.html#v:unsafePerformIO .
 
 {-# NOINLINE storedErrorFun           #-}
 {-# NOINLINE storedMonitorFun         #-}
+{-# NOINLINE storedJoystickFun         #-}
 
 setWindowCallback
   :: (c -> IO (FunPtr c))                    -- wf   wrapper function
@@ -273,6 +277,8 @@ type KeyCallback             = Window -> Key -> Int -> KeyState -> ModifierKeys 
 type CharCallback            = Window -> Char                                            -> IO ()
 -- | Fires when a monitor is connected or disconnected.
 type MonitorCallback         = Monitor -> MonitorState                                   -> IO ()
+-- | Fires when a joystick is connected or disconnected.
+type JoystickCallback        = Joystick -> JoystickState                                 -> IO ()
 
 -- 3.1 additions
 
@@ -367,6 +373,7 @@ terminate = do
     -- Free all stored FunPtrs.
     storeCallback storedErrorFun           nullFunPtr
     storeCallback storedMonitorFun         nullFunPtr
+    storeCallback storedJoystickFun         nullFunPtr
 
 -- | Gets the version of the GLFW library that's being used with the current program.
 -- See <http://www.glfw.org/docs/3.1/group__init.html#ga9f8ffaacf3c269cc48eafbf8b9b71197 glfwGetVersion>
@@ -1104,6 +1111,15 @@ getJoystickName js = do
     if p'name == nullPtr
       then return Nothing
       else Just `fmap` peekCString p'name
+
+-- | Sets a callback for when a joystick is connected or disconnected.
+-- See <http://www.glfw.org/docs/latest/group__input.html#gab1dc8379f1b82bb660a6b9c9fa06ca07 glfwSetJoystickCallback>
+setJoystickCallback :: Maybe JoystickCallback -> IO ()
+setJoystickCallback = setCallback
+    mk'GLFWjoystickfun
+    (\cb a0 a1 -> schedule $ cb (fromC a0) (fromC a1))
+    c'glfwSetJoystickCallback
+    storedJoystickFun
 
 --------------------------------------------------------------------------------
 -- Time

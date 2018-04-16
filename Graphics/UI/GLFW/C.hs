@@ -132,11 +132,11 @@ instance C CInt Error where
 
 instance C CInt MonitorState where
   fromC v
-    | v == c'GLFW_TRUE = MonitorState'Connected
-    | v == c'GLFW_FALSE = MonitorState'Disconnected
+    | v == c'GLFW_CONNECTED = MonitorState'Connected
+    | v == c'GLFW_DISCONNECTED = MonitorState'Disconnected
     | otherwise = error $ "C CInt MonitorState fromC: " ++ show v
-  toC MonitorState'Connected = c'GLFW_TRUE
-  toC MonitorState'Disconnected = c'GLFW_FALSE
+  toC MonitorState'Connected = c'GLFW_CONNECTED
+  toC MonitorState'Disconnected = c'GLFW_DISCONNECTED
 
 instance C CInt FocusState where
   fromC v
@@ -483,6 +483,14 @@ instance C CUChar JoystickButtonState where
     | otherwise = error $ "C CUChar JoystickButtonState fromC: " ++ show v
   toC JoystickButtonState'Pressed = c'GLFW_PRESS
   toC JoystickButtonState'Released = c'GLFW_RELEASE
+
+instance C CInt JoystickState where
+  fromC v
+    | v == c'GLFW_CONNECTED = JoystickState'Connected
+    | v == c'GLFW_DISCONNECTED = JoystickState'Disconnected
+    | otherwise = error $ "C CInt JoystickState fromC: " ++ show v
+  toC JoystickState'Connected = c'GLFW_CONNECTED
+  toC JoystickState'Disconnected = c'GLFW_DISCONNECTED
 
 instance C CInt MouseButton where
   fromC v

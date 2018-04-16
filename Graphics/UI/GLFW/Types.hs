@@ -375,6 +375,14 @@ data JoystickButtonState =
 
 instance NFData JoystickButtonState
 
+-- | Part of the 'JoystickCallback', for when a monitor gets connected or disconnected.
+data JoystickState
+  = JoystickState'Connected
+  | JoystickState'Disconnected
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData JoystickState
+
 -- | Part of the <http://www.glfw.org/docs/3.1/input.html#input_mouse Mouse Input> system.
 data MouseButton =
     MouseButton'1

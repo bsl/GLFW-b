@@ -69,6 +69,7 @@ module Graphics.UI.GLFW
   , setWindowPos
   , getWindowSize
   , setWindowSize
+  , getWindowFrameSize
   , getFramebufferSize
   , iconifyWindow
   , restoreWindow
@@ -711,6 +712,24 @@ getWindowSize win =
         w <- fromC `fmap` peek p'w
         h <- fromC `fmap` peek p'h
         return (w, h)
+
+-- | Gets the size of the frame around the window (in Screen Coordinates). This
+-- size includes the title bar, if the window has one. Not to be confused with
+-- 'getFramebufferSize', which gets the size of the rendering area.
+-- See <http://www.glfw.org/docs/latest/group__window.html#ga1a9fd382058c53101b21cf211898f1f1 glfwGetWindowFrameSize>
+getWindowFrameSize :: Window -> IO (Int, Int, Int, Int)
+getWindowFrameSize win =
+    allocaArray 4 $ \p -> do
+        let p'l = p
+            p't = p `advancePtr` 1
+            p'r = p `advancePtr` 2
+            p'b = p `advancePtr` 3
+        c'glfwGetWindowFrameSize (toC win) p'l p't p'r p'b
+        l <- fromC `fmap` peek p'l
+        t <- fromC `fmap` peek p't
+        r <- fromC `fmap` peek p'r
+        b <- fromC `fmap` peek p'b
+        return (l, t, r, b)
 
 -- | Sets the size of the client area for the window (in Screen Coordinates).
 -- See <http://www.glfw.org/docs/latest/group__window.html#ga371911f12c74c504dd8d47d832d095cb glfwSetWindowSize>

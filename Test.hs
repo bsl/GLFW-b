@@ -104,15 +104,8 @@ tests mon win =
       ]
     , testGroup "Window handling"
       [ testCase "defaultWindowHints"             test_defaultWindowHints
-      , testCase "window close flag"            $ test_window_close_flag win
-      , testCase "setWindowTitle"               $ test_setWindowTitle win
-      , testCase "window pos"                   $ test_window_pos win
-      , testCase "window size"                  $ test_window_size win
-      , testCase "getFramebufferSize"           $ test_getFramebufferSize win
-      , testCase "iconification"                $ test_iconification win
-      -- , testCase "show/hide"                    $ test_show_hide win
-      , testCase "getWindowMonitor"             $ test_getWindowMonitor win mon
-      , testCase "cursor pos"                   $ test_cursor_pos win
+
+      -- Test window attributes
       , testCase "getWindowFocused"             $ test_getWindowFocused win
       , testCase "getWindowResizable"           $ test_getWindowResizable win
       , testCase "getWindowDecorated"           $ test_getWindowDecorated win
@@ -122,6 +115,17 @@ tests mon win =
       , testCase "getWindowOpenGLForwardCompat" $ test_getWindowOpenGLForwardCompat win
       , testCase "getWindowOpenGLDebugContext"  $ test_getWindowOpenGLDebugContext win
       , testCase "getWindowOpenGLProfile"       $ test_getWindowOpenGLProfile win
+
+      , testCase "window close flag"            $ test_window_close_flag win
+      , testCase "setWindowTitle"               $ test_setWindowTitle win
+      , testCase "window pos"                   $ test_window_pos win
+      , testCase "window size"                  $ test_window_size win
+      , testCase "getWindowFrameSize"           $ test_getWindowFrameSize win
+      , testCase "getFramebufferSize"           $ test_getFramebufferSize win
+      , testCase "iconification"                $ test_iconification win
+      -- , testCase "show/hide"                    $ test_show_hide win
+      , testCase "getWindowMonitor"             $ test_getWindowMonitor win mon
+      , testCase "cursor pos"                   $ test_cursor_pos win
       , testCase "pollEvents"                     test_pollEvents
       , testCase "waitEvents"                     test_waitEvents
       ]
@@ -281,6 +285,14 @@ test_window_size win = do
     (w', h') <- GLFW.getWindowSize win
     w' @?= w
     h' @?= h
+
+test_getWindowFrameSize :: GLFW.Window -> IO ()
+test_getWindowFrameSize win = do
+    -- The frame size is pretty dependent on the window manager. We can only
+    -- really expect that the window has a title bar, so the top frame won't be
+    -- zero...
+    (_, t, _, _) <- GLFW.getWindowFrameSize win
+    assertBool "Window has no frame width up top!" $ t > 0
 
 test_getFramebufferSize :: GLFW.Window -> IO ()
 test_getFramebufferSize win = do

@@ -99,6 +99,7 @@ module Graphics.UI.GLFW
   , setFramebufferSizeCallback, FramebufferSizeCallback
   , pollEvents
   , waitEvents
+  , waitEventsTimeout
   , postEmptyEvent
 
     -- * Input handling
@@ -928,6 +929,12 @@ pollEvents = c'glfwPollEvents >> executeScheduled
 -- See the <http://www.glfw.org/docs/3.1/input.html#events Event Processing Guide>
 waitEvents :: IO ()
 waitEvents = c'glfwWaitEvents >> executeScheduled
+
+-- | Same as 'waitEvents', with a timeout after which the function returns.
+-- See the <http://www.glfw.org/docs/3.2/input.html#events Event Processing Guide>
+waitEventsTimeout :: Double -> IO ()
+waitEventsTimeout seconds =
+  c'glfwWaitEventsTimeout (toC seconds) >> executeScheduled
 
 -- | Creates an empty event within the event queue. Can be called from any
 -- thread, so you can use this to wake up the main thread that's using

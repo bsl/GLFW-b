@@ -137,19 +137,19 @@ data WindowHint =
     WindowHint'Resizable              Bool
   | WindowHint'Visible                Bool
   | WindowHint'Decorated              Bool
-  | WindowHint'RedBits                Int
-  | WindowHint'GreenBits              Int
-  | WindowHint'BlueBits               Int
-  | WindowHint'AlphaBits              Int
-  | WindowHint'DepthBits              Int
-  | WindowHint'StencilBits            Int
-  | WindowHint'AccumRedBits           Int
-  | WindowHint'AccumGreenBits         Int
-  | WindowHint'AccumBlueBits          Int
-  | WindowHint'AccumAlphaBits         Int
-  | WindowHint'AuxBuffers             Int
-  | WindowHint'Samples                Int
-  | WindowHint'RefreshRate            Int
+  | WindowHint'RedBits                (Maybe Int)
+  | WindowHint'GreenBits              (Maybe Int)
+  | WindowHint'BlueBits               (Maybe Int)
+  | WindowHint'AlphaBits              (Maybe Int)
+  | WindowHint'DepthBits              (Maybe Int)
+  | WindowHint'StencilBits            (Maybe Int)
+  | WindowHint'AccumRedBits           (Maybe Int)
+  | WindowHint'AccumGreenBits         (Maybe Int)
+  | WindowHint'AccumBlueBits          (Maybe Int)
+  | WindowHint'AccumAlphaBits         (Maybe Int)
+  | WindowHint'AuxBuffers             (Maybe Int)
+  | WindowHint'Samples                (Maybe Int)
+  | WindowHint'RefreshRate            (Maybe Int)
   | WindowHint'DoubleBuffer           Bool
   | WindowHint'Stereo                 Bool
   | WindowHint'sRGBCapable            Bool

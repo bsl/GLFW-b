@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, FlexibleContexts #-}
 
 --------------------------------------------------------------------------------
 
@@ -23,6 +23,13 @@ import Graphics.UI.GLFW.Types
 class C c h where
   fromC :: c -> h
   toC   :: h -> c
+
+--------------------------------------------------------------------------------
+
+instance (C CInt b) => C CInt (Maybe b) where
+  fromC i | i == c'GLFW_DONT_CARE = Nothing
+          | otherwise = Just $ fromC i
+  toC = maybe c'GLFW_DONT_CARE toC
 
 --------------------------------------------------------------------------------
 

@@ -88,6 +88,7 @@ module Graphics.UI.GLFW
   , getWindowContextVersionMinor       -- |
   , getWindowContextVersionRevision    -- |
   , getWindowContextRobustness         -- |
+  , getWindowContextNoError            -- |
   , getWindowOpenGLForwardCompat       -- |
   , getWindowOpenGLDebugContext        -- |
   , getWindowOpenGLProfile  --------------'
@@ -867,6 +868,13 @@ getWindowContextVersionRevision win =
 getWindowContextRobustness :: Window -> IO ContextRobustness
 getWindowContextRobustness win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_ROBUSTNESS
+
+-- | Returns true if the window is set to NO_ERROR (see the
+-- <https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_no_error.txt KHR_no_error>
+-- extension.
+getWindowContextNoError :: Window -> IO Bool
+getWindowContextNoError win =
+    fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_NO_ERROR
 
 -- | If this window is set for opengl to be forward compatible.
 -- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>

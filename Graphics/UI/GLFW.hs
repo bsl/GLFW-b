@@ -99,6 +99,7 @@ module Graphics.UI.GLFW
   , setFramebufferSizeCallback, FramebufferSizeCallback
   , pollEvents
   , waitEvents
+  , waitEventsTimeout
   , postEmptyEvent
 
     -- * Input handling
@@ -567,6 +568,7 @@ windowHint wh =
       (WindowHint'AuxBuffers          x) -> (c'GLFW_AUX_BUFFERS,           toC x)
       (WindowHint'Samples             x) -> (c'GLFW_SAMPLES,               toC x)
       (WindowHint'RefreshRate         x) -> (c'GLFW_REFRESH_RATE,          toC x)
+      (WindowHint'DoubleBuffer        x) -> (c'GLFW_DOUBLEBUFFER,          toC x)
       (WindowHint'Stereo              x) -> (c'GLFW_STEREO,                toC x)
       (WindowHint'sRGBCapable         x) -> (c'GLFW_SRGB_CAPABLE,          toC x)
       (WindowHint'ClientAPI           x) -> (c'GLFW_CLIENT_API,            toC x)
@@ -928,6 +930,12 @@ pollEvents = c'glfwPollEvents >> executeScheduled
 -- See the <http://www.glfw.org/docs/3.1/input.html#events Event Processing Guide>
 waitEvents :: IO ()
 waitEvents = c'glfwWaitEvents >> executeScheduled
+
+-- | Same as 'waitEvents', with a timeout after which the function returns.
+-- See the <http://www.glfw.org/docs/3.2/input.html#events Event Processing Guide>
+waitEventsTimeout :: Double -> IO ()
+waitEventsTimeout seconds =
+  c'glfwWaitEventsTimeout (toC seconds) >> executeScheduled
 
 -- | Creates an empty event within the event queue. Can be called from any
 -- thread, so you can use this to wake up the main thread that's using

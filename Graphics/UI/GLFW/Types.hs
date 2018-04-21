@@ -150,6 +150,7 @@ data WindowHint =
   | WindowHint'AuxBuffers          Int
   | WindowHint'Samples             Int
   | WindowHint'RefreshRate         Int
+  | WindowHint'DoubleBuffer        Bool
   | WindowHint'Stereo              Bool
   | WindowHint'sRGBCapable         Bool
   | WindowHint'ClientAPI           ClientAPI

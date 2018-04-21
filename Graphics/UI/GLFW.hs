@@ -2,17 +2,17 @@
 
 Threading restrictions which apply to the C version of GLFW still apply when
 writing @GLFW-b@ programs. See
-<http://www.glfw.org/docs/3.1/intro.html#thread_safety GLFW thread safety documentation>
+<http://www.glfw.org/docs/3.2/intro.html#thread_safety GLFW thread safety documentation>
 (applies here).
 
 Current context restructions which apply to the C version of GLFW still apply.
-See <http://www.glfw.org/docs/3.1/context.html#context_current  GLFW current context documentation>
+See <http://www.glfw.org/docs/3.2/context.html#context_current  GLFW current context documentation>
 (applies here).
 
 @GLFW-b@ wraps callbacks and schedules them to be run after 'pollEvents' and
 'waitEvents' in the normal GHC runtime where they aren't subject to the usual
 GLFW reentrancy restrictions. See
-<http://www.glfw.org/docs/3.1/intro.html#reentrancy GLFW reentrancy documentation>
+<http://www.glfw.org/docs/3.2/intro.html#reentrancy GLFW reentrancy documentation>
 (does not apply here).
 
 -}
@@ -407,7 +407,7 @@ getVersionString = do
 -- Monitor handling
 
 -- | Gets the list of available monitors, if possible.
--- See <http://www.glfw.org/docs/latest/group__monitor.html#ga3fba51c8bd36491d4712aa5bd074a537 glfwGetMonitors>
+-- See <http://www.glfw.org/docs/3.2/group__monitor.html#ga3fba51c8bd36491d4712aa5bd074a537 glfwGetMonitors>
 getMonitors :: IO (Maybe [Monitor])
 getMonitors =
     alloca $ \p'n -> do
@@ -418,7 +418,7 @@ getMonitors =
           else (Just . map fromC) `fmap` peekArray n p'mon
 
 -- | Gets the primary monitor.
--- See <http://www.glfw.org/docs/latest/group__monitor.html#ga721867d84c6d18d6790d64d2847ca0b1 glfwGetPrimaryMonitor>
+-- See <http://www.glfw.org/docs/3.2/group__monitor.html#ga721867d84c6d18d6790d64d2847ca0b1 glfwGetPrimaryMonitor>
 getPrimaryMonitor :: IO (Maybe Monitor)
 getPrimaryMonitor = do
     p'mon <- c'glfwGetPrimaryMonitor
@@ -428,7 +428,7 @@ getPrimaryMonitor = do
         else Just $ fromC p'mon
 
 -- | Gets the position of the specified monitor within the coordinate space.
--- See <http://www.glfw.org/docs/latest/group__monitor.html#ga102f54e7acc9149edbcf0997152df8c9 glfwGetMonitorPos>
+-- See <http://www.glfw.org/docs/3.2/group__monitor.html#ga102f54e7acc9149edbcf0997152df8c9 glfwGetMonitorPos>
 getMonitorPos :: Monitor -> IO (Int, Int)
 getMonitorPos mon =
     allocaArray 2 $ \p -> do
@@ -440,7 +440,7 @@ getMonitorPos mon =
         return (x, y)
 
 -- | The physical width and height of the monitor.
--- See <http://www.glfw.org/docs/latest/group__monitor.html#ga7d8bffc6c55539286a6bd20d32a8d7ea glfwGetMonitorPhysicalSize>
+-- See <http://www.glfw.org/docs/3.2/group__monitor.html#ga7d8bffc6c55539286a6bd20d32a8d7ea glfwGetMonitorPhysicalSize>
 getMonitorPhysicalSize :: Monitor -> IO (Int, Int)
 getMonitorPhysicalSize mon =
     allocaArray 2 $ \p -> do
@@ -452,7 +452,7 @@ getMonitorPhysicalSize mon =
         return (w, h)
 
 -- | A human-readable name for the monitor specified.
--- See <http://www.glfw.org/docs/latest/group__monitor.html#ga79a34ee22ff080ca954a9663e4679daf getMonitorName>
+-- See <http://www.glfw.org/docs/3.2/group__monitor.html#ga79a34ee22ff080ca954a9663e4679daf getMonitorName>
 getMonitorName :: Monitor -> IO (Maybe String)
 getMonitorName mon = do
     p'name <- c'glfwGetMonitorName (toC mon)
@@ -461,7 +461,7 @@ getMonitorName mon = do
       else Just `fmap` peekCString p'name
 
 -- | Sets a callback for when a monitor is connected or disconnected.
--- See <http://www.glfw.org/docs/latest/group__monitor.html#gac3fe0f647f68b731f99756cd81897378 glfwSetMonitorCallback>
+-- See <http://www.glfw.org/docs/3.2/group__monitor.html#gac3fe0f647f68b731f99756cd81897378 glfwSetMonitorCallback>
 setMonitorCallback :: Maybe MonitorCallback -> IO ()
 setMonitorCallback = setCallback
     mk'GLFWmonitorfun
@@ -470,7 +470,7 @@ setMonitorCallback = setCallback
     storedMonitorFun
 
 -- | Obtains the possible video modes of the monitor.
--- See <http://www.glfw.org/docs/latest/group__monitor.html#ga820b0ce9a5237d645ea7cbb4bd383458 glfwGetVideoModes>
+-- See <http://www.glfw.org/docs/3.2/group__monitor.html#ga820b0ce9a5237d645ea7cbb4bd383458 glfwGetVideoModes>
 getVideoModes :: Monitor -> IO (Maybe [VideoMode])
 getVideoModes mon =
     alloca $ \p'n -> do
@@ -481,7 +481,7 @@ getVideoModes mon =
           else (Just . map fromC) `fmap` peekArray n p'vms
 
 -- | Gets the active video mode of the monitor.
--- See <http://www.glfw.org/docs/latest/group__monitor.html#gafc1bb972a921ad5b3bd5d63a95fc2d52 glfwGetVideoMode>
+-- See <http://www.glfw.org/docs/3.2/group__monitor.html#gafc1bb972a921ad5b3bd5d63a95fc2d52 glfwGetVideoMode>
 getVideoMode :: Monitor -> IO (Maybe VideoMode)
 getVideoMode mon = do
     p'vm <- c'glfwGetVideoMode (toC mon)
@@ -490,13 +490,13 @@ getVideoMode mon = do
       else (Just . fromC) `fmap` peek p'vm
 
 -- | Sets the gamma of a monitor.
--- See <http://www.glfw.org/docs/latest/group__monitor.html#ga6ac582625c990220785ddd34efa3169a glfwSetGamma>
+-- See <http://www.glfw.org/docs/3.2/group__monitor.html#ga6ac582625c990220785ddd34efa3169a glfwSetGamma>
 setGamma :: Monitor -> Double -> IO ()
 setGamma mon e =
     c'glfwSetGamma (toC mon) (toC e)
 
 -- | Gets the gamma ramp in use with the monitor.
--- See <http://www.glfw.org/docs/latest/group__monitor.html#gab7c41deb2219bde3e1eb756ddaa9ec80 glfwGetGammaRamp>
+-- See <http://www.glfw.org/docs/3.2/group__monitor.html#gab7c41deb2219bde3e1eb756ddaa9ec80 glfwGetGammaRamp>
 getGammaRamp :: Monitor -> IO (Maybe GammaRamp)
 getGammaRamp m = do
     p'ggr <- c'glfwGetGammaRamp (toC m)
@@ -522,7 +522,7 @@ getGammaRamp m = do
                   }
 
 -- | Assigns a gamma ramp to use with the given monitor.
--- See <http://www.glfw.org/docs/latest/group__monitor.html#ga583f0ffd0d29613d8cd172b996bbf0dd glfwSetGammaRamp>
+-- See <http://www.glfw.org/docs/3.2/group__monitor.html#ga583f0ffd0d29613d8cd172b996bbf0dd glfwSetGammaRamp>
 setGammaRamp :: Monitor -> GammaRamp -> IO ()
 setGammaRamp mon gr =
     let rs = map toC $ gammaRampRed   gr :: [CUShort]
@@ -548,13 +548,13 @@ setGammaRamp mon gr =
 -- Window handling
 
 -- | Sets all the window hints to default.
--- See <http://www.glfw.org/docs/latest/group__window.html#gaa77c4898dfb83344a6b4f76aa16b9a4a glfwDefaultWindowHints>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gaa77c4898dfb83344a6b4f76aa16b9a4a glfwDefaultWindowHints>
 defaultWindowHints :: IO ()
 defaultWindowHints =
     c'glfwDefaultWindowHints
 
 -- | Hints something to the GLFW windowing system.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga7d9c8c62384b1e2821c4dc48952d2033 glfwWindowHint>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga7d9c8c62384b1e2821c4dc48952d2033 glfwWindowHint>
 windowHint :: WindowHint -> IO ()
 windowHint wh =
     let (t, v) = unpack
@@ -593,13 +593,13 @@ windowHint wh =
 -- | Creates a new window.
 -- Note: If running in GHCI don't forget to `:set -fno-ghci-sandbox` or you
 -- may run into an assertion failure, segfault or other nasty crash.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga5c336fddf2cbb5b92f65f10fb6043344 glfwCreateWindow>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga5c336fddf2cbb5b92f65f10fb6043344 glfwCreateWindow>
 createWindow :: Int -- ^ Desired width for the window.
              -> Int -- ^ Desired height for the window.
              -> String -- ^ Desired title for the window.
              -> Maybe Monitor -- ^ Monitor to use in fullscreen mode.
              -> Maybe Window  -- ^ Window for context object sharing, see
-                              -- <http://www.glfw.org/docs/latest/context.html#context_sharing here>.
+                              -- <http://www.glfw.org/docs/3.2/context.html#context_sharing here>.
              -> IO (Maybe Window)
 createWindow w h title mmon mwin =
     withCString title $ \ptitle -> do
@@ -646,7 +646,7 @@ createWindow w h title mmon mwin =
                   return $ Just $ fromC p'win
 
 -- | Cleans up a window and all associated resources
--- See <http://www.glfw.org/docs/latest/group__window.html#gacdf43e51376051d2c091662e9fe3d7b2 glfwDestroyWindow>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacdf43e51376051d2c091662e9fe3d7b2 glfwDestroyWindow>
 destroyWindow :: Window -> IO ()
 destroyWindow win = do
     pcb <- castPtrToStablePtr `liftM` c'glfwGetWindowUserPointer (toC win)
@@ -671,25 +671,25 @@ destroyWindow win = do
     freeStablePtr pcb
 
 -- | If the window should close or not.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga24e02fbfefbb81fc45320989f8140ab5 glfwWindowShouldClose>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga24e02fbfefbb81fc45320989f8140ab5 glfwWindowShouldClose>
 windowShouldClose :: Window -> IO Bool
 windowShouldClose win =
     fromC `fmap` c'glfwWindowShouldClose (toC win)
 
 -- | Sets if the window should close or not.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga49c449dde2a6f87d996f4daaa09d6708 glfwSetWindowShouldClose>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga49c449dde2a6f87d996f4daaa09d6708 glfwSetWindowShouldClose>
 setWindowShouldClose :: Window -> Bool -> IO ()
 setWindowShouldClose win b =
     c'glfwSetWindowShouldClose (toC win) (toC b)
 
 -- | Sets the Title string of the window.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga5d877f09e968cef7a360b513306f17ff glfwSetWindowTitle>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga5d877f09e968cef7a360b513306f17ff glfwSetWindowTitle>
 setWindowTitle :: Window -> String -> IO ()
 setWindowTitle win title =
     withCString title $ c'glfwSetWindowTitle (toC win)
 
 -- | Gets the window's position (in Screen Coordinates).
--- See <http://www.glfw.org/docs/latest/group__window.html#ga73cb526c000876fd8ddf571570fdb634 glfwGetWindowPos>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga73cb526c000876fd8ddf571570fdb634 glfwGetWindowPos>
 getWindowPos :: Window -> IO (Int, Int)
 getWindowPos win =
     allocaArray 2 $ \p -> do
@@ -701,13 +701,13 @@ getWindowPos win =
         return (x, y)
 
 -- | Sets the window's position (in Screen Coordinates).
--- See <http://www.glfw.org/docs/latest/group__window.html#ga1abb6d690e8c88e0c8cd1751356dbca8 glfwSetWindowPos>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga1abb6d690e8c88e0c8cd1751356dbca8 glfwSetWindowPos>
 setWindowPos :: Window -> Int -> Int -> IO ()
 setWindowPos win x y =
     c'glfwSetWindowPos (toC win) (toC x) (toC y)
 
 -- | Gets the size of the window (in Screen Coordinates).
--- See <http://www.glfw.org/docs/latest/group__window.html#gaeea7cbc03373a41fb51cfbf9f2a5d4c6 glfwGetWindowSize>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gaeea7cbc03373a41fb51cfbf9f2a5d4c6 glfwGetWindowSize>
 getWindowSize :: Window -> IO (Int, Int)
 getWindowSize win =
     allocaArray 2 $ \p -> do
@@ -721,7 +721,7 @@ getWindowSize win =
 -- | Gets the size of the frame around the window (in Screen Coordinates). This
 -- size includes the title bar, if the window has one. Not to be confused with
 -- 'getFramebufferSize', which gets the size of the rendering area.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga1a9fd382058c53101b21cf211898f1f1 glfwGetWindowFrameSize>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga1a9fd382058c53101b21cf211898f1f1 glfwGetWindowFrameSize>
 getWindowFrameSize :: Window -> IO (Int, Int, Int, Int)
 getWindowFrameSize win =
     allocaArray 4 $ \p -> do
@@ -737,13 +737,13 @@ getWindowFrameSize win =
         return (l, t, r, b)
 
 -- | Sets the size of the client area for the window (in Screen Coordinates).
--- See <http://www.glfw.org/docs/latest/group__window.html#ga371911f12c74c504dd8d47d832d095cb glfwSetWindowSize>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga371911f12c74c504dd8d47d832d095cb glfwSetWindowSize>
 setWindowSize :: Window -> Int -> Int -> IO ()
 setWindowSize win w h =
     c'glfwSetWindowSize (toC win) (toC w) (toC h)
 
 -- | The size of the framebuffer (in Pixels)
--- See <http://www.glfw.org/docs/latest/group__window.html#ga0e2637a4161afb283f5300c7f94785c9 glfwGetFramebufferSize>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga0e2637a4161afb283f5300c7f94785c9 glfwGetFramebufferSize>
 getFramebufferSize :: Window -> IO (Int, Int)
 getFramebufferSize win =
     allocaArray 2 $ \p -> do
@@ -755,31 +755,31 @@ getFramebufferSize win =
         return (w, h)
 
 -- | Iconifies (minimizes) the window.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga1bb559c0ebaad63c5c05ad2a066779c4 glfwIconifyWindow>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga1bb559c0ebaad63c5c05ad2a066779c4 glfwIconifyWindow>
 iconifyWindow :: Window -> IO ()
 iconifyWindow =
     c'glfwIconifyWindow . toC
 
 -- | Restores the window from an iconified/minimized state.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga52527a5904b47d802b6b4bb519cdebc7 glfwRestoreWindow>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga52527a5904b47d802b6b4bb519cdebc7 glfwRestoreWindow>
 restoreWindow :: Window -> IO ()
 restoreWindow =
     c'glfwRestoreWindow . toC
 
 -- | Shows the window.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga61be47917b72536a148300f46494fc66 glfwShowWindow>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga61be47917b72536a148300f46494fc66 glfwShowWindow>
 showWindow :: Window -> IO ()
 showWindow =
     c'glfwShowWindow . toC
 
 -- | Hides the window.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga49401f82a1ba5f15db5590728314d47c glfwHideWindow>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga49401f82a1ba5f15db5590728314d47c glfwHideWindow>
 hideWindow :: Window -> IO ()
 hideWindow =
     c'glfwHideWindow . toC
 
 -- | Gets the monitor that this window is running on.
--- See <http://www.glfw.org/docs/latest/group__window.html#gaeac25e64789974ccbe0811766bd91a16 glfwGetWindowMonitor>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gaeac25e64789974ccbe0811766bd91a16 glfwGetWindowMonitor>
 getWindowMonitor :: Window -> IO (Maybe Monitor)
 getWindowMonitor win = do
     p'mon <- c'glfwGetWindowMonitor (toC win)
@@ -788,7 +788,7 @@ getWindowMonitor win = do
       else Just $ fromC p'mon
 
 -- | Sets the position of the cursor within the window.
--- See <http://www.glfw.org/docs/latest/group__input.html#ga04b03af936d906ca123c8f4ee08b39e7 glfwSetCursorPos>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#ga04b03af936d906ca123c8f4ee08b39e7 glfwSetCursorPos>
 setCursorPos :: Window -> Double -> Double -> IO ()
 setCursorPos win x y =
     c'glfwSetCursorPos (toC win) (toC x) (toC y)
@@ -796,85 +796,85 @@ setCursorPos win x y =
 -- start of functions related to c'glfwGetWindowAttrib
 
 -- | If the window has focus or not.
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowFocused :: Window -> IO FocusState
 getWindowFocused win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_FOCUSED
 
 -- | If the window is iconified (minimized) or not.
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowIconified :: Window -> IO IconifyState
 getWindowIconified win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_ICONIFIED
 
 -- | If the window is resizable or not.
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowResizable :: Window -> IO Bool
 getWindowResizable win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_RESIZABLE
 
 -- | If the window is decorated or not.
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowDecorated :: Window -> IO Bool
 getWindowDecorated win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_DECORATED
 
 -- | If the window is visible or not.
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowVisible :: Window -> IO Bool
 getWindowVisible win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_VISIBLE
 
 -- | The client api for this window.
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowClientAPI :: Window -> IO ClientAPI
 getWindowClientAPI win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CLIENT_API
 
 -- | Returns the context creation API used to create the specified window.
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowContextCreationAPI :: Window -> IO ContextCreationAPI
 getWindowContextCreationAPI win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_CREATION_API
 
 -- | The context's "major" version, x.0.0
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowContextVersionMajor :: Window -> IO Int
 getWindowContextVersionMajor win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_VERSION_MAJOR
 
 -- | The context's "minor" version, 0.y.0
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowContextVersionMinor :: Window -> IO Int
 getWindowContextVersionMinor win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_VERSION_MINOR
 
 -- | The context's "revision" version, 0.0.z
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowContextVersionRevision :: Window -> IO Int
 getWindowContextVersionRevision win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_REVISION
 
 -- | The context robustness of this window.
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowContextRobustness :: Window -> IO ContextRobustness
 getWindowContextRobustness win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_ROBUSTNESS
 
 -- | If this window is set for opengl to be forward compatible.
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowOpenGLForwardCompat :: Window -> IO Bool
 getWindowOpenGLForwardCompat win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_OPENGL_FORWARD_COMPAT
 
 -- | If the window has an opengl debug context
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowOpenGLDebugContext :: Window -> IO Bool
 getWindowOpenGLDebugContext win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_OPENGL_DEBUG_CONTEXT
 
 -- | Obtains the current opengl profile.
--- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
 getWindowOpenGLProfile :: Window -> IO OpenGLProfile
 getWindowOpenGLProfile win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_OPENGL_PROFILE
@@ -882,7 +882,7 @@ getWindowOpenGLProfile win =
 -- end of functions related to c'glfwGetWindowAttrib
 
 -- | Sets the callback to use when the window position changes.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga2837d4d240659feb4268fcb6530a6ba1 glfwSetWindowPosCallback>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga2837d4d240659feb4268fcb6530a6ba1 glfwSetWindowPosCallback>
 setWindowPosCallback :: Window -> Maybe WindowPosCallback -> IO ()
 setWindowPosCallback win = setWindowCallback
     mk'GLFWwindowposfun
@@ -893,7 +893,7 @@ setWindowPosCallback win = setWindowCallback
     win
 
 -- | Sets the callback to use when the window's size changes.
--- See <http://www.glfw.org/docs/latest/group__window.html#gaa40cd24840daa8c62f36cafc847c72b6 glfwSetWindowSizeCallback>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gaa40cd24840daa8c62f36cafc847c72b6 glfwSetWindowSizeCallback>
 setWindowSizeCallback :: Window -> Maybe WindowSizeCallback -> IO ()
 setWindowSizeCallback win = setWindowCallback
     mk'GLFWwindowsizefun
@@ -904,7 +904,7 @@ setWindowSizeCallback win = setWindowCallback
     win
 
 -- | Sets the callback to use when the user attempts to close the window.
--- See <http://www.glfw.org/docs/latest/group__window.html#gaade9264e79fae52bdb78e2df11ee8d6a glfwSetWindowCloseCallback>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gaade9264e79fae52bdb78e2df11ee8d6a glfwSetWindowCloseCallback>
 setWindowCloseCallback :: Window -> Maybe WindowCloseCallback -> IO ()
 setWindowCloseCallback win = setWindowCallback
     mk'GLFWwindowclosefun
@@ -914,7 +914,7 @@ setWindowCloseCallback win = setWindowCallback
     win
 
 -- | Sets the callback to use when the window's data is partly dead and it should refresh.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga4569b76e8ac87c55b53199e6becd97eb glfwSetWindowRefreshCallback>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga4569b76e8ac87c55b53199e6becd97eb glfwSetWindowRefreshCallback>
 setWindowRefreshCallback :: Window -> Maybe WindowRefreshCallback -> IO ()
 setWindowRefreshCallback win = setWindowCallback
     mk'GLFWwindowrefreshfun
@@ -924,7 +924,7 @@ setWindowRefreshCallback win = setWindowCallback
     win
 
 -- | Sets the callback to use when the window gains or loses focus.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga25d1c584edb375d7711c5c3548ba711f glfwSetWindowFocusCallback>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga25d1c584edb375d7711c5c3548ba711f glfwSetWindowFocusCallback>
 setWindowFocusCallback :: Window -> Maybe WindowFocusCallback -> IO ()
 setWindowFocusCallback win = setWindowCallback
     mk'GLFWwindowfocusfun
@@ -934,7 +934,7 @@ setWindowFocusCallback win = setWindowCallback
     win
 
 -- | Sets the callback to use when the window is iconified or not (aka, minimized or not).
--- See <http://www.glfw.org/docs/latest/group__window.html#gab1ea7263081c0e073b8d5b91d6ffd367 glfwSetWindowIconifyCallback>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gab1ea7263081c0e073b8d5b91d6ffd367 glfwSetWindowIconifyCallback>
 setWindowIconifyCallback :: Window -> Maybe WindowIconifyCallback -> IO ()
 setWindowIconifyCallback win = setWindowCallback
     mk'GLFWwindowiconifyfun
@@ -944,7 +944,7 @@ setWindowIconifyCallback win = setWindowCallback
     win
 
 -- | Sets the callback to use when the framebuffer's size changes.
--- See <http://www.glfw.org/docs/latest/group__window.html#ga3203461a5303bf289f2e05f854b2f7cf glfwSetFramebufferSizeCallback>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga3203461a5303bf289f2e05f854b2f7cf glfwSetFramebufferSizeCallback>
 setFramebufferSizeCallback :: Window -> Maybe FramebufferSizeCallback -> IO ()
 setFramebufferSizeCallback win = setWindowCallback
     mk'GLFWframebuffersizefun
@@ -1149,7 +1149,7 @@ getJoystickName js = do
       else Just `fmap` peekCString p'name
 
 -- | Sets a callback for when a joystick is connected or disconnected.
--- See <http://www.glfw.org/docs/latest/group__input.html#gab1dc8379f1b82bb660a6b9c9fa06ca07 glfwSetJoystickCallback>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gab1dc8379f1b82bb660a6b9c9fa06ca07 glfwSetJoystickCallback>
 setJoystickCallback :: Maybe JoystickCallback -> IO ()
 setJoystickCallback = setCallback
     mk'GLFWjoystickfun
@@ -1241,7 +1241,7 @@ getClipboardString win = do
       else Just `fmap` peekCString p's
 
 --------------------------------------------------------------------------------
--- 3.1 additions (http://www.glfw.org/docs/latest/news.html#news_31)
+-- 3.1 additions (http://www.glfw.org/docs/3.1/news.html#news_31)
 --------------------------------------------------------------------------------
 
 -- Cursor Objects

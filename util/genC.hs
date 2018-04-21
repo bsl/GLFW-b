@@ -208,14 +208,6 @@ cInfos =
         [ ( "c'GLFW_CONNECTED",  "MonitorState'Connected"    )
         , ( "c'GLFW_DISCONNECTED", "MonitorState'Disconnected" )
         ]
-    , CInfo "CInt" "FocusState"
-        [ ( "c'GLFW_TRUE",  "FocusState'Focused"   )
-        , ( "c'GLFW_FALSE", "FocusState'Defocused" )
-        ]
-    , CInfo "CInt" "IconifyState"
-        [ ( "c'GLFW_TRUE",  "IconifyState'Iconified"    )
-        , ( "c'GLFW_FALSE", "IconifyState'NotIconified" )
-        ]
     , CInfo "CInt" "ContextRobustness"
         [ ( "c'GLFW_NO_ROBUSTNESS",         "ContextRobustness'NoRobustness"        )
         , ( "c'GLFW_NO_RESET_NOTIFICATION", "ContextRobustness'NoResetNotification" )

@@ -168,22 +168,6 @@ data WindowHint =
 
 instance NFData WindowHint
 
--- | For use with the focus callback.
-data FocusState =
-    FocusState'Focused
-  | FocusState'Defocused
-  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
-
-instance NFData FocusState
-
--- | For use with the iconify callback. (note: iconified means minimized)
-data IconifyState =
-    IconifyState'Iconified
-  | IconifyState'NotIconified
-  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
-
-instance NFData IconifyState
-
 -- | The OpenGL robustness strategy.
 data ContextRobustness =
     ContextRobustness'NoRobustness

@@ -52,8 +52,6 @@ module Graphics.UI.GLFW
     -- * Window handling
   , Window
   , WindowHint        (..)
-  , FocusState        (..)
-  , IconifyState      (..)
   , ContextRobustness (..)
   , OpenGLProfile     (..)
   , ClientAPI         (..)
@@ -262,9 +260,9 @@ type WindowCloseCallback     = Window                                           
 -- | Fires when the contents of the window are damaged and they must be refreshed.
 type WindowRefreshCallback   = Window                                                    -> IO ()
 -- | Fires when the window gains or loses input focus.
-type WindowFocusCallback     = Window -> FocusState                                      -> IO ()
+type WindowFocusCallback     = Window -> Bool                                            -> IO ()
 -- | Fires when the window is iconified (minimized) or not.
-type WindowIconifyCallback   = Window -> IconifyState                                    -> IO ()
+type WindowIconifyCallback   = Window -> Bool                                            -> IO ()
 -- | Fires when the size of the framebuffer for the window changes (in Pixels).
 type FramebufferSizeCallback = Window -> Int -> Int                                      -> IO ()
 -- | Fires whenever a mouse button is clicked.
@@ -800,7 +798,7 @@ setCursorPos win x y =
 
 -- | If the window has focus or not.
 -- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
-getWindowFocused :: Window -> IO FocusState
+getWindowFocused :: Window -> IO Bool
 getWindowFocused win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_FOCUSED
 
@@ -812,7 +810,7 @@ getWindowFloating win =
 
 -- | If the window is iconified (minimized) or not.
 -- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
-getWindowIconified :: Window -> IO IconifyState
+getWindowIconified :: Window -> IO Bool
 getWindowIconified win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_ICONIFIED
 

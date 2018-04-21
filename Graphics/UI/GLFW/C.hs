@@ -138,22 +138,6 @@ instance C CInt MonitorState where
   toC MonitorState'Connected = c'GLFW_CONNECTED
   toC MonitorState'Disconnected = c'GLFW_DISCONNECTED
 
-instance C CInt FocusState where
-  fromC v
-    | v == c'GLFW_TRUE = FocusState'Focused
-    | v == c'GLFW_FALSE = FocusState'Defocused
-    | otherwise = error $ "C CInt FocusState fromC: " ++ show v
-  toC FocusState'Focused = c'GLFW_TRUE
-  toC FocusState'Defocused = c'GLFW_FALSE
-
-instance C CInt IconifyState where
-  fromC v
-    | v == c'GLFW_TRUE = IconifyState'Iconified
-    | v == c'GLFW_FALSE = IconifyState'NotIconified
-    | otherwise = error $ "C CInt IconifyState fromC: " ++ show v
-  toC IconifyState'Iconified = c'GLFW_TRUE
-  toC IconifyState'NotIconified = c'GLFW_FALSE
-
 instance C CInt ContextRobustness where
   fromC v
     | v == c'GLFW_NO_ROBUSTNESS = ContextRobustness'NoRobustness

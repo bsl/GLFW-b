@@ -568,6 +568,7 @@ windowHint wh =
       (WindowHint'AuxBuffers          x) -> (c'GLFW_AUX_BUFFERS,           toC x)
       (WindowHint'Samples             x) -> (c'GLFW_SAMPLES,               toC x)
       (WindowHint'RefreshRate         x) -> (c'GLFW_REFRESH_RATE,          toC x)
+      (WindowHint'DoubleBuffer        x) -> (c'GLFW_DOUBLEBUFFER,          toC x)
       (WindowHint'Stereo              x) -> (c'GLFW_STEREO,                toC x)
       (WindowHint'sRGBCapable         x) -> (c'GLFW_SRGB_CAPABLE,          toC x)
       (WindowHint'ClientAPI           x) -> (c'GLFW_CLIENT_API,            toC x)

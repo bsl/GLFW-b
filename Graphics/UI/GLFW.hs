@@ -79,6 +79,7 @@ module Graphics.UI.GLFW
   , setCursorPos
     -- related to c'glfwGetWindowAttrib --.
   , getWindowFocused                   -- |
+  , getWindowFloating                  -- |
   , getWindowIconified                 -- |
   , getWindowResizable                 -- |
   , getWindowDecorated                 -- |
@@ -580,6 +581,7 @@ windowHint wh =
       (WindowHint'DoubleBuffer        x) -> (c'GLFW_DOUBLEBUFFER,          toC x)
       (WindowHint'Stereo              x) -> (c'GLFW_STEREO,                toC x)
       (WindowHint'sRGBCapable         x) -> (c'GLFW_SRGB_CAPABLE,          toC x)
+      (WindowHint'Floating            x) -> (c'GLFW_FLOATING,              toC x)
       (WindowHint'ClientAPI           x) -> (c'GLFW_CLIENT_API,            toC x)
       (WindowHint'ContextCreationAPI  x) -> (c'GLFW_CONTEXT_CREATION_API,  toC x)
       (WindowHint'ContextVersionMajor x) -> (c'GLFW_CONTEXT_VERSION_MAJOR, toC x)
@@ -800,6 +802,12 @@ setCursorPos win x y =
 getWindowFocused :: Window -> IO FocusState
 getWindowFocused win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_FOCUSED
+
+-- | If the window has been set to be 'always on top' or not.
+-- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+getWindowFloating :: Window -> IO Bool
+getWindowFloating win =
+    fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_FLOATING
 
 -- | If the window is iconified (minimized) or not.
 -- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>

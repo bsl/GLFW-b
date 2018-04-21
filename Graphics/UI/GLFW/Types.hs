@@ -153,6 +153,7 @@ data WindowHint =
   | WindowHint'DoubleBuffer        Bool
   | WindowHint'Stereo              Bool
   | WindowHint'sRGBCapable         Bool
+  | WindowHint'Floating            Bool
   | WindowHint'ClientAPI           ClientAPI
   | WindowHint'ContextCreationAPI  ContextCreationAPI
   | WindowHint'ContextVersionMajor Int

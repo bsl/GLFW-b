@@ -158,6 +158,7 @@ data WindowHint =
   | WindowHint'ContextVersionMajor Int
   | WindowHint'ContextVersionMinor Int
   | WindowHint'ContextRobustness   ContextRobustness
+  | WindowHint'ContextNoError      Bool
   | WindowHint'OpenGLForwardCompat Bool
   | WindowHint'OpenGLDebugContext  Bool
   | WindowHint'OpenGLProfile       OpenGLProfile

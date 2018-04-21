@@ -84,6 +84,7 @@ module Graphics.UI.GLFW
   , getWindowDecorated                 -- |
   , getWindowVisible                   -- |
   , getWindowClientAPI                 -- |
+  , getWindowContextCreationAPI        -- |
   , getWindowContextVersionMajor       -- |
   , getWindowContextVersionMinor       -- |
   , getWindowContextVersionRevision    -- |
@@ -580,6 +581,7 @@ windowHint wh =
       (WindowHint'Stereo              x) -> (c'GLFW_STEREO,                toC x)
       (WindowHint'sRGBCapable         x) -> (c'GLFW_SRGB_CAPABLE,          toC x)
       (WindowHint'ClientAPI           x) -> (c'GLFW_CLIENT_API,            toC x)
+      (WindowHint'ContextCreationAPI  x) -> (c'GLFW_CONTEXT_CREATION_API,  toC x)
       (WindowHint'ContextVersionMajor x) -> (c'GLFW_CONTEXT_VERSION_MAJOR, toC x)
       (WindowHint'ContextVersionMinor x) -> (c'GLFW_CONTEXT_VERSION_MINOR, toC x)
       (WindowHint'ContextRobustness   x) -> (c'GLFW_CONTEXT_ROBUSTNESS,    toC x)
@@ -827,6 +829,12 @@ getWindowVisible win =
 getWindowClientAPI :: Window -> IO ClientAPI
 getWindowClientAPI win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CLIENT_API
+
+-- | Returns the context creation API used to create the specified window.
+-- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+getWindowContextCreationAPI :: Window -> IO ContextCreationAPI
+getWindowContextCreationAPI win =
+    fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_CREATION_API
 
 -- | The context's "major" version, x.0.0
 -- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>

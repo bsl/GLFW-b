@@ -184,6 +184,14 @@ instance C CInt ClientAPI where
   toC ClientAPI'OpenGL = c'GLFW_OPENGL_API
   toC ClientAPI'OpenGLES = c'GLFW_OPENGL_ES_API
 
+instance C CInt ContextCreationAPI where
+  fromC v
+    | v == c'GLFW_NATIVE_CONTEXT_API = ContextCreationAPI'Native
+    | v == c'GLFW_EGL_CONTEXT_API = ContextCreationAPI'EGL
+    | otherwise = error $ "C CInt ContextCreationAPI fromC: " ++ show v
+  toC ContextCreationAPI'Native = c'GLFW_NATIVE_CONTEXT_API
+  toC ContextCreationAPI'EGL = c'GLFW_EGL_CONTEXT_API
+
 instance C CInt Key where
   fromC v
     | v == c'GLFW_KEY_UNKNOWN = Key'Unknown

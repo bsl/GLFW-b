@@ -154,6 +154,7 @@ data WindowHint =
   | WindowHint'Stereo              Bool
   | WindowHint'sRGBCapable         Bool
   | WindowHint'ClientAPI           ClientAPI
+  | WindowHint'ContextCreationAPI  ContextCreationAPI
   | WindowHint'ContextVersionMajor Int
   | WindowHint'ContextVersionMinor Int
   | WindowHint'ContextRobustness   ContextRobustness
@@ -206,6 +207,21 @@ data ClientAPI =
   deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData ClientAPI
+
+-- | The type of API to use for context creation.
+-- See the <http://www.glfw.org/docs/latest/window_guide.html Window Guide> for
+-- more information.
+--
+-- This is a hard constraint. If no client API is requested, this hint is
+-- ignored. Best practice is to stick to one API or the other, otherwise may
+-- segfault on Linux. OS X does not support the EGL API and will fail if this
+-- hint is used.
+data ContextCreationAPI
+  = ContextCreationAPI'Native
+  | ContextCreationAPI'EGL
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData ContextCreationAPI
 
 --------------------------------------------------------------------------------
 -- Input handling

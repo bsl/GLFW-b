@@ -231,6 +231,10 @@ cInfos =
         , ( "c'GLFW_OPENGL_API",    "ClientAPI'OpenGL"   )
         , ( "c'GLFW_OPENGL_ES_API", "ClientAPI'OpenGLES" )
         ]
+    , CInfo "CInt" "ContextCreationAPI"
+        [ ( "c'GLFW_NATIVE_CONTEXT_API",  "ContextCreationAPI'Native" )
+        , ( "c'GLFW_EGL_CONTEXT_API",     "ContextCreationAPI'EGL"    )
+        ]
     , CInfo "CInt" "Key"
        [ ( "c'GLFW_KEY_UNKNOWN",       "Key'Unknown"      )
        , ( "c'GLFW_KEY_SPACE",         "Key'Space"        )

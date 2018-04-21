@@ -69,6 +69,7 @@ module Graphics.UI.GLFW
   , setWindowPos
   , getWindowSize
   , setWindowSize
+  , getWindowFrameSize
   , getFramebufferSize
   , iconifyWindow
   , restoreWindow
@@ -143,6 +144,7 @@ module Graphics.UI.GLFW
   , getJoystickAxes
   , getJoystickButtons
   , getJoystickName
+  , setJoystickCallback,    JoystickCallback
 
     -- * Time
   , getTime
@@ -196,15 +198,18 @@ import Bindings.GLFW
 
 storedErrorFun           :: IORef C'GLFWerrorfun
 storedMonitorFun         :: IORef C'GLFWmonitorfun
+storedJoystickFun        :: IORef C'GLFWjoystickfun
 
 storedErrorFun           = unsafePerformIO $ newIORef nullFunPtr
 storedMonitorFun         = unsafePerformIO $ newIORef nullFunPtr
+storedJoystickFun        = unsafePerformIO $ newIORef nullFunPtr
 
 -- These NOINLINE pragmas are due to use of unsafePerformIO.
 -- See http://hackage.haskell.org/packages/archive/base/latest/doc/html/System-IO-Unsafe.html#v:unsafePerformIO .
 
 {-# NOINLINE storedErrorFun           #-}
 {-# NOINLINE storedMonitorFun         #-}
+{-# NOINLINE storedJoystickFun         #-}
 
 setWindowCallback
   :: (c -> IO (FunPtr c))                    -- wf   wrapper function
@@ -274,6 +279,8 @@ type KeyCallback             = Window -> Key -> Int -> KeyState -> ModifierKeys 
 type CharCallback            = Window -> Char                                            -> IO ()
 -- | Fires when a monitor is connected or disconnected.
 type MonitorCallback         = Monitor -> MonitorState                                   -> IO ()
+-- | Fires when a joystick is connected or disconnected.
+type JoystickCallback        = Joystick -> JoystickState                                 -> IO ()
 
 -- 3.1 additions
 
@@ -368,6 +375,7 @@ terminate = do
     -- Free all stored FunPtrs.
     storeCallback storedErrorFun           nullFunPtr
     storeCallback storedMonitorFun         nullFunPtr
+    storeCallback storedJoystickFun         nullFunPtr
 
 -- | Gets the version of the GLFW library that's being used with the current program.
 -- See <http://www.glfw.org/docs/3.1/group__init.html#ga9f8ffaacf3c269cc48eafbf8b9b71197 glfwGetVersion>
@@ -706,6 +714,24 @@ getWindowSize win =
         w <- fromC `fmap` peek p'w
         h <- fromC `fmap` peek p'h
         return (w, h)
+
+-- | Gets the size of the frame around the window (in Screen Coordinates). This
+-- size includes the title bar, if the window has one. Not to be confused with
+-- 'getFramebufferSize', which gets the size of the rendering area.
+-- See <http://www.glfw.org/docs/latest/group__window.html#ga1a9fd382058c53101b21cf211898f1f1 glfwGetWindowFrameSize>
+getWindowFrameSize :: Window -> IO (Int, Int, Int, Int)
+getWindowFrameSize win =
+    allocaArray 4 $ \p -> do
+        let p'l = p
+            p't = p `advancePtr` 1
+            p'r = p `advancePtr` 2
+            p'b = p `advancePtr` 3
+        c'glfwGetWindowFrameSize (toC win) p'l p't p'r p'b
+        l <- fromC `fmap` peek p'l
+        t <- fromC `fmap` peek p't
+        r <- fromC `fmap` peek p'r
+        b <- fromC `fmap` peek p'b
+        return (l, t, r, b)
 
 -- | Sets the size of the client area for the window (in Screen Coordinates).
 -- See <http://www.glfw.org/docs/latest/group__window.html#ga371911f12c74c504dd8d47d832d095cb glfwSetWindowSize>
@@ -1112,6 +1138,15 @@ getJoystickName js = do
     if p'name == nullPtr
       then return Nothing
       else Just `fmap` peekCString p'name
+
+-- | Sets a callback for when a joystick is connected or disconnected.
+-- See <http://www.glfw.org/docs/latest/group__input.html#gab1dc8379f1b82bb660a6b9c9fa06ca07 glfwSetJoystickCallback>
+setJoystickCallback :: Maybe JoystickCallback -> IO ()
+setJoystickCallback = setCallback
+    mk'GLFWjoystickfun
+    (\cb a0 a1 -> schedule $ cb (fromC a0) (fromC a1))
+    c'glfwSetJoystickCallback
+    storedJoystickFun
 
 --------------------------------------------------------------------------------
 -- Time

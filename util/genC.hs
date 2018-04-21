@@ -205,8 +205,8 @@ cInfos =
         , ( "c'GLFW_FORMAT_UNAVAILABLE",  "Error'FormatUnavailable"  )
         ]
     , CInfo "CInt" "MonitorState"
-        [ ( "c'GLFW_TRUE",  "MonitorState'Connected"    )
-        , ( "c'GLFW_FALSE", "MonitorState'Disconnected" )
+        [ ( "c'GLFW_CONNECTED",  "MonitorState'Connected"    )
+        , ( "c'GLFW_DISCONNECTED", "MonitorState'Disconnected" )
         ]
     , CInfo "CInt" "FocusState"
         [ ( "c'GLFW_TRUE",  "FocusState'Focused"   )
@@ -380,6 +380,10 @@ cInfos =
     , CInfo "CUChar" "JoystickButtonState"
         [ ( "c'GLFW_PRESS",   "JoystickButtonState'Pressed"  )
         , ( "c'GLFW_RELEASE", "JoystickButtonState'Released" )
+        ]
+    , CInfo "CInt" "JoystickState"
+        [ ( "c'GLFW_CONNECTED",   "JoystickState'Connected"  )
+        , ( "c'GLFW_DISCONNECTED", "JoystickState'Disconnected" )
         ]
     , CInfo "CInt" "MouseButton"
         [ ( "c'GLFW_MOUSE_BUTTON_1", "MouseButton'1" )

@@ -88,6 +88,7 @@ module Graphics.UI.GLFW
   , getWindowContextVersionMinor       -- |
   , getWindowContextVersionRevision    -- |
   , getWindowContextRobustness         -- |
+  , getWindowContextReleaseBehavior    -- |
   , getWindowContextNoError            -- |
   , getWindowOpenGLForwardCompat       -- |
   , getWindowOpenGLDebugContext        -- |
@@ -561,36 +562,37 @@ windowHint wh =
     in c'glfwWindowHint t v
   where
     unpack = case wh of
-      (WindowHint'Resizable           x) -> (c'GLFW_RESIZABLE,             toC x)
-      (WindowHint'Visible             x) -> (c'GLFW_VISIBLE,               toC x)
-      (WindowHint'Decorated           x) -> (c'GLFW_DECORATED,             toC x)
-      (WindowHint'RedBits             x) -> (c'GLFW_RED_BITS,              toC x)
-      (WindowHint'GreenBits           x) -> (c'GLFW_GREEN_BITS,            toC x)
-      (WindowHint'BlueBits            x) -> (c'GLFW_BLUE_BITS,             toC x)
-      (WindowHint'AlphaBits           x) -> (c'GLFW_ALPHA_BITS,            toC x)
-      (WindowHint'DepthBits           x) -> (c'GLFW_DEPTH_BITS,            toC x)
-      (WindowHint'StencilBits         x) -> (c'GLFW_STENCIL_BITS,          toC x)
-      (WindowHint'AccumRedBits        x) -> (c'GLFW_ACCUM_RED_BITS,        toC x)
-      (WindowHint'AccumGreenBits      x) -> (c'GLFW_ACCUM_GREEN_BITS,      toC x)
-      (WindowHint'AccumBlueBits       x) -> (c'GLFW_ACCUM_BLUE_BITS,       toC x)
-      (WindowHint'AccumAlphaBits      x) -> (c'GLFW_ACCUM_ALPHA_BITS,      toC x)
-      (WindowHint'AuxBuffers          x) -> (c'GLFW_AUX_BUFFERS,           toC x)
-      (WindowHint'Samples             x) -> (c'GLFW_SAMPLES,               toC x)
-      (WindowHint'RefreshRate         x) -> (c'GLFW_REFRESH_RATE,          toC x)
-      (WindowHint'DoubleBuffer        x) -> (c'GLFW_DOUBLEBUFFER,          toC x)
-      (WindowHint'Stereo              x) -> (c'GLFW_STEREO,                toC x)
-      (WindowHint'sRGBCapable         x) -> (c'GLFW_SRGB_CAPABLE,          toC x)
-      (WindowHint'Floating            x) -> (c'GLFW_FLOATING,              toC x)
-      (WindowHint'Focused             x) -> (c'GLFW_FOCUSED,               toC x)
-      (WindowHint'ClientAPI           x) -> (c'GLFW_CLIENT_API,            toC x)
-      (WindowHint'ContextCreationAPI  x) -> (c'GLFW_CONTEXT_CREATION_API,  toC x)
-      (WindowHint'ContextVersionMajor x) -> (c'GLFW_CONTEXT_VERSION_MAJOR, toC x)
-      (WindowHint'ContextVersionMinor x) -> (c'GLFW_CONTEXT_VERSION_MINOR, toC x)
-      (WindowHint'ContextRobustness   x) -> (c'GLFW_CONTEXT_ROBUSTNESS,    toC x)
-      (WindowHint'ContextNoError      x) -> (c'GLFW_CONTEXT_NO_ERROR,      toC x)
-      (WindowHint'OpenGLForwardCompat x) -> (c'GLFW_OPENGL_FORWARD_COMPAT, toC x)
-      (WindowHint'OpenGLDebugContext  x) -> (c'GLFW_OPENGL_DEBUG_CONTEXT,  toC x)
-      (WindowHint'OpenGLProfile       x) -> (c'GLFW_OPENGL_PROFILE,        toC x)
+      (WindowHint'Resizable              x) -> (c'GLFW_RESIZABLE,                toC x)
+      (WindowHint'Visible                x) -> (c'GLFW_VISIBLE,                  toC x)
+      (WindowHint'Decorated              x) -> (c'GLFW_DECORATED,                toC x)
+      (WindowHint'RedBits                x) -> (c'GLFW_RED_BITS,                 toC x)
+      (WindowHint'GreenBits              x) -> (c'GLFW_GREEN_BITS,               toC x)
+      (WindowHint'BlueBits               x) -> (c'GLFW_BLUE_BITS,                toC x)
+      (WindowHint'AlphaBits              x) -> (c'GLFW_ALPHA_BITS,               toC x)
+      (WindowHint'DepthBits              x) -> (c'GLFW_DEPTH_BITS,               toC x)
+      (WindowHint'StencilBits            x) -> (c'GLFW_STENCIL_BITS,             toC x)
+      (WindowHint'AccumRedBits           x) -> (c'GLFW_ACCUM_RED_BITS,           toC x)
+      (WindowHint'AccumGreenBits         x) -> (c'GLFW_ACCUM_GREEN_BITS,         toC x)
+      (WindowHint'AccumBlueBits          x) -> (c'GLFW_ACCUM_BLUE_BITS,          toC x)
+      (WindowHint'AccumAlphaBits         x) -> (c'GLFW_ACCUM_ALPHA_BITS,         toC x)
+      (WindowHint'AuxBuffers             x) -> (c'GLFW_AUX_BUFFERS,              toC x)
+      (WindowHint'Samples                x) -> (c'GLFW_SAMPLES,                  toC x)
+      (WindowHint'RefreshRate            x) -> (c'GLFW_REFRESH_RATE,             toC x)
+      (WindowHint'DoubleBuffer           x) -> (c'GLFW_DOUBLEBUFFER,             toC x)
+      (WindowHint'Stereo                 x) -> (c'GLFW_STEREO,                   toC x)
+      (WindowHint'sRGBCapable            x) -> (c'GLFW_SRGB_CAPABLE,             toC x)
+      (WindowHint'Floating               x) -> (c'GLFW_FLOATING,                 toC x)
+      (WindowHint'Focused                x) -> (c'GLFW_FOCUSED,                  toC x)
+      (WindowHint'ClientAPI              x) -> (c'GLFW_CLIENT_API,               toC x)
+      (WindowHint'ContextCreationAPI     x) -> (c'GLFW_CONTEXT_CREATION_API,     toC x)
+      (WindowHint'ContextVersionMajor    x) -> (c'GLFW_CONTEXT_VERSION_MAJOR,    toC x)
+      (WindowHint'ContextVersionMinor    x) -> (c'GLFW_CONTEXT_VERSION_MINOR,    toC x)
+      (WindowHint'ContextRobustness      x) -> (c'GLFW_CONTEXT_ROBUSTNESS,       toC x)
+      (WindowHint'ContextReleaseBehavior x) -> (c'GLFW_CONTEXT_RELEASE_BEHAVIOR, toC x)
+      (WindowHint'ContextNoError         x) -> (c'GLFW_CONTEXT_NO_ERROR,         toC x)
+      (WindowHint'OpenGLForwardCompat    x) -> (c'GLFW_OPENGL_FORWARD_COMPAT,    toC x)
+      (WindowHint'OpenGLDebugContext     x) -> (c'GLFW_OPENGL_DEBUG_CONTEXT,     toC x)
+      (WindowHint'OpenGLProfile          x) -> (c'GLFW_OPENGL_PROFILE,           toC x)
 
 -- | Creates a new window.
 -- Note: If running in GHCI don't forget to `:set -fno-ghci-sandbox` or you
@@ -868,6 +870,12 @@ getWindowContextVersionRevision win =
 getWindowContextRobustness :: Window -> IO ContextRobustness
 getWindowContextRobustness win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_ROBUSTNESS
+
+-- | Returns the context release behavior.
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+getWindowContextReleaseBehavior :: Window -> IO ContextReleaseBehavior
+getWindowContextReleaseBehavior win =
+    fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_CONTEXT_RELEASE_BEHAVIOR
 
 -- | Returns true if the window is set to NO_ERROR (see the
 -- <https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_no_error.txt KHR_no_error>

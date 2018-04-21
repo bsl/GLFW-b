@@ -148,6 +148,16 @@ instance C CInt ContextRobustness where
   toC ContextRobustness'NoResetNotification = c'GLFW_NO_RESET_NOTIFICATION
   toC ContextRobustness'LoseContextOnReset = c'GLFW_LOSE_CONTEXT_ON_RESET
 
+instance C CInt ContextReleaseBehavior where
+  fromC v
+    | v == c'GLFW_ANY_RELEASE_BEHAVIOR = ContextReleaseBehavior'Any
+    | v == c'GLFW_RELEASE_BEHAVIOR_NONE = ContextReleaseBehavior'None
+    | v == c'GLFW_RELEASE_BEHAVIOR_FLUSH = ContextReleaseBehavior'Flush
+    | otherwise = error $ "C CInt ContextReleaseBehavior fromC: " ++ show v
+  toC ContextReleaseBehavior'Any = c'GLFW_ANY_RELEASE_BEHAVIOR
+  toC ContextReleaseBehavior'None = c'GLFW_RELEASE_BEHAVIOR_NONE
+  toC ContextReleaseBehavior'Flush = c'GLFW_RELEASE_BEHAVIOR_FLUSH
+
 instance C CInt OpenGLProfile where
   fromC v
     | v == c'GLFW_OPENGL_ANY_PROFILE = OpenGLProfile'Any

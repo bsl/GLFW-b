@@ -213,6 +213,11 @@ cInfos =
         , ( "c'GLFW_NO_RESET_NOTIFICATION", "ContextRobustness'NoResetNotification" )
         , ( "c'GLFW_LOSE_CONTEXT_ON_RESET", "ContextRobustness'LoseContextOnReset"  )
         ]
+    , CInfo "CInt" "ContextReleaseBehavior"
+        [ ( "c'GLFW_ANY_RELEASE_BEHAVIOR",   "ContextReleaseBehavior'Any"    )
+        , ( "c'GLFW_RELEASE_BEHAVIOR_NONE",  "ContextReleaseBehavior'None"   )
+        , ( "c'GLFW_RELEASE_BEHAVIOR_FLUSH", "ContextReleaseBehavior'Flush"  )
+        ]
     , CInfo "CInt" "OpenGLProfile"
         [ ( "c'GLFW_OPENGL_ANY_PROFILE",    "OpenGLProfile'Any"    )
         , ( "c'GLFW_OPENGL_COMPAT_PROFILE", "OpenGLProfile'Compat" )

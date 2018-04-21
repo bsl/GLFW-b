@@ -134,36 +134,37 @@ newtype Window = Window
 -- See <http://www.glfw.org/docs/3.2/window.html#window_hints Window Hints>,
 -- particularly <http://www.glfw.org/docs/3.2/window.html#window_hints_values Supported and Default Values>.
 data WindowHint =
-    WindowHint'Resizable           Bool
-  | WindowHint'Visible             Bool
-  | WindowHint'Decorated           Bool
-  | WindowHint'RedBits             Int
-  | WindowHint'GreenBits           Int
-  | WindowHint'BlueBits            Int
-  | WindowHint'AlphaBits           Int
-  | WindowHint'DepthBits           Int
-  | WindowHint'StencilBits         Int
-  | WindowHint'AccumRedBits        Int
-  | WindowHint'AccumGreenBits      Int
-  | WindowHint'AccumBlueBits       Int
-  | WindowHint'AccumAlphaBits      Int
-  | WindowHint'AuxBuffers          Int
-  | WindowHint'Samples             Int
-  | WindowHint'RefreshRate         Int
-  | WindowHint'DoubleBuffer        Bool
-  | WindowHint'Stereo              Bool
-  | WindowHint'sRGBCapable         Bool
-  | WindowHint'Floating            Bool
-  | WindowHint'Focused             Bool
-  | WindowHint'ClientAPI           ClientAPI
-  | WindowHint'ContextCreationAPI  ContextCreationAPI
-  | WindowHint'ContextVersionMajor Int
-  | WindowHint'ContextVersionMinor Int
-  | WindowHint'ContextRobustness   ContextRobustness
-  | WindowHint'ContextNoError      Bool
-  | WindowHint'OpenGLForwardCompat Bool
-  | WindowHint'OpenGLDebugContext  Bool
-  | WindowHint'OpenGLProfile       OpenGLProfile
+    WindowHint'Resizable              Bool
+  | WindowHint'Visible                Bool
+  | WindowHint'Decorated              Bool
+  | WindowHint'RedBits                Int
+  | WindowHint'GreenBits              Int
+  | WindowHint'BlueBits               Int
+  | WindowHint'AlphaBits              Int
+  | WindowHint'DepthBits              Int
+  | WindowHint'StencilBits            Int
+  | WindowHint'AccumRedBits           Int
+  | WindowHint'AccumGreenBits         Int
+  | WindowHint'AccumBlueBits          Int
+  | WindowHint'AccumAlphaBits         Int
+  | WindowHint'AuxBuffers             Int
+  | WindowHint'Samples                Int
+  | WindowHint'RefreshRate            Int
+  | WindowHint'DoubleBuffer           Bool
+  | WindowHint'Stereo                 Bool
+  | WindowHint'sRGBCapable            Bool
+  | WindowHint'Floating               Bool
+  | WindowHint'Focused                Bool
+  | WindowHint'ClientAPI              ClientAPI
+  | WindowHint'ContextCreationAPI     ContextCreationAPI
+  | WindowHint'ContextVersionMajor    Int
+  | WindowHint'ContextVersionMinor    Int
+  | WindowHint'ContextRobustness      ContextRobustness
+  | WindowHint'ContextReleaseBehavior ContextReleaseBehavior
+  | WindowHint'ContextNoError         Bool
+  | WindowHint'OpenGLForwardCompat    Bool
+  | WindowHint'OpenGLDebugContext     Bool
+  | WindowHint'OpenGLProfile          OpenGLProfile
   deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData WindowHint
@@ -209,6 +210,21 @@ data ContextCreationAPI
   deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData ContextCreationAPI
+
+-- | The context release behavior.
+-- See the <http://www.glfw.org/docs/latest/window_guide.html Window Guide> for
+-- more information.
+--
+-- Context release behaviors are described in detail by the
+-- <https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_context_flush_control.txt KHR_context_flush_control>
+-- extension.
+data ContextReleaseBehavior
+  = ContextReleaseBehavior'Any
+  | ContextReleaseBehavior'None
+  | ContextReleaseBehavior'Flush
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData ContextReleaseBehavior
 
 --------------------------------------------------------------------------------
 -- Input handling

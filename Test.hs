@@ -99,8 +99,6 @@ tests mon win =
       , testCase "getVideoModes"          $ test_getVideoModes mon
       , testCase "getVideoMode"           $ test_getVideoMode mon
       , testCase "getGamma"               $ test_getGammaRamp mon
-      -- , testCase "setGamma"               $ test_setGamma mon
-      -- , testCase "gamma ramp"             $ test_gamma_ramp mon
       ]
     , testGroup "Window handling"
       [ testCase "defaultWindowHints"             test_defaultWindowHints
@@ -376,8 +374,7 @@ test_window_context_version :: GLFW.Window -> IO ()
 test_window_context_version win = do
     v0 <- GLFW.getWindowContextVersionMajor    win
     v1 <- GLFW.getWindowContextVersionMinor    win
-    v2 <- GLFW.getWindowContextVersionRevision win
-    assertBool "" $ all (`between` (0, 20)) [v0, v1, v2]
+    assertBool "" $ all (`between` (0, 20)) [v0, v1]
 
 test_getWindowContextRobustness :: GLFW.Window -> IO ()
 test_getWindowContextRobustness win = do

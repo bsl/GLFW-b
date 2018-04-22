@@ -310,12 +310,12 @@ test_getFramebufferSize win = do
 test_iconification :: GLFW.Window -> IO ()
 test_iconification win = do
     is0 <- GLFW.getWindowIconified win
-    is0 @?= GLFW.IconifyState'NotIconified
+    is0 @?= False
 
     GLFW.iconifyWindow win
     giveItTime
     is1 <- GLFW.getWindowIconified win
-    is1 @?= GLFW.IconifyState'Iconified
+    is1 @?= True
 
     GLFW.restoreWindow win
 
@@ -355,7 +355,7 @@ test_cursor_pos win = do
 test_getWindowFocused :: GLFW.Window -> IO ()
 test_getWindowFocused win = do
     fs <- GLFW.getWindowFocused win
-    fs @?= GLFW.FocusState'Defocused
+    fs @?= False
 
 test_getWindowResizable :: GLFW.Window -> IO ()
 test_getWindowResizable win = do

@@ -583,6 +583,7 @@ windowHint wh =
       (WindowHint'sRGBCapable            x) -> (c'GLFW_SRGB_CAPABLE,             toC x)
       (WindowHint'Floating               x) -> (c'GLFW_FLOATING,                 toC x)
       (WindowHint'Focused                x) -> (c'GLFW_FOCUSED,                  toC x)
+      (WindowHint'AutoIconify            x) -> (c'GLFW_AUTO_ICONIFY,             toC x)
       (WindowHint'ClientAPI              x) -> (c'GLFW_CLIENT_API,               toC x)
       (WindowHint'ContextCreationAPI     x) -> (c'GLFW_CONTEXT_CREATION_API,     toC x)
       (WindowHint'ContextVersionMajor    x) -> (c'GLFW_CONTEXT_VERSION_MAJOR,    toC x)

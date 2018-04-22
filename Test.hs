@@ -1,6 +1,8 @@
 -- base
 import Control.Concurrent (threadDelay)
+import Control.Monad      (forM_)
 import Data.Char          (isAscii)
+import Data.Bits          (xor)
 import Data.List          (intercalate, isPrefixOf)
 
 -- HUnit
@@ -114,7 +116,6 @@ tests mon win =
       , testCase "getWindowOpenGLForwardCompat" $ test_getWindowOpenGLForwardCompat win
       , testCase "getWindowOpenGLDebugContext"  $ test_getWindowOpenGLDebugContext win
       , testCase "getWindowOpenGLProfile"       $ test_getWindowOpenGLProfile win
-
       , testCase "window close flag"            $ test_window_close_flag win
       , testCase "setWindowTitle"               $ test_setWindowTitle win
       , testCase "window pos"                   $ test_window_pos win
@@ -124,9 +125,16 @@ tests mon win =
       , testCase "iconification"                $ test_iconification win
       -- , testCase "show/hide"                    $ test_show_hide win
       , testCase "getWindowMonitor"             $ test_getWindowMonitor win mon
+      , testCase "setWindowed"                  $ test_setWindowed win
+      , testCase "setWindowIcon"                $ test_setWindowIcon win
+      , testCase "maximizeWindow"               $ test_maximizeWindow win
+      , testCase "setWindowSizeLimits"          $ test_setWindowSizeLimits win
+      , testCase "setWindowAspectRatio"         $ test_setWindowAspectRatio win
+      , testCase "focusWindow"                  $ test_focusWindow win
       , testCase "cursor pos"                   $ test_cursor_pos win
       , testCase "pollEvents"                     test_pollEvents
       , testCase "waitEvents"                     test_waitEvents
+      , testCase "waitEventsTimeout"              test_waitEventsTimeout
       ]
     , testGroup "Input handling"
       [ testCase "cursor input mode"               $ test_cursor_input_mode win
@@ -136,10 +144,13 @@ tests mon win =
       , testCase "getJoystickAxes"                   test_getJoystickAxes
       , testCase "getJoystickButtons"                test_getJoystickButtons
       , testCase "getJoystickName"                   test_getJoystickName
+      , testCase "getKeyName"                        test_getKeyName
       ]
     , testGroup "Time"
-      [ testCase "getTime" test_getTime
-      , testCase "setTime" test_setTime
+      [ testCase "getTime"              test_getTime
+      , testCase "setTime"              test_setTime
+      , testCase "getTimerValue"        test_getTimerValue
+      , testCase "getTimerFrequency"    test_getTimerFrequency
       ]
     , testGroup "Context"
       [ testCase "getCurrentContext"  $ test_getCurrentContext win
@@ -309,6 +320,7 @@ test_getFramebufferSize win = do
 
 test_iconification :: GLFW.Window -> IO ()
 test_iconification win = do
+    GLFW.showWindow win
     is0 <- GLFW.getWindowIconified win
     is0 @?= False
 
@@ -318,6 +330,7 @@ test_iconification win = do
     is1 @?= True
 
     GLFW.restoreWindow win
+    GLFW.hideWindow win
 
 -- test_show_hide :: GLFW.Window -> IO ()
 -- test_show_hide win = do
@@ -339,18 +352,72 @@ test_getWindowMonitor win _ = do
     m <- GLFW.getWindowMonitor win
     m @?= Nothing
 
+test_setWindowed :: GLFW.Window -> IO ()
+test_setWindowed win = GLFW.setWindowed win 0 0 100 100
+
+test_setWindowIcon :: GLFW.Window -> IO ()
+test_setWindowIcon win = let
+  icon1 = GLFW.mkImage 32 32 $ \x y ->
+    case even ((x `div` 8) `xor` (y `div` 8)) of
+      True -> (255, 0, 0, 255)
+      False -> (0, 255, 0, 255)
+
+  icon2 = GLFW.mkImage 16 16 $ \x y ->
+    case even ((x `div` 8) `xor` (y `div` 8)) of
+      True -> (255, 255, 255, 255)
+      False -> (0, 0, 0, 255)
+
+  in GLFW.setWindowIcon win [icon1, icon2]
+
+test_maximizeWindow :: GLFW.Window -> IO ()
+test_maximizeWindow win = do
+  GLFW.showWindow win
+  startsMaximized <- GLFW.getWindowMaximized win
+  startsMaximized @?= False
+
+  GLFW.maximizeWindow win
+  giveItTime
+
+  isMaximized <- GLFW.getWindowMaximized win
+  isMaximized @?= True
+  GLFW.hideWindow win
+
+test_setWindowSizeLimits :: GLFW.Window -> IO ()
+test_setWindowSizeLimits win = do
+    GLFW.setWindowSizeLimits win (Just 640) (Just 480) (Just 1024) (Just 768)
+
+test_setWindowAspectRatio :: GLFW.Window -> IO ()
+test_setWindowAspectRatio win = do
+    GLFW.setWindowAspectRatio win Nothing
+
+test_focusWindow :: GLFW.Window -> IO ()
+test_focusWindow = GLFW.focusWindow
+
 test_cursor_pos :: GLFW.Window -> IO ()
 test_cursor_pos win = do
-    (w, h) <- GLFW.getWindowSize win
-    let cx = fromIntegral w / 2
-        cy = fromIntegral h / 2
-    -- Can you set the cursor pos as of glfw 3.1? I don't see it in the
-    -- docs.
-    GLFW.setCursorPos win cx cy
-    --giveItTime
-    --(cx', cy') <- GLFW.getCursorPos win
-    --cx' @?= cx
-    --cy' @?= cy
+  GLFW.showWindow win
+  (w, h) <- GLFW.getWindowSize win
+
+  -- Make sure we use integral coordinates here so that we don't run into
+  -- platform-dependent differences.
+  let cx :: Double
+      cy :: Double
+      (cx, cy) = (fromIntegral $ w `div` 2, fromIntegral $ h `div` 2)
+
+  -- !HACK! Poll events seems to be necessary on OS X,
+  -- before /and/ after glfwSetCursorPos, otherwise, the
+  -- windowing system likely never receives the cursor update. This is
+  -- reflected in the C version of GLFW as well, we just call it here in
+  -- order to have a more robust test.
+
+  GLFW.pollEvents
+  GLFW.setCursorPos win cx cy
+  GLFW.pollEvents -- !HACK! see comment above
+
+  (cx', cy') <- GLFW.getCursorPos win
+  cx' @?= cx
+  cy' @?= cy
+  GLFW.hideWindow win
 
 test_getWindowFocused :: GLFW.Window -> IO ()
 test_getWindowFocused win = do
@@ -405,6 +472,11 @@ test_pollEvents =
 test_waitEvents :: IO ()
 test_waitEvents =
     GLFW.waitEvents
+
+test_waitEventsTimeout :: IO ()
+test_waitEventsTimeout =
+    -- to not slow down the test too much we set the timeout to 0.001 second :
+    GLFW.waitEventsTimeout 0.001
 
 --------------------------------------------------------------------------------
 
@@ -466,6 +538,14 @@ test_getJoystickName :: IO ()
 test_getJoystickName =
     mapM_ GLFW.getJoystickName joysticks
 
+test_getKeyName :: IO ()
+test_getKeyName =
+  forM_ (zip [GLFW.Key'Slash, GLFW.Key'Period] ["/", "."]) $ \(k, n) -> do
+    name <- GLFW.getKeyName k 0
+    case name of
+      Nothing -> return ()
+      Just s -> s @?= n
+
 --------------------------------------------------------------------------------
 
 test_getTime :: IO ()
@@ -483,6 +563,12 @@ test_setTime = do
     case mt of
       Just t' -> assertBool "" $ t' `between` (t, t+10)
       Nothing -> assertFailure ""
+
+test_getTimerValue :: IO ()
+test_getTimerValue = GLFW.getTimerValue >>= assertBool "" . (> 0)
+
+test_getTimerFrequency :: IO ()
+test_getTimerFrequency = GLFW.getTimerFrequency >>= assertBool "" . (> 0)
 
 --------------------------------------------------------------------------------
 

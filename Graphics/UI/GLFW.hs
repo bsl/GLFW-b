@@ -77,12 +77,14 @@ module Graphics.UI.GLFW
   , iconifyWindow
   , restoreWindow
   , focusWindow
+  , maximizeWindow
   , showWindow
   , hideWindow
   , getWindowMonitor
   , setCursorPos
     -- related to c'glfwGetWindowAttrib --.
   , getWindowFocused                   -- |
+  , getWindowMaximized                 -- |
   , getWindowFloating                  -- |
   , getWindowIconified                 -- |
   , getWindowResizable                 -- |
@@ -633,6 +635,7 @@ windowHint wh =
       (WindowHint'sRGBCapable            x) -> (c'GLFW_SRGB_CAPABLE,             toC x)
       (WindowHint'Floating               x) -> (c'GLFW_FLOATING,                 toC x)
       (WindowHint'Focused                x) -> (c'GLFW_FOCUSED,                  toC x)
+      (WindowHint'Maximized              x) -> (c'GLFW_MAXIMIZED,                toC x)
       (WindowHint'AutoIconify            x) -> (c'GLFW_AUTO_ICONIFY,             toC x)
       (WindowHint'ClientAPI              x) -> (c'GLFW_CLIENT_API,               toC x)
       (WindowHint'ContextCreationAPI     x) -> (c'GLFW_CONTEXT_CREATION_API,     toC x)
@@ -983,6 +986,11 @@ restoreWindow =
 focusWindow :: Window -> IO ()
 focusWindow = c'glfwFocusWindow . toC
 
+-- | Maximizes the specified window if it was not already maximized.
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga3f541387449d911274324ae7f17ec56b glfwMaximizeWindow>
+maximizeWindow :: Window -> IO ()
+maximizeWindow = c'glfwMaximizeWindow . toC
+
 -- | Shows the window.
 -- See <http://www.glfw.org/docs/3.2/group__window.html#ga61be47917b72536a148300f46494fc66 glfwShowWindow>
 showWindow :: Window -> IO ()
@@ -1017,6 +1025,12 @@ setCursorPos win x y =
 getWindowFocused :: Window -> IO Bool
 getWindowFocused win =
     fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_FOCUSED
+
+-- | If the window is maximized or not.
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+getWindowMaximized :: Window -> IO Bool
+getWindowMaximized win =
+    fromC `fmap` c'glfwGetWindowAttrib (toC win) c'GLFW_MAXIMIZED
 
 -- | If the window has been set to be 'always on top' or not.
 -- See <http://www.glfw.org/docs/latest/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>

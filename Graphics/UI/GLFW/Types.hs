@@ -157,6 +157,7 @@ data WindowHint =
   | WindowHint'sRGBCapable            Bool
   | WindowHint'Floating               Bool
   | WindowHint'Focused                Bool
+  | WindowHint'Maximized              Bool
   | WindowHint'AutoIconify            Bool
   | WindowHint'ClientAPI              ClientAPI
   | WindowHint'ContextCreationAPI     ContextCreationAPI

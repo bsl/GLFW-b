@@ -1378,17 +1378,13 @@ setTime = c'glfwSetTime . toC
 -- | Returns the current value of the raw timer, measured in 1 / frequency
 -- seconds. The frequency can be queried using getTimerFrequency.
 -- See <http://www.glfw.org/docs/3.2/input_guide.html#time Timer input>
---
--- !TODO! Don't need fromIntegral once we land bindings-GLFW 3.2.1.1
 getTimerValue :: IO Word64
-getTimerValue = fromIntegral `fmap` c'glfwGetTimerValue
+getTimerValue = c'glfwGetTimerValue
 
 -- | Returns the frequency, in Hz, of the raw timer.
 -- See <http://www.glfw.org/docs/3.2/input_guide.html#time Timer input>
---
--- !TODO! Don't need fromIntegral once we land bindings-GLFW 3.2.1.1
 getTimerFrequency :: IO Word64
-getTimerFrequency = fromIntegral `fmap` c'glfwGetTimerFrequency
+getTimerFrequency = c'glfwGetTimerFrequency
 
 --------------------------------------------------------------------------------
 -- Context
@@ -1585,8 +1581,7 @@ getWin32Adapter :: Window -> IO CString
 getWin32Adapter = c'glfwGetWin32Adapter . toC
 
 -- | See <http://www.glfw.org/docs/3.2/group__native.html#gac408b09a330749402d5d1fa1f5894dd9 glfwGetWin32Monitor>
--- !TODO! This should return IO CString once we land bindings-GLFW-3.2.1.1
-getWin32Monitor :: Window -> IO (Ptr ())
+getWin32Monitor :: Window -> IO CString
 getWin32Monitor = c'glfwGetWin32Monitor . toC
 
 -- | See <http://www.glfw.org/docs/3.2/group__native.html#gafe5079aa79038b0079fc09d5f0a8e667 glfwGetWin32Window>

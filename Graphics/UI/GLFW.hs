@@ -134,6 +134,7 @@ module Graphics.UI.GLFW
   , getStickyMouseButtonsInputMode    -- |
   , setStickyMouseButtonsInputMode  -----'
   , getKey
+  , getKeyName
   , getMouseButton
   , getCursorPos
   , setKeyCallback,         KeyCallback
@@ -740,6 +741,7 @@ getWin32Adapter :: Window -> IO CString
 getWin32Adapter = c'glfwGetWin32Adapter . toC
 
 -- | See <http://www.glfw.org/docs/3.2/group__native.html#gac408b09a330749402d5d1fa1f5894dd9 glfwGetWin32Monitor>
+-- !TODO! This should return IO CString once we land bindings-GLFW-3.2.1.1
 getWin32Monitor :: Window -> IO (Ptr ())
 getWin32Monitor = c'glfwGetWin32Monitor . toC
 
@@ -1221,6 +1223,18 @@ setStickyMouseButtonsInputMode win smb =
 getKey :: Window -> Key -> IO KeyState
 getKey win k =
     fromC `fmap` c'glfwGetKey (toC win) (toC k)
+
+-- | Returns the localized name of the specified printable key. This is intended
+-- for displaying key bindings to the user. The scancode is used if the provided
+-- 'Key' isn't printable. If the scancode maps to a non-printable key as well,
+-- then 'Nothing' is returned.
+-- See <http://www.glfw.org/docs/3.2/group__input.html#ga237a182e5ec0b21ce64543f3b5e7e2be glfwGetKeyName>
+getKeyName :: Key -> Int -> IO (Maybe String)
+getKeyName k scancode = do
+  cstr <- c'glfwGetKeyName (toC k) (toC scancode)
+  if cstr == nullPtr
+    then return Nothing
+    else Just `fmap` peekCString cstr
 
 -- | Gets the state of a single specified mouse button. If sticky mouse button
 -- mode isn't enabled it's possible for mouse polling to miss individual mouse events. Use

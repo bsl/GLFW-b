@@ -74,6 +74,7 @@ module Graphics.UI.GLFW
   , setWindowIcon
   , iconifyWindow
   , restoreWindow
+  , focusWindow
   , showWindow
   , hideWindow
   , getWindowMonitor
@@ -941,6 +942,12 @@ iconifyWindow =
 restoreWindow :: Window -> IO ()
 restoreWindow =
     c'glfwRestoreWindow . toC
+
+-- | Brings the specified window to front and sets input focus. The window
+-- should already be visible and not iconified.
+-- See <http://www.glfw.org/docs/latest/group__window.html#ga873780357abd3f3a081d71a40aae45a1 glfwFocusWindow>
+focusWindow :: Window -> IO ()
+focusWindow = c'glfwFocusWindow . toC
 
 -- | Shows the window.
 -- See <http://www.glfw.org/docs/3.2/group__window.html#ga61be47917b72536a148300f46494fc66 glfwShowWindow>

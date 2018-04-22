@@ -42,9 +42,10 @@ main = do
 
 --------------------------------------------------------------------------------
 
-versionMajor, versionMinor :: Int
+versionMajor, versionMinor, versionRevision :: Int
 versionMajor = 3
 versionMinor = 2
+versionRevision = 1
 
 giveItTime :: IO ()
 giveItTime = threadDelay 500000
@@ -158,6 +159,7 @@ test_getVersion = do
     v <- GLFW.getVersion
     GLFW.versionMajor v @?= versionMajor
     GLFW.versionMinor v @?= versionMinor
+    GLFW.versionRevision v @?= versionRevision
 
 test_getVersionString :: IO ()
 test_getVersionString = do

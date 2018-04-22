@@ -109,6 +109,7 @@ makeGammaRamp rs gs bs
 -- | Collects all the callbacks that can be associated with a Window into a single place.
 data WindowCallbacks = WindowCallbacks
   { storedCharFun             :: IORef C'GLFWcharfun
+  , storedCharModsFun         :: IORef C'GLFWcharmodsfun
   , storedCursorEnterFun      :: IORef C'GLFWcursorenterfun
   , storedCursorPosFun        :: IORef C'GLFWcursorposfun
   , storedFramebufferSizeFun  :: IORef C'GLFWframebuffersizefun

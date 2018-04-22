@@ -133,6 +133,7 @@ module Graphics.UI.GLFW
   , getCursorPos
   , setKeyCallback,         KeyCallback
   , setCharCallback,        CharCallback
+  , setCharModsCallback,    CharModsCallback
   , setMouseButtonCallback, MouseButtonCallback
   , setCursorPosCallback,   CursorPosCallback
   , setCursorEnterCallback, CursorEnterCallback
@@ -279,6 +280,8 @@ type ScrollCallback          = Window -> Double -> Double                       
 type KeyCallback             = Window -> Key -> Int -> KeyState -> ModifierKeys          -> IO ()
 -- | Fires when a complete character codepoint is typed by the user, Shift then 'b' generates "B".
 type CharCallback            = Window -> Char                                            -> IO ()
+-- | Similar to 'CharCallback', fires when a complete unicode codepoint is typed by the user.
+type CharModsCallback        = Window -> Char -> ModifierKeys                            -> IO ()
 -- | Fires when a monitor is connected or disconnected.
 type MonitorCallback         = Monitor -> MonitorState                                   -> IO ()
 -- | Fires when a joystick is connected or disconnected.
@@ -609,6 +612,7 @@ createWindow :: Int -- ^ Desired width for the window.
 createWindow w h title mmon mwin =
     withCString title $ \ptitle -> do
         charFun             <- newIORef nullFunPtr
+        charModsFun         <- newIORef nullFunPtr
         cursorEnterFun      <- newIORef nullFunPtr
         cursorPosFun        <- newIORef nullFunPtr
         framebufferSizeFun  <- newIORef nullFunPtr
@@ -624,6 +628,7 @@ createWindow w h title mmon mwin =
         dropFun             <- newIORef nullFunPtr
         let callbacks = WindowCallbacks
               { storedCharFun             = charFun
+              , storedCharModsFun         = charModsFun
               , storedCursorEnterFun      = cursorEnterFun
               , storedCursorPosFun        = cursorPosFun
               , storedFramebufferSizeFun  = framebufferSizeFun
@@ -661,6 +666,7 @@ destroyWindow win = do
     let free callback = do funptr <- readIORef (callback cbs)
                            when (funptr /= nullFunPtr) $ freeHaskellFunPtr funptr
     free storedCharFun
+    free storedCharModsFun
     free storedCursorEnterFun
     free storedCursorPosFun
     free storedFramebufferSizeFun
@@ -1093,6 +1099,17 @@ setCharCallback win = setWindowCallback
     (\cb a0 a1 -> schedule $ cb (fromC a0) (fromC a1))
     (c'glfwSetCharCallback (toC win))
     storedCharFun
+    win
+
+-- | Sets the callback to use with Unicode characters regardless of what
+-- modifier keys are used.
+-- See <http://www.glfw.org/docs/3.2/group__input.html#ga3f55ef5dc03a374e567f068b13c94afc glfwSetCharModsCallback>
+setCharModsCallback :: Window -> Maybe CharModsCallback -> IO ()
+setCharModsCallback win = setWindowCallback
+    mk'GLFWcharmodsfun
+    (\cb a0 a1 a2 -> schedule $ cb (fromC a0) (fromC a1) (fromC a2))
+    (c'glfwSetCharModsCallback (toC win))
+    storedCharModsFun
     win
 
 -- | Assigns the callback to run whenver a mouse button is clicked.

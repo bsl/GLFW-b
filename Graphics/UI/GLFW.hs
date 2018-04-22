@@ -69,6 +69,8 @@ module Graphics.UI.GLFW
   , setWindowPos
   , getWindowSize
   , setWindowSize
+  , setWindowSizeLimits
+  , setWindowAspectRatio
   , getWindowFrameSize
   , getFramebufferSize
   , setWindowIcon
@@ -897,6 +899,38 @@ getWindowFrameSize win =
 setWindowSize :: Window -> Int -> Int -> IO ()
 setWindowSize win w h =
     c'glfwSetWindowSize (toC win) (toC w) (toC h)
+
+-- | Sets the size limits of the client area of the specified window. If the
+-- window is full screen, the size limits only take effect once it is made
+-- windowed. If the window is not resizable this function does nothing. Pass
+-- 'Nothing' in any argument to disable the limit.
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gac314fa6cec7d2d307be9963e2709cc90 glfwSetWindowSizeLimits>
+setWindowSizeLimits :: Window
+                    -> Maybe Int
+                    -- ^ The minimum width, in screen coordinates, of the client
+                    --   area.
+                    -> Maybe Int
+                    -- ^ The minimum height, in screen coordinates, of the
+                    --   client area.
+                    -> Maybe Int
+                    -- ^ The maximum width, in screen coordinates, of the client
+                    --   area.
+                    -> Maybe Int
+                    -- ^ The maximum height, in screen coordinates, of the
+                    --   client area.
+                    -> IO ()
+setWindowSizeLimits win min'w min'h max'w max'h =
+  c'glfwSetWindowSizeLimits (toC win) (toC min'w) (toC min'h)
+                                      (toC max'w) (toC max'h)
+
+-- | Sets the required aspect ratio of the client area of the specified window.
+-- Pass Nothing to disable the limit.
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga72ac8cb1ee2e312a878b55153d81b937 glfwSetWindowAspectRatio>
+setWindowAspectRatio :: Window -> Maybe (Int, Int) -> IO ()
+setWindowAspectRatio win Nothing =
+  c'glfwSetWindowAspectRatio (toC win) c'GLFW_DONT_CARE c'GLFW_DONT_CARE
+setWindowAspectRatio win (Just (w, h)) =
+  c'glfwSetWindowAspectRatio (toC win) (toC w) (toC h)
 
 -- | The size of the framebuffer (in Pixels)
 -- See <http://www.glfw.org/docs/3.2/group__window.html#ga0e2637a4161afb283f5300c7f94785c9 glfwGetFramebufferSize>

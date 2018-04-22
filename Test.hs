@@ -470,8 +470,7 @@ test_pollEvents =
     GLFW.pollEvents
 
 test_waitEvents :: IO ()
-test_waitEvents =
-    GLFW.waitEvents
+test_waitEvents = GLFW.postEmptyEvent >> GLFW.waitEvents
 
 test_waitEventsTimeout :: IO ()
 test_waitEventsTimeout =

@@ -731,106 +731,6 @@ destroyWindow win = do
     free storedWindowSizeFun
     freeStablePtr pcb
 
---------------------------------------------------------------------------------
--- Native APIs
---------------------------------------------------------------------------------
-
--- $nativeaccess
--- The low level native-access bindings are exposed here via bindings-GLFW.
--- These must be enabled with the 'ExposeNative' flag passed to bindings-GLFW.
--- The return values of these functions are used as a best-guess and are not
--- coupled with any other implementation. They should be used with caution
--- and at your own risk.
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#gac84f63a3f9db145b9435e5e0dbc4183d glfwGetWin32Adapter>
-getWin32Adapter :: Window -> IO CString
-getWin32Adapter = c'glfwGetWin32Adapter . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#gac408b09a330749402d5d1fa1f5894dd9 glfwGetWin32Monitor>
--- !TODO! This should return IO CString once we land bindings-GLFW-3.2.1.1
-getWin32Monitor :: Window -> IO (Ptr ())
-getWin32Monitor = c'glfwGetWin32Monitor . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#gafe5079aa79038b0079fc09d5f0a8e667 glfwGetWin32Window>
-getWin32Window  :: Window -> IO (Ptr ())
-getWin32Window = c'glfwGetWin32Window . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#gadc4010d91d9cc1134d040eeb1202a143 glfwGetWGLContext>
-getWGLContext :: Window -> IO (Ptr ())
-getWGLContext = c'glfwGetWGLContext . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#gaf22f429aec4b1aab316142d66d9be3e6 glfwGetCocoaMonitor>
-getCocoaMonitor :: Window -> IO (Ptr Word32)
-getCocoaMonitor = c'glfwGetCocoaMonitor . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#gac3ed9d495d0c2bb9652de5a50c648715 glfwGetCocoaWindow>
-getCocoaWindow :: Window -> IO (Ptr ())
-getCocoaWindow = c'glfwGetCocoaWindow . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga559e002e3cd63c979881770cd4dc63bc glfwGetNSGLContext>
-getNSGLContext :: Window -> IO (Ptr ())
-getNSGLContext = c'glfwGetNSGLContext . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga8519b66594ea3ef6eeafaa2e3ee37406 glfwGetX11Display>
-getX11Display :: Window -> IO (Ptr display)
-getX11Display = c'glfwGetX11Display . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga088fbfa80f50569402b41be71ad66e40 glfwGetX11Adapter>
-getX11Adapter :: Window -> IO Word64
-getX11Adapter = c'glfwGetX11Adapter . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#gab2f8cc043905e9fa9b12bfdbbcfe874c glfwGetX11Monitor>
-getX11Monitor :: Window -> IO Word64
-getX11Monitor = c'glfwGetX11Monitor . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga90ca676322740842db446999a1b1f21d glfwGetX11Window>
-getX11Window  :: Window -> IO Word64
-getX11Window = c'glfwGetX11Window . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga62d884114b0abfcdc2930e89f20867e2 glfwGetGLXContext>
-getGLXContext :: Window -> IO (Ptr ())
-getGLXContext = c'glfwGetGLXContext . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga1ed27b8766e859a21381e8f8ce18d049 glfwGetGLXWindow>
-getGLXWindow  :: Window -> IO Word64
-getGLXWindow = c'glfwGetGLXWindow . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#gaaf8118a3c877f3a6bc8e7a649519de5e glfwGetWaylandDisplay>
-getWaylandDisplay :: IO (Ptr wl_display)
-getWaylandDisplay = c'glfwGetWaylandDisplay
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#gab10427a667b6cd91eec7709f7a906bd3 glfwGetWaylandMonitor>
-getWaylandMonitor :: Window -> IO (Ptr wl_output)
-getWaylandMonitor = c'glfwGetWaylandMonitor . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga4738d7aca4191363519a9a641c3ab64c glfwGetWaylandWindow>
-getWaylandWindow :: Window -> IO (Ptr wl_surface)
-getWaylandWindow = c'glfwGetWaylandWindow . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga40dd05325d9813fa67d61328c51d2930 glfwGetMirDisplay>
-getMirDisplay :: IO (Ptr mir_connection)
-getMirDisplay = c'glfwGetMirDisplay
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#gae0941c11dc8f01aeb7cbb563f5cd930b glfwGetMirMonitor>
-getMirMonitor :: Window -> IO Int
-getMirMonitor = (fmap fromC) . c'glfwGetMirMonitor . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga964d52bb7932216c379762eef1ea9b05 glfwGetMirWindow>
-getMirWindow :: Window -> IO (Ptr mir_surface)
-getMirWindow = c'glfwGetMirWindow . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga1cd8d973f47aacb5532d368147cc3138 glfwGetEGLDisplay>
-getEGLDisplay :: IO (Ptr ())
-getEGLDisplay = c'glfwGetEGLDisplay
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga671c5072becd085f4ab5771a9c8efcf1 glfwGetEGLContext>
-getEGLContext :: Window -> IO (Ptr ())
-getEGLContext = c'glfwGetEGLContext . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga2199b36117a6a695fec8441d8052eee6 glfwGetEGLSurface>
-getEGLSurface :: Window -> IO (Ptr ())
-getEGLSurface = c'glfwGetEGLSurface . toC
-
 -- | If the window should close or not.
 -- See <http://www.glfw.org/docs/3.2/group__window.html#ga24e02fbfefbb81fc45320989f8140ab5 glfwWindowShouldClose>
 windowShouldClose :: Window -> IO Bool
@@ -1644,3 +1544,103 @@ createWindowSurface :: Enum vkResult
 createWindowSurface i win acs s
   = toEnum . fromIntegral
   <$> c'glfwCreateWindowSurface i (toC win) acs s
+
+--------------------------------------------------------------------------------
+-- Native APIs
+--------------------------------------------------------------------------------
+
+-- $nativeaccess
+-- The low level native-access bindings are exposed here via bindings-GLFW.
+-- These must be enabled with the 'ExposeNative' flag passed to bindings-GLFW.
+-- The return values of these functions are used as a best-guess and are not
+-- coupled with any other implementation. They should be used with caution
+-- and at your own risk.
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#gac84f63a3f9db145b9435e5e0dbc4183d glfwGetWin32Adapter>
+getWin32Adapter :: Window -> IO CString
+getWin32Adapter = c'glfwGetWin32Adapter . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#gac408b09a330749402d5d1fa1f5894dd9 glfwGetWin32Monitor>
+-- !TODO! This should return IO CString once we land bindings-GLFW-3.2.1.1
+getWin32Monitor :: Window -> IO (Ptr ())
+getWin32Monitor = c'glfwGetWin32Monitor . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#gafe5079aa79038b0079fc09d5f0a8e667 glfwGetWin32Window>
+getWin32Window  :: Window -> IO (Ptr ())
+getWin32Window = c'glfwGetWin32Window . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#gadc4010d91d9cc1134d040eeb1202a143 glfwGetWGLContext>
+getWGLContext :: Window -> IO (Ptr ())
+getWGLContext = c'glfwGetWGLContext . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#gaf22f429aec4b1aab316142d66d9be3e6 glfwGetCocoaMonitor>
+getCocoaMonitor :: Window -> IO (Ptr Word32)
+getCocoaMonitor = c'glfwGetCocoaMonitor . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#gac3ed9d495d0c2bb9652de5a50c648715 glfwGetCocoaWindow>
+getCocoaWindow :: Window -> IO (Ptr ())
+getCocoaWindow = c'glfwGetCocoaWindow . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga559e002e3cd63c979881770cd4dc63bc glfwGetNSGLContext>
+getNSGLContext :: Window -> IO (Ptr ())
+getNSGLContext = c'glfwGetNSGLContext . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga8519b66594ea3ef6eeafaa2e3ee37406 glfwGetX11Display>
+getX11Display :: Window -> IO (Ptr display)
+getX11Display = c'glfwGetX11Display . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga088fbfa80f50569402b41be71ad66e40 glfwGetX11Adapter>
+getX11Adapter :: Window -> IO Word64
+getX11Adapter = c'glfwGetX11Adapter . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#gab2f8cc043905e9fa9b12bfdbbcfe874c glfwGetX11Monitor>
+getX11Monitor :: Window -> IO Word64
+getX11Monitor = c'glfwGetX11Monitor . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga90ca676322740842db446999a1b1f21d glfwGetX11Window>
+getX11Window  :: Window -> IO Word64
+getX11Window = c'glfwGetX11Window . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga62d884114b0abfcdc2930e89f20867e2 glfwGetGLXContext>
+getGLXContext :: Window -> IO (Ptr ())
+getGLXContext = c'glfwGetGLXContext . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga1ed27b8766e859a21381e8f8ce18d049 glfwGetGLXWindow>
+getGLXWindow  :: Window -> IO Word64
+getGLXWindow = c'glfwGetGLXWindow . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#gaaf8118a3c877f3a6bc8e7a649519de5e glfwGetWaylandDisplay>
+getWaylandDisplay :: IO (Ptr wl_display)
+getWaylandDisplay = c'glfwGetWaylandDisplay
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#gab10427a667b6cd91eec7709f7a906bd3 glfwGetWaylandMonitor>
+getWaylandMonitor :: Window -> IO (Ptr wl_output)
+getWaylandMonitor = c'glfwGetWaylandMonitor . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga4738d7aca4191363519a9a641c3ab64c glfwGetWaylandWindow>
+getWaylandWindow :: Window -> IO (Ptr wl_surface)
+getWaylandWindow = c'glfwGetWaylandWindow . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga40dd05325d9813fa67d61328c51d2930 glfwGetMirDisplay>
+getMirDisplay :: IO (Ptr mir_connection)
+getMirDisplay = c'glfwGetMirDisplay
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#gae0941c11dc8f01aeb7cbb563f5cd930b glfwGetMirMonitor>
+getMirMonitor :: Window -> IO Int
+getMirMonitor = (fmap fromC) . c'glfwGetMirMonitor . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga964d52bb7932216c379762eef1ea9b05 glfwGetMirWindow>
+getMirWindow :: Window -> IO (Ptr mir_surface)
+getMirWindow = c'glfwGetMirWindow . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga1cd8d973f47aacb5532d368147cc3138 glfwGetEGLDisplay>
+getEGLDisplay :: IO (Ptr ())
+getEGLDisplay = c'glfwGetEGLDisplay
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga671c5072becd085f4ab5771a9c8efcf1 glfwGetEGLContext>
+getEGLContext :: Window -> IO (Ptr ())
+getEGLContext = c'glfwGetEGLContext . toC
+
+-- | See <http://www.glfw.org/docs/3.2/group__native.html#ga2199b36117a6a695fec8441d8052eee6 glfwGetEGLSurface>
+getEGLSurface :: Window -> IO (Ptr ())
+getEGLSurface = c'glfwGetEGLSurface . toC

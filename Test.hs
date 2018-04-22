@@ -276,8 +276,8 @@ test_window_pos win = do
 
 test_window_size :: GLFW.Window -> IO ()
 test_window_size win = do
-    let w = 17
-        h = 37
+    let w = 170
+        h = 370
     GLFW.setWindowSize win w h
     giveItTime
     (w', h') <- GLFW.getWindowSize win
@@ -519,6 +519,7 @@ test_clipboard win = do
       ]
     setGet s = do
         GLFW.setClipboardString win s
+        giveItTime
         GLFW.getClipboardString win
 
 --------------------------------------------------------------------------------

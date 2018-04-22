@@ -155,6 +155,8 @@ module Graphics.UI.GLFW
     -- * Time
   , getTime
   , setTime
+  , getTimerValue
+  , getTimerFrequency
 
     -- * Context
   , makeContextCurrent
@@ -1345,8 +1347,22 @@ getTime = do
 -- After this the timer begins to count upward at the normal rate.
 -- See <http://www.glfw.org/docs/3.2/group__input.html#gaf59589ef6e8b8c8b5ad184b25afd4dc0 glfwSetTime>
 setTime :: Double -> IO ()
-setTime =
-    c'glfwSetTime . toC
+setTime = c'glfwSetTime . toC
+
+-- | Returns the current value of the raw timer, measured in 1 / frequency
+-- seconds. The frequency can be queried using getTimerFrequency.
+-- See <http://www.glfw.org/docs/3.2/input_guide.html#time Timer input>
+--
+-- !TODO! Don't need fromIntegral once we land bindings-GLFW 3.2.1.1
+getTimerValue :: IO Word64
+getTimerValue = fromIntegral `fmap` c'glfwGetTimerValue
+
+-- | Returns the frequency, in Hz, of the raw timer.
+-- See <http://www.glfw.org/docs/3.2/input_guide.html#time Timer input>
+--
+-- !TODO! Don't need fromIntegral once we land bindings-GLFW 3.2.1.1
+getTimerFrequency :: IO Word64
+getTimerFrequency = fromIntegral `fmap` c'glfwGetTimerFrequency
 
 --------------------------------------------------------------------------------
 -- Context

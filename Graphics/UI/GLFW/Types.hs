@@ -13,6 +13,7 @@ import Control.DeepSeq  (NFData)
 import Data.Data        (Data)
 import Data.IORef       (IORef)
 import Data.Typeable    (Typeable)
+import Data.Word        (Word8)
 import Foreign.Ptr      (Ptr)
 import Foreign.C.Types  (CUChar(..))
 import GHC.Generics
@@ -488,6 +489,19 @@ data Image = Image
   , imageHeight :: Int
   , imagePixels :: [CUChar]
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
+
+-- | Create an image given the function to generate 8-bit RGBA values based on
+-- the pixel location.
+mkImage :: Int -> Int -> (Int -> Int -> (Word8, Word8, Word8, Word8)) -> Image
+mkImage width height gen = Image
+  { imageWidth = width
+  , imageHeight = height
+  , imagePixels = [ CUChar channel | y <- [0..(height - 1)]
+                                   , x <- [0..(width - 1)]
+                                   , (r, g, b, a) <- [gen x y]
+                                   , channel <- [r, g, b, a]
+                  ]
+  }
 
 instance NFData Image
 

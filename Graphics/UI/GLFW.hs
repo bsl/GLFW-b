@@ -120,7 +120,8 @@ module Graphics.UI.GLFW
   , StickyKeysInputMode         (..)
   , StickyMouseButtonsInputMode (..)
   , ModifierKeys                (..)
-  , Image                       (..)
+  , Image
+  , mkImage
   , Cursor                      (..)
   , StandardCursorShape         (..)
     --

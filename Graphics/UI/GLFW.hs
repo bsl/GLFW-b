@@ -51,10 +51,12 @@ module Graphics.UI.GLFW
 
     -- * Window handling
   , Window
-  , WindowHint        (..)
-  , ContextRobustness (..)
-  , OpenGLProfile     (..)
-  , ClientAPI         (..)
+  , WindowHint             (..)
+  , ContextRobustness      (..)
+  , OpenGLProfile          (..)
+  , ClientAPI              (..)
+  , ContextCreationAPI     (..)
+  , ContextReleaseBehavior (..)
     --
   , defaultWindowHints
   , windowHint
@@ -109,6 +111,7 @@ module Graphics.UI.GLFW
   , Key                         (..)
   , KeyState                    (..)
   , Joystick                    (..)
+  , JoystickState               (..)
   , JoystickButtonState         (..)
   , MouseButton                 (..)
   , MouseButtonState            (..)

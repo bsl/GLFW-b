@@ -71,6 +71,7 @@ module Graphics.UI.GLFW
   , setWindowSize
   , getWindowFrameSize
   , getFramebufferSize
+  , setWindowIcon
   , iconifyWindow
   , restoreWindow
   , showWindow
@@ -213,7 +214,7 @@ import Data.IORef            (IORef, atomicModifyIORef, newIORef, readIORef)
 import Data.Word             (Word32, Word64)
 import Foreign.C.String      (peekCString, withCString, CString)
 import Foreign.C.Types       (CUInt, CUShort)
-import Foreign.Marshal.Alloc (alloca)
+import Foreign.Marshal.Alloc (alloca, allocaBytes)
 import Foreign.Marshal.Array (advancePtr, allocaArray, peekArray, withArray)
 import Foreign.Ptr           (FunPtr, freeHaskellFunPtr, nullFunPtr, nullPtr
                              ,Ptr)
@@ -388,6 +389,16 @@ setErrorCallback = setCallback
         schedule $ cb (fromC a0) s)
     c'glfwSetErrorCallback
     storedErrorFun
+
+--------------------------------------------------------------------------------
+-- Image utility functions
+
+withGLFWImage :: Image -> (Ptr C'GLFWimage -> IO a) -> IO a
+withGLFWImage (Image w h pxs) f =
+  alloca        $ \p'img ->
+  withArray pxs $ \p'pxs -> do
+    poke p'img $ C'GLFWimage (toC w) (toC h) p'pxs
+    f p'img
 
 --------------------------------------------------------------------------------
 -- Initialization and version information
@@ -895,6 +906,27 @@ getFramebufferSize win =
         w <- fromC `fmap` peek p'w
         h <- fromC `fmap` peek p'h
         return (w, h)
+
+-- | Sets the icon of the specified window. The system will try to find the
+-- image with the dimensions closest to the ones required by the platform. This
+-- image is then scaled and used as the icon for that size. Good sizes are
+-- 16x16, 32x32, and 48x48. Pass the empty list to reset to the default icon.
+-- Has no effect on OS X (See the <https://developer.apple.com/library/content/documentation/CoreFoundation/Conceptual/CFBundles/Introduction/Introduction.html Bundle Programming Guide>)
+setWindowIcon :: Window -> [Image] -> IO ()
+setWindowIcon win [] = c'glfwSetWindowIcon (toC win) 0 nullPtr
+setWindowIcon win imgs =
+  let arrSizeBytes = length imgs * sizeOf (undefined :: C'GLFWimage)
+
+      addNextImage :: [Image] -> Int -> Ptr C'GLFWimage -> IO ()
+      addNextImage [] numImages ptr =
+        c'glfwSetWindowIcon (toC win) (toC numImages) ptr
+
+      addNextImage (img:rest) idx ptr =
+        withGLFWImage img $ \p'img -> do
+          c'img <- peek p'img
+          pokeElemOff ptr idx c'img
+          addNextImage rest (idx + 1) ptr
+  in allocaBytes arrSizeBytes $ addNextImage imgs 0
 
 -- | Iconifies (minimizes) the window.
 -- See <http://www.glfw.org/docs/3.2/group__window.html#ga1bb559c0ebaad63c5c05ad2a066779c4 glfwIconifyWindow>
@@ -1440,14 +1472,9 @@ createCursor :: Image -- ^ The desired cursor image.
              -> Int   -- ^ The desired y-coordinate, in pixels, of the cursor
                       --   hotspot.
              -> IO Cursor
-createCursor (Image w h pxs) x y =
-    alloca        $ \p'img ->
-    withArray pxs $ \p'pxs -> do
-        let img = C'GLFWimage (toC w)
-                              (toC h)
-                              p'pxs
-        poke p'img img
-        Cursor `fmap` c'glfwCreateCursor p'img (toC x) (toC y)
+createCursor img x y =
+  withGLFWImage img $ \p'img ->
+    Cursor `fmap` c'glfwCreateCursor p'img (toC x) (toC y)
 
 -- | Creates a cursor with a standard shape that can be set for a window with
 -- setCursor.

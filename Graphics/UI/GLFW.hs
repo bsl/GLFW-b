@@ -347,7 +347,7 @@ executeScheduled = do
 -- Error handling
 
 -- | Can (and probably should) be used before GLFW initialization.
--- See <http://www.glfw.org/docs/3.1/group__init.html#gaa5d796c3cf7c1a7f02f845486333fb5f glfwSetErrorCallback>
+-- See <http://www.glfw.org/docs/3.2/group__init.html#gaa5d796c3cf7c1a7f02f845486333fb5f glfwSetErrorCallback>
 setErrorCallback :: Maybe ErrorCallback -> IO ()
 setErrorCallback = setCallback
     mk'GLFWerrorfun
@@ -363,8 +363,8 @@ setErrorCallback = setCallback
 -- | Attempts to initialize the GLFW library. When the library is not initialized, the only
 -- allowed functions to call are 'getVersion', 'getVersionString', 'setErrorCallback',
 -- 'init', and 'terminate'. Returns if the initialization was successful or not.
--- See <http://www.glfw.org/docs/3.1/group__init.html#ga317aac130a235ab08c6db0834907d85e glfwInit>
--- and <http://www.glfw.org/docs/3.1/intro.html#intro_init Initialization and Termination>
+-- See <http://www.glfw.org/docs/3.2/group__init.html#ga317aac130a235ab08c6db0834907d85e glfwInit>
+-- and <http://www.glfw.org/docs/3.2/intro.html#intro_init Initialization and Termination>
 init :: IO Bool
 init =
     fromC `fmap` c'glfwInit
@@ -372,8 +372,8 @@ init =
 -- | Cleans up GLFW and puts the library into an uninitialized state.
 -- Once you call this, you must initilize the library again.
 -- Warning: No window's context may be current in another thread when this is called.
--- See <http://www.glfw.org/docs/3.1/group__init.html#gaaae48c0a18607ea4a4ba951d939f0901 glfwTerminate>
--- and <http://www.glfw.org/docs/3.1/intro.html#intro_init Initialization and Termination>
+-- See <http://www.glfw.org/docs/3.2/group__init.html#gaaae48c0a18607ea4a4ba951d939f0901 glfwTerminate>
+-- and <http://www.glfw.org/docs/3.2/intro.html#intro_init Initialization and Termination>
 terminate :: IO ()
 terminate = do
     c'glfwTerminate
@@ -383,7 +383,7 @@ terminate = do
     storeCallback storedJoystickFun         nullFunPtr
 
 -- | Gets the version of the GLFW library that's being used with the current program.
--- See <http://www.glfw.org/docs/3.1/group__init.html#ga9f8ffaacf3c269cc48eafbf8b9b71197 glfwGetVersion>
+-- See <http://www.glfw.org/docs/3.2/group__init.html#ga9f8ffaacf3c269cc48eafbf8b9b71197 glfwGetVersion>
 getVersion :: IO Version
 getVersion =
     allocaArray 3 $ \p -> do
@@ -399,7 +399,7 @@ getVersion =
 -- | Gets the compile-time version string of the GLFW library binary.
 -- Gives extra info like platform and compile time options used, but you should not
 -- attempt to parse this to get the GLFW version number. Use 'getVersion' instead.
--- See <http://www.glfw.org/docs/3.1/group__init.html#ga23d47dc013fce2bf58036da66079a657 glfwGetVersionString>
+-- See <http://www.glfw.org/docs/3.2/group__init.html#ga23d47dc013fce2bf58036da66079a657 glfwGetVersionString>
 getVersionString :: IO (Maybe String)
 getVersionString = do
     p'vs <- c'glfwGetVersionString
@@ -985,14 +985,14 @@ setFramebufferSizeCallback win = setWindowCallback
 
 -- | Checks for any pending events, processes them, and then immediately returns.
 -- This is most useful for continual rendering, such as games.
--- See the <http://www.glfw.org/docs/3.1/input.html#events Event Processing Guide>
+-- See the <http://www.glfw.org/docs/3.2/input.html#events Event Processing Guide>
 pollEvents :: IO ()
 pollEvents = c'glfwPollEvents >> executeScheduled
 
 -- | Waits until at least one event is in the queue then processes the queue and returns.
 -- Requires at least one window to be active for it to sleep. This saves a lot of CPU, and
 -- is better if you're doing only periodic rendering, such as with an editor program.
--- See the <http://www.glfw.org/docs/3.1/input.html#events Event Processing Guide>
+-- See the <http://www.glfw.org/docs/3.2/input.html#events Event Processing Guide>
 waitEvents :: IO ()
 waitEvents = c'glfwWaitEvents >> executeScheduled
 
@@ -1005,7 +1005,7 @@ waitEventsTimeout seconds =
 -- | Creates an empty event within the event queue. Can be called from any
 -- thread, so you can use this to wake up the main thread that's using
 -- 'waitEvents' from a secondary thread.
--- See the <http://www.glfw.org/docs/3.1/input.html#events Event Processing Guide>
+-- See the <http://www.glfw.org/docs/3.2/input.html#events Event Processing Guide>
 postEmptyEvent :: IO ()
 postEmptyEvent = c'glfwPostEmptyEvent
 
@@ -1015,37 +1015,37 @@ postEmptyEvent = c'glfwPostEmptyEvent
 -- start of glfw{GS}etInputMode-related functions
 
 -- | Gets the current cursor input mode.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 getCursorInputMode :: Window -> IO CursorInputMode
 getCursorInputMode win =
     fromC `fmap` c'glfwGetInputMode (toC win) c'GLFW_CURSOR
 
 -- | Set the cursor input mode.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 setCursorInputMode :: Window -> CursorInputMode -> IO ()
 setCursorInputMode win c =
     c'glfwSetInputMode (toC win) c'GLFW_CURSOR (toC c)
 
 -- | Gets the current sticky keys mode.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 getStickyKeysInputMode :: Window -> IO StickyKeysInputMode
 getStickyKeysInputMode win =
     fromC `fmap` c'glfwGetInputMode (toC win) c'GLFW_STICKY_KEYS
 
 -- | Sets if sticky keys should be used or not.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 setStickyKeysInputMode :: Window -> StickyKeysInputMode -> IO ()
 setStickyKeysInputMode win sk =
     c'glfwSetInputMode (toC win) c'GLFW_STICKY_KEYS (toC sk)
 
 -- | Gets if sticky mouse buttons are on or not.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 getStickyMouseButtonsInputMode :: Window -> IO StickyMouseButtonsInputMode
 getStickyMouseButtonsInputMode win =
     fromC `fmap` c'glfwGetInputMode (toC win) c'GLFW_STICKY_MOUSE_BUTTONS
 
 -- | Sets if sticky mouse buttons should be used or not.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>
 setStickyMouseButtonsInputMode :: Window -> StickyMouseButtonsInputMode -> IO ()
 setStickyMouseButtonsInputMode win smb =
     c'glfwSetInputMode (toC win) c'GLFW_STICKY_MOUSE_BUTTONS (toC smb)
@@ -1054,7 +1054,7 @@ setStickyMouseButtonsInputMode win smb =
 
 -- | Gets the state of the specified key. If Stickey Keys isn't enabled then it's possible for
 -- keyboard polling to miss individual key presses. Use the callback to avoid this.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gadd341da06bc8d418b4dc3a3518af9ad2 glfwGetKey>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gadd341da06bc8d418b4dc3a3518af9ad2 glfwGetKey>
 getKey :: Window -> Key -> IO KeyState
 getKey win k =
     fromC `fmap` c'glfwGetKey (toC win) (toC k)
@@ -1062,14 +1062,14 @@ getKey win k =
 -- | Gets the state of a single specified mouse button. If sticky mouse button
 -- mode isn't enabled it's possible for mouse polling to miss individual mouse events. Use
 -- the call back to avoid this.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gac1473feacb5996c01a7a5a33b5066704 glfwGetMouseButton>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gac1473feacb5996c01a7a5a33b5066704 glfwGetMouseButton>
 getMouseButton :: Window -> MouseButton -> IO MouseButtonState
 getMouseButton win b =
     fromC `fmap` c'glfwGetMouseButton (toC win) (toC b)
 
 -- | Returns the position, in screen coodinates, relative to the upper left.
 -- If the 'CursorInputMode' is "disabled", then results are unbounded by the window size.
--- See <http://www.glfw.org/docs/3.1/group__input.html#ga01d37b6c40133676b9cea60ca1d7c0cc glfwGetCursorPos>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#ga01d37b6c40133676b9cea60ca1d7c0cc glfwGetCursorPos>
 getCursorPos :: Window -> IO (Double, Double)
 getCursorPos win =
     allocaArray 2 $ \p -> do
@@ -1081,7 +1081,7 @@ getCursorPos win =
         return (x, y)
 
 -- | Assigns the given callback to use for all keyboard presses and repeats.
--- See <http://www.glfw.org/docs/3.1/group__input.html#ga7e496507126f35ea72f01b2e6ef6d155 glfwSetKeyCallback>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#ga7e496507126f35ea72f01b2e6ef6d155 glfwSetKeyCallback>
 setKeyCallback :: Window -> Maybe KeyCallback -> IO ()
 setKeyCallback win = setWindowCallback
     mk'GLFWkeyfun
@@ -1092,7 +1092,7 @@ setKeyCallback win = setWindowCallback
     win
 
 -- | Sets the callback to use when the user types a character
--- See <http://www.glfw.org/docs/3.1/group__input.html#ga556239421c6a5a243c66fca28da9f742 glfwSetCharCallback>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#ga556239421c6a5a243c66fca28da9f742 glfwSetCharCallback>
 setCharCallback :: Window -> Maybe CharCallback -> IO ()
 setCharCallback win = setWindowCallback
     mk'GLFWcharfun
@@ -1113,7 +1113,7 @@ setCharModsCallback win = setWindowCallback
     win
 
 -- | Assigns the callback to run whenver a mouse button is clicked.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gaef49b72d84d615bca0a6ed65485e035d glfwSetMouseButtonCallback>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gaef49b72d84d615bca0a6ed65485e035d glfwSetMouseButtonCallback>
 setMouseButtonCallback :: Window -> Maybe MouseButtonCallback -> IO ()
 setMouseButtonCallback win = setWindowCallback
     mk'GLFWmousebuttonfun
@@ -1123,7 +1123,7 @@ setMouseButtonCallback win = setWindowCallback
     win
 
 -- | Assigns the callback to run whenver the cursor position changes.
--- See <http://www.glfw.org/docs/3.1/group__input.html#ga7dad39486f2c7591af7fb25134a2501d glfwSetCursorPosCallback>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#ga7dad39486f2c7591af7fb25134a2501d glfwSetCursorPosCallback>
 setCursorPosCallback :: Window -> Maybe CursorPosCallback -> IO ()
 setCursorPosCallback win = setWindowCallback
     mk'GLFWcursorposfun
@@ -1133,7 +1133,7 @@ setCursorPosCallback win = setWindowCallback
     win
 
 -- | Sets the callback for when the cursor enters or leaves the client area.
--- See <http://www.glfw.org/docs/3.1/input.html#cursor_enter Cursor Enter/Leave Events>
+-- See <http://www.glfw.org/docs/3.2/input.html#cursor_enter Cursor Enter/Leave Events>
 setCursorEnterCallback :: Window -> Maybe CursorEnterCallback -> IO ()
 setCursorEnterCallback win = setWindowCallback
     mk'GLFWcursorenterfun
@@ -1143,7 +1143,7 @@ setCursorEnterCallback win = setWindowCallback
     win
 
 -- | Sets the callback to run when the user scrolls with the mouse wheel or a touch gesture.
--- See <http://www.glfw.org/docs/3.1/input.html#scrolling Scroll Input>
+-- See <http://www.glfw.org/docs/3.2/input.html#scrolling Scroll Input>
 setScrollCallback :: Window -> Maybe ScrollCallback -> IO ()
 setScrollCallback win = setWindowCallback
     mk'GLFWscrollfun
@@ -1153,13 +1153,13 @@ setScrollCallback win = setWindowCallback
     win
 
 -- | Tests if the joystick is present at all
--- See <http://www.glfw.org/docs/3.1/group__input.html#gaffcbd9ac8ee737fcdd25475123a3c790 glfwJoystickPresent>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gaffcbd9ac8ee737fcdd25475123a3c790 glfwJoystickPresent>
 joystickPresent :: Joystick -> IO Bool
 joystickPresent js =
     fromC `fmap` c'glfwJoystickPresent (toC js)
 
 -- | Returns the values of all axes of the specified joystick, normalized to between -1.0 and 1.0
--- See <http://www.glfw.org/docs/3.1/group__input.html#ga6271d46a5901ec2c99601ccf4dd14731 glfwGetJoystickAxes>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#ga6271d46a5901ec2c99601ccf4dd14731 glfwGetJoystickAxes>
 getJoystickAxes :: Joystick -> IO (Maybe [Double])
 getJoystickAxes js =
     alloca $ \p'n -> do
@@ -1170,7 +1170,7 @@ getJoystickAxes js =
           else (Just . map fromC) `fmap` peekArray n p'axes
 
 -- | Returns a list of all joystick button states for the specified joystick.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gace54cd930dcd502e118fe4021384ce1b glfwGetJoystickButtons>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gace54cd930dcd502e118fe4021384ce1b glfwGetJoystickButtons>
 getJoystickButtons :: Joystick -> IO (Maybe [JoystickButtonState])
 getJoystickButtons js =
     alloca $ \p'n -> do
@@ -1181,7 +1181,7 @@ getJoystickButtons js =
           else (Just . map fromC) `fmap` peekArray n p'buttons
 
 -- | A human-readable name for a Joystick. Not guranteed to be unique.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gac8d7f6107e05cfd106cfba973ab51e19 glfwGetJoystickName>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gac8d7f6107e05cfd106cfba973ab51e19 glfwGetJoystickName>
 getJoystickName :: Joystick -> IO (Maybe String)
 getJoystickName js = do
     p'name <- c'glfwGetJoystickName (toC js)
@@ -1204,7 +1204,7 @@ setJoystickCallback = setCallback
 -- | Returns the time (in seconds) of the GLFW timer.
 -- This is the amount of time since GLFW was initialized, unless 'setTime' was used.
 -- The exact resolution is system dependent.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gaa6cf4e7a77158a3b8fd00328b1720a4a glfwGetTime>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gaa6cf4e7a77158a3b8fd00328b1720a4a glfwGetTime>
 getTime :: IO (Maybe Double)
 getTime = do
     t <- fromC `fmap` c'glfwGetTime
@@ -1215,7 +1215,7 @@ getTime = do
 -- | Sets the GLFW timer to the specified value, which is measured in seconds, and must be positive.
 -- The value must also be less than ~584 years in seconds (18446744073.0).
 -- After this the timer begins to count upward at the normal rate.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gaf59589ef6e8b8c8b5ad184b25afd4dc0 glfwSetTime>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gaf59589ef6e8b8c8b5ad184b25afd4dc0 glfwSetTime>
 setTime :: Double -> IO ()
 setTime =
     c'glfwSetTime . toC
@@ -1226,13 +1226,13 @@ setTime =
 -- | Makes the context of the specified window the current one for the calling thread.
 -- A context can only be made current on a single thread at a time,
 -- and each thread can have only a single current context at a time.
--- See <http://www.glfw.org/docs/3.1/group__context.html#ga1c04dc242268f827290fe40aa1c91157 glfwMakeContextCurrent>
+-- See <http://www.glfw.org/docs/3.2/group__context.html#ga1c04dc242268f827290fe40aa1c91157 glfwMakeContextCurrent>
 makeContextCurrent :: Maybe Window -> IO ()
 makeContextCurrent =
     c'glfwMakeContextCurrent . maybe nullPtr toC
 
 -- | Obtains which window owns the current context of the calling thread.
--- See <http://www.glfw.org/docs/3.1/group__context.html#gac84759b1f6c2d271a4fea8ae89ec980d glfwGetCurrentContext>
+-- See <http://www.glfw.org/docs/3.2/group__context.html#gac84759b1f6c2d271a4fea8ae89ec980d glfwGetCurrentContext>
 getCurrentContext :: IO (Maybe Window)
 getCurrentContext = do
     p'win <- c'glfwGetCurrentContext
@@ -1241,21 +1241,21 @@ getCurrentContext = do
       else Just $ fromC p'win
 
 -- | Swaps the front and back buffers of the window.
--- See <http://www.glfw.org/docs/3.1/group__window.html#ga15a5a1ee5b3c2ca6b15ca209a12efd14 glfwSwapBuffers>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga15a5a1ee5b3c2ca6b15ca209a12efd14 glfwSwapBuffers>
 swapBuffers :: Window -> IO ()
 swapBuffers =
     c'glfwSwapBuffers . toC
 
 -- | Sets the number of screen updates that the GPU should wait after 'swapBuffers' before actually swapping the buffers.
 -- Generates 'Error'NoCurrentContext' if no context is current.
--- See <http://www.glfw.org/docs/3.1/group__context.html#ga6d4e0cdf151b5e579bd67f13202994ed glfwSwapInterval>
+-- See <http://www.glfw.org/docs/3.2/group__context.html#ga6d4e0cdf151b5e579bd67f13202994ed glfwSwapInterval>
 swapInterval :: Int -> IO ()
 swapInterval =
     c'glfwSwapInterval . toC
 
 -- | If the current OpenGL or OpenGL ES context supports the extension specified.
 -- Generates 'Error'NoCurrentContext' if no context is current.
--- See <http://www.glfw.org/docs/3.1/group__context.html#ga87425065c011cef1ebd6aac75e059dfa glfwExtensionSupported>
+-- See <http://www.glfw.org/docs/3.2/group__context.html#ga87425065c011cef1ebd6aac75e059dfa glfwExtensionSupported>
 extensionSupported :: String -> IO Bool
 extensionSupported ext =
     withCString ext $ \p'ext ->
@@ -1263,17 +1263,17 @@ extensionSupported ext =
 
 --------------------------------------------------------------------------------
 -- Clipboard
--- http://www.glfw.org/docs/3.1/input.html#clipboard
+-- http://www.glfw.org/docs/3.2/input.html#clipboard
 
 -- | The window that will own the clipboard contents, and also the clipboard string.
--- See <http://www.glfw.org/docs/3.1/group__input.html#gaba1f022c5eb07dfac421df34cdcd31dd glfwSetClipboardString>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#gaba1f022c5eb07dfac421df34cdcd31dd glfwSetClipboardString>
 setClipboardString :: Window -> String -> IO ()
 setClipboardString win s =
     withCString s (c'glfwSetClipboardString (toC win))
 
 -- | Obtains the contents of the system keyboard, if possible.
 -- Generates 'Error'FormatUnavailable' if the system clipboard is empty or if it's not a UTF-8 string.
--- See <http://www.glfw.org/docs/3.1/group__input.html#ga5aba1d704d9ab539282b1fbe9f18bb94 glfwGetClipboardString>
+-- See <http://www.glfw.org/docs/3.2/group__input.html#ga5aba1d704d9ab539282b1fbe9f18bb94 glfwGetClipboardString>
 getClipboardString :: Window -> IO (Maybe String)
 getClipboardString win = do
     p's <- c'glfwGetClipboardString (toC win)
@@ -1286,7 +1286,7 @@ getClipboardString win = do
 --------------------------------------------------------------------------------
 
 -- Cursor Objects
--- http://www.glfw.org/docs/3.1/input.html#cursor_object
+-- http://www.glfw.org/docs/3.2/input.html#cursor_object
 
 -- | Creates a new cursor.
 createCursor :: Image -- ^ The desired cursor image.

@@ -353,7 +353,7 @@ test_getWindowMonitor win _ = do
     m @?= Nothing
 
 test_setWindowed :: GLFW.Window -> IO ()
-test_setWindowed win = GLFW.setWindowed win 0 0 100 100
+test_setWindowed win = GLFW.setWindowed win 100 100 0 0
 
 test_setWindowIcon :: GLFW.Window -> IO ()
 test_setWindowIcon win = let

@@ -82,6 +82,8 @@ module Graphics.UI.GLFW
   , hideWindow
   , getWindowMonitor
   , setCursorPos
+  , setFullscreen
+  , setWindowed
     -- related to c'glfwGetWindowAttrib --.
   , getWindowFocused                   -- |
   , getWindowMaximized                 -- |
@@ -903,7 +905,8 @@ hideWindow :: Window -> IO ()
 hideWindow =
     c'glfwHideWindow . toC
 
--- | Gets the monitor that this window is running on.
+-- | Gets the monitor that this window is running on, provided the window is
+-- fullscreen.
 -- See <http://www.glfw.org/docs/3.2/group__window.html#gaeac25e64789974ccbe0811766bd91a16 glfwGetWindowMonitor>
 getWindowMonitor :: Window -> IO (Maybe Monitor)
 getWindowMonitor win = do
@@ -917,6 +920,27 @@ getWindowMonitor win = do
 setCursorPos :: Window -> Double -> Double -> IO ()
 setCursorPos win x y =
     c'glfwSetCursorPos (toC win) (toC x) (toC y)
+
+-- | Makes a window fullscreen on the given monitor. The number of red, green,
+-- and blue bits is ignored. Note, this shouldn't be used to update the
+-- resolution of a fullscreen window. Use 'setWindowSize' instead.
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga81c76c418af80a1cce7055bccb0ae0a7 glfwSetWindowMonitor>
+setFullscreen :: Window -> Monitor -> VideoMode -> IO ()
+setFullscreen win mon (VideoMode width height _ _ _ refresh) =
+  c'glfwSetWindowMonitor (toC win) (toC mon) 0 0 (toC width) (toC height) (toC refresh)
+
+-- | Updates a window to be windowed instead of fullscreen. Note, this shouldn't
+-- be used to update the position or size of a window. Use 'setWindowPos' and
+-- 'setWindowSize' instead.
+-- See <http://www.glfw.org/docs/3.2/group__window.html#ga81c76c418af80a1cce7055bccb0ae0a7 glfwSetWindowMonitor>
+setWindowed :: Window
+            -> Int  -- ^ The width of the client area
+            -> Int  -- ^ The height of the client area
+            -> Int  -- ^ The x position of the window
+            -> Int  -- ^ The y position of the window
+            -> IO ()
+setWindowed win width height x y =
+  c'glfwSetWindowMonitor (toC win) nullPtr (toC x) (toC y) (toC width) (toC height) 0
 
 -- start of functions related to c'glfwGetWindowAttrib
 

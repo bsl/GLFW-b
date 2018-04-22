@@ -14,6 +14,3 @@ Coordinate with GLFW C-library maintainer about any strange behavior.
 
 getPressedKeys?
 getJoystickAxesN?
-
-Coordinate with GLFW C-library maintainer about new functionality.
-1.) waitEvents with timeout?

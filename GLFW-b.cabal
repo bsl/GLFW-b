@@ -1,9 +1,11 @@
 name:         GLFW-b
-version:      1.4.8.4
+version:      3.2.1.0
 category:     Graphics
 
 author:       Brian Lewis <brian@lorf.org>
-maintainer:   Brian Lewis <brian@lorf.org>, Schell Scivally <schell.scivally@synapsegroup.com>
+maintainer:   Brian Lewis <brian@lorf.org>
+            , Schell Scivally <schell.scivally@synapsegroup.com>
+            , Pavel Krajcevski <krajcevski@gmail.com>
 
 license:      BSD3
 license-file: LICENSE
@@ -18,8 +20,7 @@ description:
   (<http://hackage.haskell.org/package/bindings-GLFW>), which, as of the time
   of this writing, binds to GLFW 3.2.1, released 2016-08-18
   (<http://www.glfw.org/Version-3.2.1-released.html>
-  <http://www.glfw.org/changelog.html>). However, these high-level bindings only
-  point to some of the new features in 3.1 and 3.2.
+  <http://www.glfw.org/changelog.html>).
   .
   If you've used GLFW < 3 before, you should read the transition guide
   (<http://www.glfw.org/docs/3.0/moving.html>).
@@ -52,7 +53,7 @@ library
   build-depends:
       base          <  5
     , deepseq       >= 1.1.0.0
-    , bindings-GLFW >= 3.2.1.0
+    , bindings-GLFW >= 3.2.1.1
 
 --------------------------------------------------------------------------------
 

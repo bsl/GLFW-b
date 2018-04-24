@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, FlexibleContexts #-}
 
 --------------------------------------------------------------------------------
 
@@ -23,6 +23,13 @@ import Graphics.UI.GLFW.Types
 class C c h where
   fromC :: c -> h
   toC   :: h -> c
+
+--------------------------------------------------------------------------------
+
+instance (C CInt b) => C CInt (Maybe b) where
+  fromC i | i == c'GLFW_DONT_CARE = Nothing
+          | otherwise = Just $ fromC i
+  toC = maybe c'GLFW_DONT_CARE toC
 
 --------------------------------------------------------------------------------
 
@@ -132,27 +139,11 @@ instance C CInt Error where
 
 instance C CInt MonitorState where
   fromC v
-    | v == c'GLFW_TRUE = MonitorState'Connected
-    | v == c'GLFW_FALSE = MonitorState'Disconnected
+    | v == c'GLFW_CONNECTED = MonitorState'Connected
+    | v == c'GLFW_DISCONNECTED = MonitorState'Disconnected
     | otherwise = error $ "C CInt MonitorState fromC: " ++ show v
-  toC MonitorState'Connected = c'GLFW_TRUE
-  toC MonitorState'Disconnected = c'GLFW_FALSE
-
-instance C CInt FocusState where
-  fromC v
-    | v == c'GLFW_TRUE = FocusState'Focused
-    | v == c'GLFW_FALSE = FocusState'Defocused
-    | otherwise = error $ "C CInt FocusState fromC: " ++ show v
-  toC FocusState'Focused = c'GLFW_TRUE
-  toC FocusState'Defocused = c'GLFW_FALSE
-
-instance C CInt IconifyState where
-  fromC v
-    | v == c'GLFW_TRUE = IconifyState'Iconified
-    | v == c'GLFW_FALSE = IconifyState'NotIconified
-    | otherwise = error $ "C CInt IconifyState fromC: " ++ show v
-  toC IconifyState'Iconified = c'GLFW_TRUE
-  toC IconifyState'NotIconified = c'GLFW_FALSE
+  toC MonitorState'Connected = c'GLFW_CONNECTED
+  toC MonitorState'Disconnected = c'GLFW_DISCONNECTED
 
 instance C CInt ContextRobustness where
   fromC v
@@ -163,6 +154,16 @@ instance C CInt ContextRobustness where
   toC ContextRobustness'NoRobustness = c'GLFW_NO_ROBUSTNESS
   toC ContextRobustness'NoResetNotification = c'GLFW_NO_RESET_NOTIFICATION
   toC ContextRobustness'LoseContextOnReset = c'GLFW_LOSE_CONTEXT_ON_RESET
+
+instance C CInt ContextReleaseBehavior where
+  fromC v
+    | v == c'GLFW_ANY_RELEASE_BEHAVIOR = ContextReleaseBehavior'Any
+    | v == c'GLFW_RELEASE_BEHAVIOR_NONE = ContextReleaseBehavior'None
+    | v == c'GLFW_RELEASE_BEHAVIOR_FLUSH = ContextReleaseBehavior'Flush
+    | otherwise = error $ "C CInt ContextReleaseBehavior fromC: " ++ show v
+  toC ContextReleaseBehavior'Any = c'GLFW_ANY_RELEASE_BEHAVIOR
+  toC ContextReleaseBehavior'None = c'GLFW_RELEASE_BEHAVIOR_NONE
+  toC ContextReleaseBehavior'Flush = c'GLFW_RELEASE_BEHAVIOR_FLUSH
 
 instance C CInt OpenGLProfile where
   fromC v
@@ -176,11 +177,21 @@ instance C CInt OpenGLProfile where
 
 instance C CInt ClientAPI where
   fromC v
+    | v == c'GLFW_NO_API = ClientAPI'NoAPI
     | v == c'GLFW_OPENGL_API = ClientAPI'OpenGL
     | v == c'GLFW_OPENGL_ES_API = ClientAPI'OpenGLES
     | otherwise = error $ "C CInt ClientAPI fromC: " ++ show v
+  toC ClientAPI'NoAPI = c'GLFW_NO_API
   toC ClientAPI'OpenGL = c'GLFW_OPENGL_API
   toC ClientAPI'OpenGLES = c'GLFW_OPENGL_ES_API
+
+instance C CInt ContextCreationAPI where
+  fromC v
+    | v == c'GLFW_NATIVE_CONTEXT_API = ContextCreationAPI'Native
+    | v == c'GLFW_EGL_CONTEXT_API = ContextCreationAPI'EGL
+    | otherwise = error $ "C CInt ContextCreationAPI fromC: " ++ show v
+  toC ContextCreationAPI'Native = c'GLFW_NATIVE_CONTEXT_API
+  toC ContextCreationAPI'EGL = c'GLFW_EGL_CONTEXT_API
 
 instance C CInt Key where
   fromC v
@@ -481,6 +492,14 @@ instance C CUChar JoystickButtonState where
     | otherwise = error $ "C CUChar JoystickButtonState fromC: " ++ show v
   toC JoystickButtonState'Pressed = c'GLFW_PRESS
   toC JoystickButtonState'Released = c'GLFW_RELEASE
+
+instance C CInt JoystickState where
+  fromC v
+    | v == c'GLFW_CONNECTED = JoystickState'Connected
+    | v == c'GLFW_DISCONNECTED = JoystickState'Disconnected
+    | otherwise = error $ "C CInt JoystickState fromC: " ++ show v
+  toC JoystickState'Connected = c'GLFW_CONNECTED
+  toC JoystickState'Disconnected = c'GLFW_DISCONNECTED
 
 instance C CInt MouseButton where
   fromC v

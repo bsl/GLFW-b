@@ -13,6 +13,7 @@ import Control.DeepSeq  (NFData)
 import Data.Data        (Data)
 import Data.IORef       (IORef)
 import Data.Typeable    (Typeable)
+import Data.Word        (Word8)
 import Foreign.Ptr      (Ptr)
 import Foreign.C.Types  (CUChar(..))
 import GHC.Generics
@@ -22,17 +23,17 @@ import Bindings.GLFW
 --------------------------------------------------------------------------------
 -- Error handling
 
--- | An enum for one of the <http://www.glfw.org/docs/3.1/group__errors.html#ga196e125ef261d94184e2b55c05762f14 GLFW error codes>.
+-- | An enum for one of the <http://www.glfw.org/docs/3.2/group__errors.html#ga196e125ef261d94184e2b55c05762f14 GLFW error codes>.
 data Error =
-    Error'NotInitialized -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#ga2374ee02c177f12e1fa76ff3ed15e14a doc>
-  | Error'NoCurrentContext -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#gaa8290386e9528ccb9e42a3a4e16fc0d0 doc>
-  | Error'InvalidEnum -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#ga76f6bb9c4eea73db675f096b404593ce doc>
-  | Error'InvalidValue -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#gaaf2ef9aa8202c2b82ac2d921e554c687 doc>
-  | Error'OutOfMemory -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#ga9023953a2bcb98c2906afd071d21ee7f doc>
-  | Error'ApiUnavailable -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#ga56882b290db23261cc6c053c40c2d08e doc>
-  | Error'VersionUnavailable -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#gad16c5565b4a69f9c2a9ac2c0dbc89462 doc>
-  | Error'PlatformError -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#gad44162d78100ea5e87cdd38426b8c7a1 doc>
-  | Error'FormatUnavailable -- ^ <http://www.glfw.org/docs/3.1/group__errors.html#ga196e125ef261d94184e2b55c05762f14 doc>
+    Error'NotInitialized -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#ga2374ee02c177f12e1fa76ff3ed15e14a doc>
+  | Error'NoCurrentContext -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#gaa8290386e9528ccb9e42a3a4e16fc0d0 doc>
+  | Error'InvalidEnum -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#ga76f6bb9c4eea73db675f096b404593ce doc>
+  | Error'InvalidValue -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#gaaf2ef9aa8202c2b82ac2d921e554c687 doc>
+  | Error'OutOfMemory -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#ga9023953a2bcb98c2906afd071d21ee7f doc>
+  | Error'ApiUnavailable -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#ga56882b290db23261cc6c053c40c2d08e doc>
+  | Error'VersionUnavailable -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#gad16c5565b4a69f9c2a9ac2c0dbc89462 doc>
+  | Error'PlatformError -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#gad44162d78100ea5e87cdd38426b8c7a1 doc>
+  | Error'FormatUnavailable -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#ga196e125ef261d94184e2b55c05762f14 doc>
   deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData Error
@@ -41,7 +42,7 @@ instance NFData Error
 -- Initialization and version information
 
 -- | The library version of the GLFW implementation in use.
--- See <http://www.glfw.org/docs/3.1/intro.html#intro_version Version Management>
+-- See <http://www.glfw.org/docs/3.2/intro.html#intro_version Version Management>
 data Version = Version
   { versionMajor    :: Int
   , versionMinor    :: Int
@@ -54,7 +55,7 @@ instance NFData Version
 -- Monitor handling
 
 -- | Represents a physical monitor that's currently connected.
--- See the <http://www.glfw.org/docs/3.1/monitor.html Monitor Guide>
+-- See the <http://www.glfw.org/docs/3.2/monitor.html Monitor Guide>
 newtype Monitor = Monitor
   { unMonitor :: Ptr C'GLFWmonitor
   } deriving (Data, Eq, Ord, Show, Typeable, Generic)
@@ -67,7 +68,7 @@ data MonitorState =
 
 instance NFData MonitorState
 
--- | See <http://www.glfw.org/docs/3.1/monitor.html#monitor_modes Video Modes>
+-- | See <http://www.glfw.org/docs/3.2/monitor.html#monitor_modes Video Modes>
 data VideoMode = VideoMode
   { videoModeWidth       :: Int
   , videoModeHeight      :: Int
@@ -80,7 +81,7 @@ data VideoMode = VideoMode
 instance NFData VideoMode
 
 -- | Lets you adjust the gamma of a monitor. To ensure that only valid values are created, use 'makeGammaRamp'.
--- See <http://www.glfw.org/docs/3.1/monitor.html#monitor_gamma Gamma Ramp>.
+-- See <http://www.glfw.org/docs/3.2/monitor.html#monitor_gamma Gamma Ramp>.
 data GammaRamp = GammaRamp
   -- NOTE: It would be bad to give clients a way to construct invalid gamma ramps
   -- with lists of unequal length, so this constructor should not be exported.
@@ -109,6 +110,7 @@ makeGammaRamp rs gs bs
 -- | Collects all the callbacks that can be associated with a Window into a single place.
 data WindowCallbacks = WindowCallbacks
   { storedCharFun             :: IORef C'GLFWcharfun
+  , storedCharModsFun         :: IORef C'GLFWcharmodsfun
   , storedCursorEnterFun      :: IORef C'GLFWcursorenterfun
   , storedCursorPosFun        :: IORef C'GLFWcursorposfun
   , storedFramebufferSizeFun  :: IORef C'GLFWframebuffersizefun
@@ -125,59 +127,51 @@ data WindowCallbacks = WindowCallbacks
   }
 
 -- | Reprisents a GLFW window value.
--- See the <http://www.glfw.org/docs/3.1/window.html Window Guide>
+-- See the <http://www.glfw.org/docs/3.2/window.html Window Guide>
 newtype Window = Window
   { unWindow :: Ptr C'GLFWwindow
   } deriving (Data, Eq, Ord, Show, Typeable, Generic)
 
 -- | Lets you set various window hints before creating a 'Window'.
--- See <http://www.glfw.org/docs/3.1/window.html#window_hints Window Hints>,
--- particularly <http://www.glfw.org/docs/3.1/window.html#window_hints_values Supported and Default Values>.
+-- See <http://www.glfw.org/docs/3.2/window.html#window_hints Window Hints>,
+-- particularly <http://www.glfw.org/docs/3.2/window.html#window_hints_values Supported and Default Values>.
 data WindowHint =
-    WindowHint'Resizable           Bool
-  | WindowHint'Visible             Bool
-  | WindowHint'Decorated           Bool
-  | WindowHint'RedBits             Int
-  | WindowHint'GreenBits           Int
-  | WindowHint'BlueBits            Int
-  | WindowHint'AlphaBits           Int
-  | WindowHint'DepthBits           Int
-  | WindowHint'StencilBits         Int
-  | WindowHint'AccumRedBits        Int
-  | WindowHint'AccumGreenBits      Int
-  | WindowHint'AccumBlueBits       Int
-  | WindowHint'AccumAlphaBits      Int
-  | WindowHint'AuxBuffers          Int
-  | WindowHint'Samples             Int
-  | WindowHint'RefreshRate         Int
-  | WindowHint'Stereo              Bool
-  | WindowHint'sRGBCapable         Bool
-  | WindowHint'ClientAPI           ClientAPI
-  | WindowHint'ContextVersionMajor Int
-  | WindowHint'ContextVersionMinor Int
-  | WindowHint'ContextRobustness   ContextRobustness
-  | WindowHint'OpenGLForwardCompat Bool
-  | WindowHint'OpenGLDebugContext  Bool
-  | WindowHint'OpenGLProfile       OpenGLProfile
+    WindowHint'Resizable              Bool
+  | WindowHint'Visible                Bool
+  | WindowHint'Decorated              Bool
+  | WindowHint'RedBits                (Maybe Int)
+  | WindowHint'GreenBits              (Maybe Int)
+  | WindowHint'BlueBits               (Maybe Int)
+  | WindowHint'AlphaBits              (Maybe Int)
+  | WindowHint'DepthBits              (Maybe Int)
+  | WindowHint'StencilBits            (Maybe Int)
+  | WindowHint'AccumRedBits           (Maybe Int)
+  | WindowHint'AccumGreenBits         (Maybe Int)
+  | WindowHint'AccumBlueBits          (Maybe Int)
+  | WindowHint'AccumAlphaBits         (Maybe Int)
+  | WindowHint'AuxBuffers             (Maybe Int)
+  | WindowHint'Samples                (Maybe Int)
+  | WindowHint'RefreshRate            (Maybe Int)
+  | WindowHint'DoubleBuffer           Bool
+  | WindowHint'Stereo                 Bool
+  | WindowHint'sRGBCapable            Bool
+  | WindowHint'Floating               Bool
+  | WindowHint'Focused                Bool
+  | WindowHint'Maximized              Bool
+  | WindowHint'AutoIconify            Bool
+  | WindowHint'ClientAPI              ClientAPI
+  | WindowHint'ContextCreationAPI     ContextCreationAPI
+  | WindowHint'ContextVersionMajor    Int
+  | WindowHint'ContextVersionMinor    Int
+  | WindowHint'ContextRobustness      ContextRobustness
+  | WindowHint'ContextReleaseBehavior ContextReleaseBehavior
+  | WindowHint'ContextNoError         Bool
+  | WindowHint'OpenGLForwardCompat    Bool
+  | WindowHint'OpenGLDebugContext     Bool
+  | WindowHint'OpenGLProfile          OpenGLProfile
   deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData WindowHint
-
--- | For use with the focus callback.
-data FocusState =
-    FocusState'Focused
-  | FocusState'Defocused
-  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
-
-instance NFData FocusState
-
--- | For use with the iconify callback. (note: iconified means minimized)
-data IconifyState =
-    IconifyState'Iconified
-  | IconifyState'NotIconified
-  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
-
-instance NFData IconifyState
 
 -- | The OpenGL robustness strategy.
 data ContextRobustness =
@@ -199,16 +193,47 @@ instance NFData OpenGLProfile
 
 -- | The type of OpenGL to create a context for.
 data ClientAPI =
-    ClientAPI'OpenGL
+    ClientAPI'NoAPI
+  | ClientAPI'OpenGL
   | ClientAPI'OpenGLES
   deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData ClientAPI
 
+-- | The type of API to use for context creation.
+-- See the <http://www.glfw.org/docs/latest/window_guide.html Window Guide> for
+-- more information.
+--
+-- This is a hard constraint. If no client API is requested, this hint is
+-- ignored. Best practice is to stick to one API or the other, otherwise may
+-- segfault on Linux. OS X does not support the EGL API and will fail if this
+-- hint is used.
+data ContextCreationAPI
+  = ContextCreationAPI'Native
+  | ContextCreationAPI'EGL
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData ContextCreationAPI
+
+-- | The context release behavior.
+-- See the <http://www.glfw.org/docs/latest/window_guide.html Window Guide> for
+-- more information.
+--
+-- Context release behaviors are described in detail by the
+-- <https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_context_flush_control.txt KHR_context_flush_control>
+-- extension.
+data ContextReleaseBehavior
+  = ContextReleaseBehavior'Any
+  | ContextReleaseBehavior'None
+  | ContextReleaseBehavior'Flush
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData ContextReleaseBehavior
+
 --------------------------------------------------------------------------------
 -- Input handling
 
--- | Part of the <http://www.glfw.org/docs/3.1/input.html#input_keyboard Keyboard Input> system.
+-- | Part of the <http://www.glfw.org/docs/3.2/input.html#input_keyboard Keyboard Input> system.
 data Key =
     Key'Unknown
   | Key'Space
@@ -344,7 +369,7 @@ data KeyState =
 
 instance NFData KeyState
 
--- | For use with the <http://www.glfw.org/docs/3.1/input.html#joystick Joystick Input> system.
+-- | For use with the <http://www.glfw.org/docs/3.2/input.html#joystick Joystick Input> system.
 data Joystick =
     Joystick'1
   | Joystick'2
@@ -374,7 +399,15 @@ data JoystickButtonState =
 
 instance NFData JoystickButtonState
 
--- | Part of the <http://www.glfw.org/docs/3.1/input.html#input_mouse Mouse Input> system.
+-- | Part of the 'JoystickCallback', for when a monitor gets connected or disconnected.
+data JoystickState
+  = JoystickState'Connected
+  | JoystickState'Disconnected
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData JoystickState
+
+-- | Part of the <http://www.glfw.org/docs/3.2/input.html#input_mouse Mouse Input> system.
 data MouseButton =
     MouseButton'1
   | MouseButton'2
@@ -405,7 +438,7 @@ data CursorState =
 instance NFData CursorState
 
 -- | Allows for special forms of mouse input.
--- See <http://www.glfw.org/docs/3.1/input.html#cursor_mode Cursor Modes>
+-- See <http://www.glfw.org/docs/3.2/input.html#cursor_mode Cursor Modes>
 data CursorInputMode =
     CursorInputMode'Normal
   | CursorInputMode'Hidden
@@ -458,6 +491,19 @@ data Image = Image
   , imagePixels :: [CUChar]
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
+-- | Create an image given the function to generate 8-bit RGBA values based on
+-- the pixel location.
+mkImage :: Int -> Int -> (Int -> Int -> (Word8, Word8, Word8, Word8)) -> Image
+mkImage width height gen = Image
+  { imageWidth = width
+  , imageHeight = height
+  , imagePixels = [ CUChar channel | y <- [0..(height - 1)]
+                                   , x <- [0..(width - 1)]
+                                   , (r, g, b, a) <- [gen x y]
+                                   , channel <- [r, g, b, a]
+                  ]
+  }
+
 instance NFData Image
 
 -- | Reprisents a GLFW cursor.
@@ -467,7 +513,7 @@ newtype Cursor = Cursor
 
 -- | Lets you use one of the standard cursor appearnaces that the local
 -- system theme provides for.
--- See <http://www.glfw.org/docs/3.1/input.html#cursor_standard Standard Cursor Creation>.
+-- See <http://www.glfw.org/docs/3.2/input.html#cursor_standard Standard Cursor Creation>.
 data StandardCursorShape =
     StandardCursorShape'Arrow
   | StandardCursorShape'IBeam

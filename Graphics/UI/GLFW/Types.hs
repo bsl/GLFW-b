@@ -44,9 +44,9 @@ instance NFData Error
 -- | The library version of the GLFW implementation in use.
 -- See <http://www.glfw.org/docs/3.2/intro.html#intro_version Version Management>
 data Version = Version
-  { versionMajor    :: Int
-  , versionMinor    :: Int
-  , versionRevision :: Int
+  { versionMajor    :: {-# UNPACK #-} !Int
+  , versionMinor    :: {-# UNPACK #-} !Int
+  , versionRevision :: {-# UNPACK #-} !Int
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData Version
@@ -70,12 +70,12 @@ instance NFData MonitorState
 
 -- | See <http://www.glfw.org/docs/3.2/monitor.html#monitor_modes Video Modes>
 data VideoMode = VideoMode
-  { videoModeWidth       :: Int
-  , videoModeHeight      :: Int
-  , videoModeRedBits     :: Int
-  , videoModeGreenBits   :: Int
-  , videoModeBlueBits    :: Int
-  , videoModeRefreshRate :: Int
+  { videoModeWidth       :: {-# UNPACK #-} !Int
+  , videoModeHeight      :: {-# UNPACK #-} !Int
+  , videoModeRedBits     :: {-# UNPACK #-} !Int
+  , videoModeGreenBits   :: {-# UNPACK #-} !Int
+  , videoModeBlueBits    :: {-# UNPACK #-} !Int
+  , videoModeRefreshRate :: {-# UNPACK #-} !Int
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData VideoMode
@@ -109,21 +109,21 @@ makeGammaRamp rs gs bs
 
 -- | Collects all the callbacks that can be associated with a Window into a single place.
 data WindowCallbacks = WindowCallbacks
-  { storedCharFun             :: IORef C'GLFWcharfun
-  , storedCharModsFun         :: IORef C'GLFWcharmodsfun
-  , storedCursorEnterFun      :: IORef C'GLFWcursorenterfun
-  , storedCursorPosFun        :: IORef C'GLFWcursorposfun
-  , storedFramebufferSizeFun  :: IORef C'GLFWframebuffersizefun
-  , storedKeyFun              :: IORef C'GLFWkeyfun
-  , storedMouseButtonFun      :: IORef C'GLFWmousebuttonfun
-  , storedScrollFun           :: IORef C'GLFWscrollfun
-  , storedWindowCloseFun      :: IORef C'GLFWwindowclosefun
-  , storedWindowFocusFun      :: IORef C'GLFWwindowfocusfun
-  , storedWindowIconifyFun    :: IORef C'GLFWwindowiconifyfun
-  , storedWindowPosFun        :: IORef C'GLFWwindowposfun
-  , storedWindowRefreshFun    :: IORef C'GLFWwindowrefreshfun
-  , storedWindowSizeFun       :: IORef C'GLFWwindowsizefun
-  , storedDropFun             :: IORef C'GLFWdropfun
+  { storedCharFun             :: !(IORef C'GLFWcharfun)
+  , storedCharModsFun         :: !(IORef C'GLFWcharmodsfun)
+  , storedCursorEnterFun      :: !(IORef C'GLFWcursorenterfun)
+  , storedCursorPosFun        :: !(IORef C'GLFWcursorposfun)
+  , storedFramebufferSizeFun  :: !(IORef C'GLFWframebuffersizefun)
+  , storedKeyFun              :: !(IORef C'GLFWkeyfun)
+  , storedMouseButtonFun      :: !(IORef C'GLFWmousebuttonfun)
+  , storedScrollFun           :: !(IORef C'GLFWscrollfun)
+  , storedWindowCloseFun      :: !(IORef C'GLFWwindowclosefun)
+  , storedWindowFocusFun      :: !(IORef C'GLFWwindowfocusfun)
+  , storedWindowIconifyFun    :: !(IORef C'GLFWwindowiconifyfun)
+  , storedWindowPosFun        :: !(IORef C'GLFWwindowposfun)
+  , storedWindowRefreshFun    :: !(IORef C'GLFWwindowrefreshfun)
+  , storedWindowSizeFun       :: !(IORef C'GLFWwindowsizefun)
+  , storedDropFun             :: !(IORef C'GLFWdropfun)
   }
 
 -- | Reprisents a GLFW window value.
@@ -136,39 +136,39 @@ newtype Window = Window
 -- See <http://www.glfw.org/docs/3.2/window.html#window_hints Window Hints>,
 -- particularly <http://www.glfw.org/docs/3.2/window.html#window_hints_values Supported and Default Values>.
 data WindowHint =
-    WindowHint'Resizable              Bool
-  | WindowHint'Visible                Bool
-  | WindowHint'Decorated              Bool
-  | WindowHint'RedBits                (Maybe Int)
-  | WindowHint'GreenBits              (Maybe Int)
-  | WindowHint'BlueBits               (Maybe Int)
-  | WindowHint'AlphaBits              (Maybe Int)
-  | WindowHint'DepthBits              (Maybe Int)
-  | WindowHint'StencilBits            (Maybe Int)
-  | WindowHint'AccumRedBits           (Maybe Int)
-  | WindowHint'AccumGreenBits         (Maybe Int)
-  | WindowHint'AccumBlueBits          (Maybe Int)
-  | WindowHint'AccumAlphaBits         (Maybe Int)
-  | WindowHint'AuxBuffers             (Maybe Int)
-  | WindowHint'Samples                (Maybe Int)
-  | WindowHint'RefreshRate            (Maybe Int)
-  | WindowHint'DoubleBuffer           Bool
-  | WindowHint'Stereo                 Bool
-  | WindowHint'sRGBCapable            Bool
-  | WindowHint'Floating               Bool
-  | WindowHint'Focused                Bool
-  | WindowHint'Maximized              Bool
-  | WindowHint'AutoIconify            Bool
-  | WindowHint'ClientAPI              ClientAPI
-  | WindowHint'ContextCreationAPI     ContextCreationAPI
-  | WindowHint'ContextVersionMajor    Int
-  | WindowHint'ContextVersionMinor    Int
-  | WindowHint'ContextRobustness      ContextRobustness
-  | WindowHint'ContextReleaseBehavior ContextReleaseBehavior
-  | WindowHint'ContextNoError         Bool
-  | WindowHint'OpenGLForwardCompat    Bool
-  | WindowHint'OpenGLDebugContext     Bool
-  | WindowHint'OpenGLProfile          OpenGLProfile
+    WindowHint'Resizable              !Bool
+  | WindowHint'Visible                !Bool
+  | WindowHint'Decorated              !Bool
+  | WindowHint'RedBits                !(Maybe Int)
+  | WindowHint'GreenBits              !(Maybe Int)
+  | WindowHint'BlueBits               !(Maybe Int)
+  | WindowHint'AlphaBits              !(Maybe Int)
+  | WindowHint'DepthBits              !(Maybe Int)
+  | WindowHint'StencilBits            !(Maybe Int)
+  | WindowHint'AccumRedBits           !(Maybe Int)
+  | WindowHint'AccumGreenBits         !(Maybe Int)
+  | WindowHint'AccumBlueBits          !(Maybe Int)
+  | WindowHint'AccumAlphaBits         !(Maybe Int)
+  | WindowHint'AuxBuffers             !(Maybe Int)
+  | WindowHint'Samples                !(Maybe Int)
+  | WindowHint'RefreshRate            !(Maybe Int)
+  | WindowHint'DoubleBuffer           !Bool
+  | WindowHint'Stereo                 !Bool
+  | WindowHint'sRGBCapable            !Bool
+  | WindowHint'Floating               !Bool
+  | WindowHint'Focused                !Bool
+  | WindowHint'Maximized              !Bool
+  | WindowHint'AutoIconify            !Bool
+  | WindowHint'ClientAPI              !ClientAPI
+  | WindowHint'ContextCreationAPI     !ContextCreationAPI
+  | WindowHint'ContextVersionMajor    {-# UNPACK #-} !Int
+  | WindowHint'ContextVersionMinor    {-# UNPACK #-} !Int
+  | WindowHint'ContextRobustness      !ContextRobustness
+  | WindowHint'ContextReleaseBehavior !ContextReleaseBehavior
+  | WindowHint'ContextNoError         !Bool
+  | WindowHint'OpenGLForwardCompat    !Bool
+  | WindowHint'OpenGLDebugContext     !Bool
+  | WindowHint'OpenGLProfile          !OpenGLProfile
   deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData WindowHint
@@ -470,10 +470,10 @@ instance NFData StickyMouseButtonsInputMode
 
 -- | Modifier keys that were pressed as part of another keypress event.
 data ModifierKeys = ModifierKeys
-  { modifierKeysShift   :: Bool
-  , modifierKeysControl :: Bool
-  , modifierKeysAlt     :: Bool
-  , modifierKeysSuper   :: Bool
+  { modifierKeysShift   :: !Bool
+  , modifierKeysControl :: !Bool
+  , modifierKeysAlt     :: !Bool
+  , modifierKeysSuper   :: !Bool
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData ModifierKeys
@@ -486,8 +486,8 @@ deriving instance Data CUChar
 
 -- | GLFW image data, for setting up custom mouse cursor appearnaces.
 data Image = Image
-  { imageWidth  :: Int
-  , imageHeight :: Int
+  { imageWidth  :: {-# UNPACK #-} !Int
+  , imageHeight :: {-# UNPACK #-} !Int
   , imagePixels :: [CUChar]
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 

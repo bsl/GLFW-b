@@ -424,7 +424,8 @@ init =
 -- Once you call this, you must initilize the library again.
 -- Warning: No window's context may be current in another thread when this is called.
 -- See <http://www.glfw.org/docs/3.2/group__init.html#gaaae48c0a18607ea4a4ba951d939f0901 glfwTerminate>
--- and <http://www.glfw.org/docs/3.2/intro.html#intro_init Initialization and Termination>
+-- and <http://www.glfw.org/docs/3.2/intro.html#intro_init Initialization and Termination>. This
+-- function is not <https://www.glfw.org/docs/latest/intro.html#reentrancy reentrant>.
 terminate :: IO ()
 terminate = do
     c'glfwTerminate
@@ -708,7 +709,8 @@ createWindow w h title mmon mwin =
                   return $ Just $ fromC p'win
 
 -- | Cleans up a window and all associated resources
--- See <http://www.glfw.org/docs/3.2/group__window.html#gacdf43e51376051d2c091662e9fe3d7b2 glfwDestroyWindow>
+-- See <http://www.glfw.org/docs/3.2/group__window.html#gacdf43e51376051d2c091662e9fe3d7b2 glfwDestroyWindow>.
+-- This function is not <https://www.glfw.org/docs/latest/intro.html#reentrancy reentrant>.
 destroyWindow :: Window -> IO ()
 destroyWindow win = do
     pcb <- castPtrToStablePtr `liftM` c'glfwGetWindowUserPointer (toC win)
@@ -1129,19 +1131,22 @@ setFramebufferSizeCallback win = setWindowCallback
 
 -- | Checks for any pending events, processes them, and then immediately returns.
 -- This is most useful for continual rendering, such as games.
--- See the <http://www.glfw.org/docs/3.2/input.html#events Event Processing Guide>
+-- See the <http://www.glfw.org/docs/3.2/input.html#events Event Processing Guide>. This
+-- function is not <https://www.glfw.org/docs/latest/intro.html#reentrancy reentrant>.
 pollEvents :: IO ()
 pollEvents = c'glfwPollEvents >> executeScheduled
 
 -- | Waits until at least one event is in the queue then processes the queue and returns.
 -- Requires at least one window to be active for it to sleep. This saves a lot of CPU, and
 -- is better if you're doing only periodic rendering, such as with an editor program.
--- See the <http://www.glfw.org/docs/3.2/input.html#events Event Processing Guide>
+-- See the <http://www.glfw.org/docs/3.2/input.html#events Event Processing Guide>. This
+-- function is not <https://www.glfw.org/docs/latest/intro.html#reentrancy reentrant>.
 waitEvents :: IO ()
 waitEvents = c'glfwWaitEvents >> executeScheduled
 
 -- | Same as 'waitEvents', with a timeout after which the function returns.
--- See the <http://www.glfw.org/docs/3.2/input.html#events Event Processing Guide>
+-- See the <http://www.glfw.org/docs/3.2/input.html#events Event Processing Guide>. This
+-- function is not <https://www.glfw.org/docs/latest/intro.html#reentrancy reentrant>.
 waitEventsTimeout :: Double -> IO ()
 waitEventsTimeout seconds =
   c'glfwWaitEventsTimeout (toC seconds) >> executeScheduled
@@ -1480,7 +1485,8 @@ setCursor :: Window -> Cursor -> IO ()
 setCursor (Window wptr) (Cursor cptr) = c'glfwSetCursor wptr cptr
 
 -- | Destroys a cursor previously created with `createCursor`. Any remaining
--- cursors will be destroyed by `terminate`.
+-- cursors will be destroyed by `terminate`. This function is not
+-- <https://www.glfw.org/docs/latest/intro.html#reentrancy reentrant>.
 destroyCursor :: Cursor -> IO ()
 destroyCursor = c'glfwDestroyCursor . unCursor
 

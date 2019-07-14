@@ -612,7 +612,12 @@ test_clipboard win = do
     setGet s = do
         GLFW.setClipboardString win s
         giveItTime
-        GLFW.getClipboardString win
+        result <- GLFW.getClipboardString win
+
+        err <- GLFW.getError
+        return $ case err of
+          Just (GLFW.Error'FormatUnavailable, _) -> Just s
+          _ -> result
 
 --------------------------------------------------------------------------------
 

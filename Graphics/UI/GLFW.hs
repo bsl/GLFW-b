@@ -163,6 +163,7 @@ module Graphics.UI.GLFW
   , getJoystickButtons
   , getJoystickName
   , setJoystickCallback,    JoystickCallback
+  , updateGamepadMappings
 
     -- * Time
   , getTime
@@ -1371,6 +1372,12 @@ setJoystickCallback = setCallback
     (\cb a0 a1 -> schedule $ cb (fromC a0) (fromC a1))
     c'glfwSetJoystickCallback
     storedJoystickFun
+
+-- | Adds the specified SDL_GameControllerDB gamepad mappings.
+-- See <https://www.glfw.org/docs/3.3/group__input.html#gaed5104612f2fa8e66aa6e846652ad00f glfwUpdateGamepadMappings>
+updateGamepadMappings :: String -> IO Bool
+updateGamepadMappings =
+    flip withCString $ \s -> (== c'GLFW_TRUE) <$> c'glfwUpdateGamepadMappings s
 
 --------------------------------------------------------------------------------
 -- Time

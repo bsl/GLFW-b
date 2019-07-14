@@ -204,9 +204,6 @@ module Graphics.UI.GLFW
   , getWaylandDisplay
   , getWaylandMonitor
   , getWaylandWindow
-  , getMirDisplay
-  , getMirMonitor
-  , getMirWindow
   , getEGLDisplay
   , getEGLContext
   , getEGLSurface
@@ -1645,18 +1642,6 @@ getWaylandMonitor = c'glfwGetWaylandMonitor . toC
 -- | See <http://www.glfw.org/docs/3.2/group__native.html#ga4738d7aca4191363519a9a641c3ab64c glfwGetWaylandWindow>
 getWaylandWindow :: Window -> IO (Ptr wl_surface)
 getWaylandWindow = c'glfwGetWaylandWindow . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga40dd05325d9813fa67d61328c51d2930 glfwGetMirDisplay>
-getMirDisplay :: IO (Ptr mir_connection)
-getMirDisplay = c'glfwGetMirDisplay
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#gae0941c11dc8f01aeb7cbb563f5cd930b glfwGetMirMonitor>
-getMirMonitor :: Window -> IO Int
-getMirMonitor = (fmap fromC) . c'glfwGetMirMonitor . toC
-
--- | See <http://www.glfw.org/docs/3.2/group__native.html#ga964d52bb7932216c379762eef1ea9b05 glfwGetMirWindow>
-getMirWindow :: Window -> IO (Ptr mir_surface)
-getMirWindow = c'glfwGetMirWindow . toC
 
 -- | See <http://www.glfw.org/docs/3.2/group__native.html#ga1cd8d973f47aacb5532d368147cc3138 glfwGetEGLDisplay>
 getEGLDisplay :: IO (Ptr ())

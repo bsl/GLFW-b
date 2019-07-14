@@ -95,8 +95,8 @@ glfwTest name test = testCase name $ do
   err <- GLFW.getError
   case err of
     Nothing -> return ()
-    Just err -> assertFailure $
-                concat ["Test '", name, "' generated error: ", show err]
+    Just e -> assertFailure $
+              concat ["Test '", name, "' generated error: ", show e]
 
 tests :: GLFW.Monitor -> GLFW.Window -> [Test]
 tests mon win =

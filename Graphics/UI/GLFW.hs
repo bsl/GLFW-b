@@ -30,6 +30,7 @@ module Graphics.UI.GLFW
   , getVersion
   , getVersionString
   , getError
+  , clearError
 
     -- * Monitor handling
   , Monitor
@@ -466,6 +467,10 @@ getError = alloca $ \errStr -> do
     else peek errStr
          >>= peekCString
          >>= (\s -> return $ Just (fromC err, s))
+
+-- | Clears the last error as would be retreived by 'getError'.
+clearError :: IO ()
+clearError = c'glfwGetError nullPtr >> pure ()
 
 --------------------------------------------------------------------------------
 -- Monitor handling

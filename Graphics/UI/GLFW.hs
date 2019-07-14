@@ -29,6 +29,7 @@ module Graphics.UI.GLFW
   , terminate
   , getVersion
   , getVersionString
+  , getError
 
     -- * Monitor handling
   , Monitor
@@ -325,8 +326,6 @@ type MonitorCallback         = Monitor -> MonitorState                          
 -- | Fires when a joystick is connected or disconnected.
 type JoystickCallback        = Joystick -> JoystickState                                 -> IO ()
 
--- 3.1 additions
-
 --------------------------------------------------------------------------------
 -- CB scheduling
 
@@ -455,6 +454,18 @@ getVersionString = do
     if p'vs /= nullPtr
       then Just `fmap` peekCString p'vs
       else return Nothing
+
+-- | Returns and clears the error code of the last error that occurred on the
+-- calling thread and a UTF-8 encoded human-readable description of it.  If no
+-- error has occurred since the last call, it returns Nothing.
+getError :: IO (Maybe (Error, String))
+getError = alloca $ \errStr -> do
+  err <- c'glfwGetError errStr
+  if err == c'GLFW_NO_ERROR
+    then return Nothing
+    else peek errStr
+         >>= peekCString
+         >>= (\s -> return $ Just (fromC err, s))
 
 --------------------------------------------------------------------------------
 -- Monitor handling

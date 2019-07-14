@@ -4,6 +4,7 @@ import Control.Monad      (forM_)
 import Data.Char          (isAscii)
 import Data.Bits          (xor)
 import Data.List          (intercalate, isPrefixOf)
+import Data.Maybe         (isNothing)
 
 -- HUnit
 import Test.HUnit ((@?=), assertBool, assertFailure)
@@ -46,8 +47,8 @@ main = do
 
 versionMajor, versionMinor, versionRevision :: Int
 versionMajor = 3
-versionMinor = 2
-versionRevision = 1
+versionMinor = 3
+versionRevision = 0
 
 giveItTime :: IO ()
 giveItTime = threadDelay 500000
@@ -92,6 +93,7 @@ tests mon win =
     [ testGroup "Initialization and version information"
       [ testCase "getVersion"       test_getVersion
       , testCase "getVersionString" test_getVersionString
+      , testCase "getError"         test_getError
       ]
     , testGroup "Monitor handling"
       [ testCase "getMonitors"              test_getMonitors
@@ -180,6 +182,9 @@ test_getVersionString = do
       Nothing -> assertFailure ""
   where
     v = intercalate "." $ map show [versionMajor, versionMinor]
+
+test_getError :: IO ()
+test_getError = GLFW.getError >>= assertBool "Got GLFW error!" . isNothing
 
 test_getMonitors :: IO ()
 test_getMonitors = do

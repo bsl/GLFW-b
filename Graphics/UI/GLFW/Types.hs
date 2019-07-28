@@ -478,9 +478,63 @@ data ModifierKeys = ModifierKeys
 
 instance NFData ModifierKeys
 
---------------------------------------------------------------------------------
--- 3.1 Additions
---------------------------------------------------------------------------------
+-- | The different types of buttons we can find on a Gamepad.
+data GamepadButton
+  = GamepadButton'A
+  | GamepadButton'B
+  | GamepadButton'X
+  | GamepadButton'Y
+  | GamepadButton'LeftBumper
+  | GamepadButton'RightBumper
+  | GamepadButton'Back
+  | GamepadButton'Start
+  | GamepadButton'Guide
+  | GamepadButton'LeftThumb
+  | GamepadButton'RightThumb
+  | GamepadButton'DpadUp
+  | GamepadButton'DpadRight
+  | GamepadButton'DpadDown
+  | GamepadButton'DpadLeft
+  | GamepadButton'Cross
+  | GamepadButton'Circle
+  | GamepadButton'Square
+  | GamepadButton'Triangle
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData GamepadButton
+
+-- | The states in which the gamepad buttons are found
+data GamepadButtonState
+  = GamepadButtonState'Pressed
+  | GamepadButtonState'Released
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData GamepadButtonState
+
+-- | The different axes along which we can measure continuous input on a Gamepad
+data GamepadAxis
+  = GamepadAxis'LeftX
+  | GamepadAxis'LeftY
+  | GamepadAxis'RightX
+  | GamepadAxis'RightY
+  | GamepadAxis'LeftTrigger
+  | GamepadAxis'RightTrigger
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData GamepadAxis
+
+data GamepadState = GamepadState
+                    { getButtonState :: GamepadButton -> GamepadButtonState
+                    , getAxisState :: GamepadAxis -> Float
+                    } deriving (Typeable, Generic)
+
+instance Eq GamepadState where
+  a == b =
+    let compareSt f x = (&& (f a x == f b x))
+     in foldr (compareSt getButtonState) True [minBound..maxBound] &&
+        foldr (compareSt getAxisState) True [minBound..maxBound]
+
+instance NFData GamepadState
 
 deriving instance Data CUChar
 
@@ -499,7 +553,7 @@ mkImage width height gen = Image
   , imageHeight = height
   , imagePixels = [ CUChar channel | y <- [0..(height - 1)]
                                    , x <- [0..(width - 1)]
-                                   , (r, g, b, a) <- [gen x y]
+                                   , let (r, g, b, a) = gen x y
                                    , channel <- [r, g, b, a]
                   ]
   }

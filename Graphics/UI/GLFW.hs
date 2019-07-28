@@ -130,6 +130,10 @@ module Graphics.UI.GLFW
   , StickyKeysInputMode         (..)
   , StickyMouseButtonsInputMode (..)
   , ModifierKeys                (..)
+  , GamepadButton               (..)
+  , GamepadAxis                 (..)
+  , GamepadButtonState          (..)
+  , GamepadState                (..)
   , Image
   , mkImage
   , Cursor                      (..)
@@ -159,10 +163,14 @@ module Graphics.UI.GLFW
   , setScrollCallback,      ScrollCallback
   , setDropCallback,        DropCallback
   , joystickPresent
+  , joystickIsGamepad
   , getJoystickAxes
   , getJoystickButtons
   , getJoystickName
+  , getJoystickGUID
   , setJoystickCallback,    JoystickCallback
+  , getGamepadName
+  , getGamepadState
   , updateGamepadMappings
 
     -- * Time
@@ -221,7 +229,7 @@ import Control.Monad         (when, liftM)
 import Data.IORef            (IORef, atomicModifyIORef, newIORef, readIORef)
 import Data.Word             (Word32, Word64)
 import Foreign.C.String      (peekCString, withCString, CString)
-import Foreign.C.Types       (CUInt, CUShort)
+import Foreign.C.Types       (CUInt, CInt, CUShort, CFloat(..))
 import Foreign.Marshal.Alloc (alloca, allocaBytes)
 import Foreign.Marshal.Array (advancePtr, allocaArray, peekArray, withArray)
 import Foreign.Ptr           (FunPtr, freeHaskellFunPtr, nullFunPtr, nullPtr
@@ -1377,7 +1385,49 @@ setJoystickCallback = setCallback
 -- See <https://www.glfw.org/docs/3.3/group__input.html#gaed5104612f2fa8e66aa6e846652ad00f glfwUpdateGamepadMappings>
 updateGamepadMappings :: String -> IO Bool
 updateGamepadMappings =
-    flip withCString $ \s -> (== c'GLFW_TRUE) <$> c'glfwUpdateGamepadMappings s
+    flip withCString $ \s -> fromC <$> c'glfwUpdateGamepadMappings s
+
+-- | This function returns whether the specified joystick is both present and
+-- has a gamepad mapping.
+-- See <https://www.glfw.org/docs/3.3/group__input.html#gad0f676860f329d80f7e47e9f06a96f00 glfwJoystickIsGamepad>
+joystickIsGamepad :: Joystick -> IO Bool
+joystickIsGamepad = fmap (== c'GLFW_TRUE) . c'glfwJoystickIsGamepad . toC
+
+-- | This function returns the SDL compatible GUID of the specified joystick.
+-- See <https://www.glfw.org/docs/3.3/group__input.html#gae168c2c0b8cf2a1cb67c6b3c00bdd543 glfwGetJoystickGUID>
+getJoystickGUID :: Joystick -> IO (Maybe String)
+getJoystickGUID js = do
+  p'guid <- c'glfwGetJoystickGUID (toC js)
+  if p'guid == nullPtr
+    then return Nothing
+    else Just <$> peekCString p'guid
+
+-- | This function returns the human-readable name of the gamepad from the
+-- gamepad mapping assigned to the specified joystick.
+-- See <https://www.glfw.org/docs/3.3/group__input.html#ga5c71e3533b2d384db9317fcd7661b210 glfwGetGamepadName>
+getGamepadName :: Joystick -> IO (Maybe String)
+getGamepadName js = do
+  p'name <- c'glfwGetGamepadName (toC js)
+  if p'name == nullPtr
+    then return Nothing
+    else Just <$> peekCString p'name
+
+getGamepadState :: Joystick -> IO (Maybe GamepadState)
+getGamepadState js = alloca $ \p'gps -> do
+  hasGamepad <- fromC <$> c'glfwGetGamepadState (toC js) p'gps
+  if hasGamepad
+    then do
+      gps <- peek p'gps
+      return $ Just GamepadState
+        { getButtonState = fromC . (c'GLFWgamepadstate'buttons gps !!)
+                         . (fromIntegral :: CInt -> Int)
+                         . toC
+        , getAxisState = (\(CFloat f) -> f)
+                       . (c'GLFWgamepadstate'axes gps !!)
+                       . (fromIntegral :: CInt -> Int)
+                       . toC
+        }
+    else return Nothing
 
 --------------------------------------------------------------------------------
 -- Time

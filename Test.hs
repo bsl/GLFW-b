@@ -157,6 +157,7 @@ tests mon win =
       , glfwTest "getJoystickButtons"                test_getJoystickButtons
       , glfwTest "getJoystickName"                   test_getJoystickName
       , glfwTest "getKeyName"                        test_getKeyName
+      , glfwTest "getGamepadState"                   test_getGamepadState
       ]
     , testGroup "Time"
       [ glfwTest "getTime"              test_getTime
@@ -559,6 +560,19 @@ test_getKeyName =
     case name of
       Nothing -> return ()
       Just s -> s @?= n
+
+test_getGamepadState :: IO ()
+test_getGamepadState =
+  forM_ joysticks $ \js -> do
+    mst <- GLFW.getGamepadState js
+    case mst of
+      (Just st) -> do
+        GLFW.joystickIsGamepad js >>= assertBool "Is gamepad"
+        GLFW.getGamepadName js >>= assertBool "Gamepad has name" . not . null
+        forM_ [minBound..maxBound] $ assertBool "Button not pressed"
+                                   . (== GLFW.GamepadButtonState'Released)
+                                   . GLFW.getButtonState st
+      _ -> return ()
 
 --------------------------------------------------------------------------------
 

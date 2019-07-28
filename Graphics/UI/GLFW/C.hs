@@ -501,6 +501,72 @@ instance C CInt JoystickState where
   toC JoystickState'Connected = c'GLFW_CONNECTED
   toC JoystickState'Disconnected = c'GLFW_DISCONNECTED
 
+instance C CInt GamepadButton where
+  fromC v
+    | v == c'GLFW_GAMEPAD_BUTTON_A = GamepadButton'A
+    | v == c'GLFW_GAMEPAD_BUTTON_B = GamepadButton'B
+    | v == c'GLFW_GAMEPAD_BUTTON_X = GamepadButton'X
+    | v == c'GLFW_GAMEPAD_BUTTON_Y = GamepadButton'Y
+    | v == c'GLFW_GAMEPAD_BUTTON_LEFT_BUMPER = GamepadButton'LeftBumper
+    | v == c'GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER = GamepadButton'RightBumper
+    | v == c'GLFW_GAMEPAD_BUTTON_BACK = GamepadButton'Back
+    | v == c'GLFW_GAMEPAD_BUTTON_START = GamepadButton'Start
+    | v == c'GLFW_GAMEPAD_BUTTON_GUIDE = GamepadButton'Guide
+    | v == c'GLFW_GAMEPAD_BUTTON_LEFT_THUMB = GamepadButton'LeftThumb
+    | v == c'GLFW_GAMEPAD_BUTTON_RIGHT_THUMB = GamepadButton'RightThumb
+    | v == c'GLFW_GAMEPAD_BUTTON_DPAD_UP = GamepadButton'DpadUp
+    | v == c'GLFW_GAMEPAD_BUTTON_DPAD_RIGHT = GamepadButton'DpadRight
+    | v == c'GLFW_GAMEPAD_BUTTON_DPAD_DOWN = GamepadButton'DpadDown
+    | v == c'GLFW_GAMEPAD_BUTTON_DPAD_LEFT = GamepadButton'DpadLeft
+    | v == c'GLFW_GAMEPAD_BUTTON_CROSS = GamepadButton'Cross
+    | v == c'GLFW_GAMEPAD_BUTTON_CIRCLE = GamepadButton'Circle
+    | v == c'GLFW_GAMEPAD_BUTTON_SQUARE = GamepadButton'Square
+    | v == c'GLFW_GAMEPAD_BUTTON_TRIANGLE = GamepadButton'Triangle
+    | otherwise = error $ "C CInt GamepadButton fromC: " ++ show v
+  toC GamepadButton'A = c'GLFW_GAMEPAD_BUTTON_A
+  toC GamepadButton'B = c'GLFW_GAMEPAD_BUTTON_B
+  toC GamepadButton'X = c'GLFW_GAMEPAD_BUTTON_X
+  toC GamepadButton'Y = c'GLFW_GAMEPAD_BUTTON_Y
+  toC GamepadButton'LeftBumper = c'GLFW_GAMEPAD_BUTTON_LEFT_BUMPER
+  toC GamepadButton'RightBumper = c'GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER
+  toC GamepadButton'Back = c'GLFW_GAMEPAD_BUTTON_BACK
+  toC GamepadButton'Start = c'GLFW_GAMEPAD_BUTTON_START
+  toC GamepadButton'Guide = c'GLFW_GAMEPAD_BUTTON_GUIDE
+  toC GamepadButton'LeftThumb = c'GLFW_GAMEPAD_BUTTON_LEFT_THUMB
+  toC GamepadButton'RightThumb = c'GLFW_GAMEPAD_BUTTON_RIGHT_THUMB
+  toC GamepadButton'DpadUp = c'GLFW_GAMEPAD_BUTTON_DPAD_UP
+  toC GamepadButton'DpadRight = c'GLFW_GAMEPAD_BUTTON_DPAD_RIGHT
+  toC GamepadButton'DpadDown = c'GLFW_GAMEPAD_BUTTON_DPAD_DOWN
+  toC GamepadButton'DpadLeft = c'GLFW_GAMEPAD_BUTTON_DPAD_LEFT
+  toC GamepadButton'Cross = c'GLFW_GAMEPAD_BUTTON_CROSS
+  toC GamepadButton'Circle = c'GLFW_GAMEPAD_BUTTON_CIRCLE
+  toC GamepadButton'Square = c'GLFW_GAMEPAD_BUTTON_SQUARE
+  toC GamepadButton'Triangle = c'GLFW_GAMEPAD_BUTTON_TRIANGLE
+
+instance C CUChar GamepadButtonState where
+  fromC v
+    | v == c'GLFW_PRESS = GamepadButtonState'Pressed
+    | v == c'GLFW_RELEASE = GamepadButtonState'Released
+    | otherwise = error $ "C CUChar GamepadButtonState fromC: " ++ show v
+  toC GamepadButtonState'Pressed = c'GLFW_PRESS
+  toC GamepadButtonState'Released = c'GLFW_RELEASE
+
+instance C CInt GamepadAxis where
+  fromC v
+    | v == c'GLFW_GAMEPAD_AXIS_LEFT_X = GamepadAxis'LeftX
+    | v == c'GLFW_GAMEPAD_AXIS_RIGHT_X = GamepadAxis'RightX
+    | v == c'GLFW_GAMEPAD_AXIS_LEFT_Y = GamepadAxis'LeftY
+    | v == c'GLFW_GAMEPAD_AXIS_RIGHT_Y = GamepadAxis'RightY
+    | v == c'GLFW_GAMEPAD_AXIS_LEFT_TRIGGER = GamepadAxis'LeftTrigger
+    | v == c'GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER = GamepadAxis'RightTrigger
+    | otherwise = error $ "C CInt GamepadAxis fromC: " ++ show v
+  toC GamepadAxis'LeftX = c'GLFW_GAMEPAD_AXIS_LEFT_X
+  toC GamepadAxis'RightX = c'GLFW_GAMEPAD_AXIS_RIGHT_X
+  toC GamepadAxis'LeftY = c'GLFW_GAMEPAD_AXIS_LEFT_Y
+  toC GamepadAxis'RightY = c'GLFW_GAMEPAD_AXIS_RIGHT_Y
+  toC GamepadAxis'LeftTrigger = c'GLFW_GAMEPAD_AXIS_LEFT_TRIGGER
+  toC GamepadAxis'RightTrigger = c'GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER
+
 instance C CInt MouseButton where
   fromC v
     | v == c'GLFW_MOUSE_BUTTON_1 = MouseButton'1

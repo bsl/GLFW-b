@@ -397,6 +397,39 @@ cInfos =
         [ ( "c'GLFW_CONNECTED",   "JoystickState'Connected"  )
         , ( "c'GLFW_DISCONNECTED", "JoystickState'Disconnected" )
         ]
+    , CInfo "CInt" "GamepadButton"
+        [ ( "c'GLFW_GAMEPAD_BUTTON_A",            "GamepadButton'A" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_B",            "GamepadButton'B" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_X",            "GamepadButton'X" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_Y",            "GamepadButton'Y" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_LEFT_BUMPER",  "GamepadButton'LeftBumper" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER", "GamepadButton'RightBumper" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_BACK",         "GamepadButton'Back" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_START",        "GamepadButton'Start" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_GUIDE",        "GamepadButton'Guide" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_LEFT_THUMB",   "GamepadButton'LeftThumb" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_RIGHT_THUMB",  "GamepadButton'RightThumb" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_DPAD_UP",      "GamepadButton'DpadUp" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_DPAD_RIGHT",   "GamepadButton'DpadRight" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_DPAD_DOWN",    "GamepadButton'DpadDown" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_DPAD_LEFT",    "GamepadButton'DpadLeft" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_CROSS",        "GamepadButton'Cross" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_CIRCLE",       "GamepadButton'Circle" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_SQUARE",       "GamepadButton'Square" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_TRIANGLE",     "GamepadButton'Triangle" )
+        ]
+    , CInfo "CUChar" "GamepadButtonState"
+        [ ( "c'GLFW_PRESS",   "GamepadButtonState'Pressed"  )
+        , ( "c'GLFW_RELEASE", "GamepadButtonState'Released" )
+        ]
+    , CInfo "CInt" "GamepadAxis"
+        [ ( "c'GLFW_GAMEPAD_AXIS_LEFT_X",        "GamepadAxis'LeftX" )
+        , ( "c'GLFW_GAMEPAD_AXIS_RIGHT_X",       "GamepadAxis'RightX" )
+        , ( "c'GLFW_GAMEPAD_AXIS_LEFT_Y",        "GamepadAxis'LeftY" )
+        , ( "c'GLFW_GAMEPAD_AXIS_RIGHT_Y",       "GamepadAxis'RightY" )
+        , ( "c'GLFW_GAMEPAD_AXIS_LEFT_TRIGGER",  "GamepadAxis'LeftTrigger" )
+        , ( "c'GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER", "GamepadAxis'RightTrigger" )
+        ]
     , CInfo "CInt" "MouseButton"
         [ ( "c'GLFW_MOUSE_BUTTON_1", "MouseButton'1" )
         , ( "c'GLFW_MOUSE_BUTTON_2", "MouseButton'2" )

@@ -110,6 +110,7 @@ tests mon win =
       , glfwTest "getPrimaryMonitor"        test_getPrimaryMonitor
       , glfwTest "getMonitorPos"          $ test_getMonitorPos mon
       , glfwTest "getMonitorPhysicalSize" $ test_getMonitorPhysicalSize mon
+      , glfwTest "getMonitorWorkarea"     $ test_getMonitorWorkarea mon
       , glfwTest "getMonitorName"         $ test_getMonitorName mon
       , glfwTest "getVideoModes"          $ test_getVideoModes mon
       , glfwTest "getVideoMode"           $ test_getVideoMode mon
@@ -222,6 +223,14 @@ test_getMonitorPhysicalSize mon = do
     (w, h) <- GLFW.getMonitorPhysicalSize mon
     assertBool "" $ w `between` (0, 1000)
     assertBool "" $ h `between` (0,  500)
+
+test_getMonitorWorkarea :: GLFW.Monitor -> IO ()
+test_getMonitorWorkarea mon = do
+    (x, y, w, h) <- GLFW.getMonitorWorkarea mon
+    assertBool "workarea x nonnegative" $ x >= 0
+    assertBool "workarea y nonnegative" $ y >= 0
+    assertBool "workarea width positive" $ w > 0
+    assertBool "workarea height positive" $ h > 0
 
 test_getMonitorName :: GLFW.Monitor -> IO ()
 test_getMonitorName mon = do

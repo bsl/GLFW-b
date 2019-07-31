@@ -44,6 +44,7 @@ module Graphics.UI.GLFW
   , getMonitorPos
   , getMonitorPhysicalSize
   , getMonitorContentScale
+  , getMonitorWorkarea
   , getMonitorName
   , setMonitorCallback, MonitorCallback
   , getVideoModes
@@ -640,6 +641,24 @@ getMonitorContentScale mon =
     CFloat x <- peek p'x
     CFloat y <- peek p'y
     return (x, y)
+
+-- | This function returns the position, in screen coordinates, of the
+-- upper-left corner of the work area of the specified monitor along with the
+-- work area size in screen coordinates. Returned tuple is:
+-- (xPos, yPos, width, height)
+-- See <https://www.glfw.org/docs/3.3/group__monitor.html#ga7387a3bdb64bfe8ebf2b9e54f5b6c9d0 glfwGetMonitorWorkarea>
+getMonitorWorkarea :: Monitor -> IO (Int, Int, Int, Int)
+getMonitorWorkarea mon =
+  alloca $ \p'x ->
+  alloca $ \p'y ->
+  alloca $ \p'w ->
+  alloca $ \p'h -> do
+    c'glfwGetMonitorWorkarea (toC mon) p'x p'y p'w p'h
+    x <- fromC <$> peek p'x
+    y <- fromC <$> peek p'y
+    w <- fromC <$> peek p'w
+    h <- fromC <$> peek p'h
+    return (x, y, w, h)
 
 --------------------------------------------------------------------------------
 -- Window handling

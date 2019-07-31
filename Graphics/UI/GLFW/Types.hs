@@ -109,21 +109,22 @@ makeGammaRamp rs gs bs
 
 -- | Collects all the callbacks that can be associated with a Window into a single place.
 data WindowCallbacks = WindowCallbacks
-  { storedCharFun             :: !(IORef C'GLFWcharfun)
-  , storedCharModsFun         :: !(IORef C'GLFWcharmodsfun)
-  , storedCursorEnterFun      :: !(IORef C'GLFWcursorenterfun)
-  , storedCursorPosFun        :: !(IORef C'GLFWcursorposfun)
-  , storedFramebufferSizeFun  :: !(IORef C'GLFWframebuffersizefun)
-  , storedKeyFun              :: !(IORef C'GLFWkeyfun)
-  , storedMouseButtonFun      :: !(IORef C'GLFWmousebuttonfun)
-  , storedScrollFun           :: !(IORef C'GLFWscrollfun)
-  , storedWindowCloseFun      :: !(IORef C'GLFWwindowclosefun)
-  , storedWindowFocusFun      :: !(IORef C'GLFWwindowfocusfun)
-  , storedWindowIconifyFun    :: !(IORef C'GLFWwindowiconifyfun)
-  , storedWindowPosFun        :: !(IORef C'GLFWwindowposfun)
-  , storedWindowRefreshFun    :: !(IORef C'GLFWwindowrefreshfun)
-  , storedWindowSizeFun       :: !(IORef C'GLFWwindowsizefun)
-  , storedDropFun             :: !(IORef C'GLFWdropfun)
+  { storedCharFun               :: !(IORef C'GLFWcharfun)
+  , storedCharModsFun           :: !(IORef C'GLFWcharmodsfun)
+  , storedCursorEnterFun        :: !(IORef C'GLFWcursorenterfun)
+  , storedCursorPosFun          :: !(IORef C'GLFWcursorposfun)
+  , storedFramebufferSizeFun    :: !(IORef C'GLFWframebuffersizefun)
+  , storedKeyFun                :: !(IORef C'GLFWkeyfun)
+  , storedMouseButtonFun        :: !(IORef C'GLFWmousebuttonfun)
+  , storedScrollFun             :: !(IORef C'GLFWscrollfun)
+  , storedWindowCloseFun        :: !(IORef C'GLFWwindowclosefun)
+  , storedWindowFocusFun        :: !(IORef C'GLFWwindowfocusfun)
+  , storedWindowIconifyFun      :: !(IORef C'GLFWwindowiconifyfun)
+  , storedWindowPosFun          :: !(IORef C'GLFWwindowposfun)
+  , storedWindowRefreshFun      :: !(IORef C'GLFWwindowrefreshfun)
+  , storedWindowSizeFun         :: !(IORef C'GLFWwindowsizefun)
+  , storedWindowContentScaleFun :: !(IORef C'GLFWwindowcontentscalefun)
+  , storedDropFun               :: !(IORef C'GLFWdropfun)
   }
 
 -- | Reprisents a GLFW window value.

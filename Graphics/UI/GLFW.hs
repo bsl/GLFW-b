@@ -117,6 +117,7 @@ module Graphics.UI.GLFW
   , setWindowIconifyCallback,      WindowIconifyCallback
   , setFramebufferSizeCallback,    FramebufferSizeCallback
   , setWindowContentScaleCallback, WindowContentScaleCallback
+  , setWindowMaximizeCallback,     WindowMaximizeCallback
   , pollEvents
   , waitEvents
   , waitEventsTimeout
@@ -343,7 +344,9 @@ type MonitorCallback            = Monitor -> MonitorState                       
 type JoystickCallback           = Joystick -> JoystickState                                 -> IO ()
 -- | Fires when a window is rescaled
 type WindowContentScaleCallback = Window -> Float -> Float                                  -> IO ()
-
+-- | Fires when a window is maximized or restored. Returns True if the window
+-- was maximized and False if the window was restored.
+type WindowMaximizeCallback = Window -> Bool                                                -> IO ()
 --------------------------------------------------------------------------------
 -- CB scheduling
 
@@ -740,6 +743,7 @@ createWindow w h title mmon mwin =
         windowRefreshFun      <- newIORef nullFunPtr
         windowSizeFun         <- newIORef nullFunPtr
         windowContentScaleFun <- newIORef nullFunPtr
+        windowMaximizeFun     <- newIORef nullFunPtr
         dropFun               <- newIORef nullFunPtr
         let callbacks = WindowCallbacks
               { storedCharFun               = charFun
@@ -757,6 +761,7 @@ createWindow w h title mmon mwin =
               , storedWindowRefreshFun      = windowRefreshFun
               , storedWindowSizeFun         = windowSizeFun
               , storedWindowContentScaleFun = windowContentScaleFun
+              , storedWindowMaximizeFun     = windowMaximizeFun
               , storedDropFun               = dropFun
               }
         p'win <- c'glfwCreateWindow
@@ -1403,6 +1408,16 @@ setWindowContentScaleCallback = setWindowCallback
     (\cb w (CFloat f1) (CFloat f2) -> schedule $ cb (fromC w) f1 f2)
     c'glfwSetWindowContentScaleCallback
     storedWindowContentScaleFun
+
+-- | Sets the maximization callback of the specified window, which is called
+-- when the window is maximized or restored.
+-- See <https://www.glfw.org/docs/3.3/window_guide.html#window_maximize Window maximization>
+setWindowMaximizeCallback :: Window -> Maybe WindowMaximizeCallback -> IO ()
+setWindowMaximizeCallback = setWindowCallback
+    mk'GLFWwindowmaximizefun
+    (\cb w x -> schedule $ cb (fromC w) (fromC x))
+    c'glfwSetWindowMaximizeCallback
+    storedWindowMaximizeFun
 
 -- | Tests if the joystick is present at all
 -- See <http://www.glfw.org/docs/3.3/group__input.html#gaffcbd9ac8ee737fcdd25475123a3c790 glfwJoystickPresent>

@@ -124,6 +124,7 @@ data WindowCallbacks = WindowCallbacks
   , storedWindowRefreshFun      :: !(IORef C'GLFWwindowrefreshfun)
   , storedWindowSizeFun         :: !(IORef C'GLFWwindowsizefun)
   , storedWindowContentScaleFun :: !(IORef C'GLFWwindowcontentscalefun)
+  , storedWindowMaximizeFun     :: !(IORef C'GLFWwindowmaximizefun)
   , storedDropFun               :: !(IORef C'GLFWdropfun)
   }
 

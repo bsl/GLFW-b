@@ -523,9 +523,13 @@ data GamepadAxis
 
 instance NFData GamepadAxis
 
+-- | This describes the input state of a gamepad
 data GamepadState = GamepadState
                     { getButtonState :: GamepadButton -> GamepadButtonState
+                      -- ^ Returns the current state of the given button
                     , getAxisState :: GamepadAxis -> Float
+                      -- ^ Returns a value in the range [-1.0, 1.0] for the
+                      -- given game axis
                     } deriving (Typeable, Generic)
 
 instance Eq GamepadState where

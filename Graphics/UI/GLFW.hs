@@ -1412,6 +1412,9 @@ getGamepadName js = do
     then return Nothing
     else Just <$> peekCString p'name
 
+-- | This function retrives the state of the specified joystick remapped to an
+-- Xbox-like gamepad.
+-- See <https://www.glfw.org/docs/3.3/group__input.html#gadccddea8bce6113fa459de379ddaf051 glfwGetGamepadState>
 getGamepadState :: Joystick -> IO (Maybe GamepadState)
 getGamepadState js = alloca $ \p'gps -> do
   hasGamepad <- fromC <$> c'glfwGetGamepadState (toC js) p'gps

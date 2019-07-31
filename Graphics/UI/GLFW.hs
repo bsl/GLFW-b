@@ -84,6 +84,7 @@ module Graphics.UI.GLFW
   , maximizeWindow
   , showWindow
   , hideWindow
+  , requestWindowAttention
   , getWindowMonitor
   , setCursorPos
   , setFullscreen
@@ -930,14 +931,12 @@ setWindowIcon win imgs =
 -- | Iconifies (minimizes) the window.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga1bb559c0ebaad63c5c05ad2a066779c4 glfwIconifyWindow>
 iconifyWindow :: Window -> IO ()
-iconifyWindow =
-    c'glfwIconifyWindow . toC
+iconifyWindow = c'glfwIconifyWindow . toC
 
 -- | Restores the window from an iconified/minimized state.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga52527a5904b47d802b6b4bb519cdebc7 glfwRestoreWindow>
 restoreWindow :: Window -> IO ()
-restoreWindow =
-    c'glfwRestoreWindow . toC
+restoreWindow = c'glfwRestoreWindow . toC
 
 -- | Brings the specified window to front and sets input focus. The window
 -- should already be visible and not iconified.
@@ -953,14 +952,17 @@ maximizeWindow = c'glfwMaximizeWindow . toC
 -- | Shows the window.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga61be47917b72536a148300f46494fc66 glfwShowWindow>
 showWindow :: Window -> IO ()
-showWindow =
-    c'glfwShowWindow . toC
+showWindow = c'glfwShowWindow . toC
 
 -- | Hides the window.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga49401f82a1ba5f15db5590728314d47c glfwHideWindow>
 hideWindow :: Window -> IO ()
-hideWindow =
-    c'glfwHideWindow . toC
+hideWindow = c'glfwHideWindow . toC
+
+-- | Requests user attention to the specified window.
+-- See <https://www.glfw.org/docs/3.3/group__window.html#ga2f8d59323fc4692c1d54ba08c863a703 glfwRequestWindowAttention>
+requestWindowAttention :: Window -> IO ()
+requestWindowAttention = c'glfwRequestWindowAttention . toC
 
 -- | Gets the monitor that this window is running on, provided the window is
 -- fullscreen.

@@ -153,6 +153,7 @@ module Graphics.UI.GLFW
   , setStickyMouseButtonsInputMode  -----'
   , getKey
   , getKeyName
+  , getKeyScancode
   , getMouseButton
   , getCursorPos
   , setKeyCallback,         KeyCallback
@@ -1295,6 +1296,11 @@ getKeyName k scancode = do
   if cstr == nullPtr
     then return Nothing
     else Just `fmap` peekCString cstr
+
+-- | This function returns the platform-specific scancode of the specified key.
+-- See <https://www.glfw.org/docs/3.3/group__input.html#ga67ddd1b7dcbbaff03e4a76c0ea67103a glfwGetKeyScancode>
+getKeyScancode :: Key -> IO Int
+getKeyScancode = fmap fromC . c'glfwGetKeyScancode . toC
 
 -- | Gets the state of a single specified mouse button. If sticky mouse button
 -- mode isn't enabled it's possible for mouse polling to miss individual mouse events. Use

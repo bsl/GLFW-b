@@ -629,6 +629,20 @@ instance C CInt StickyMouseButtonsInputMode where
   toC StickyMouseButtonsInputMode'Enabled = c'GLFW_TRUE
   toC StickyMouseButtonsInputMode'Disabled = c'GLFW_FALSE
 
+instance C CInt WindowAttrib where
+  fromC v
+    | v == c'GLFW_DECORATED = WindowAttrib'Decorated
+    | v == c'GLFW_RESIZABLE = WindowAttrib'Resizable
+    | v == c'GLFW_FLOATING = WindowAttrib'Floating
+    | v == c'GLFW_AUTO_ICONIFY = WindowAttrib'AutoIconify
+    | v == c'GLFW_FOCUS_ON_SHOW = WindowAttrib'FocusOnShow
+    | otherwise = error $ "C CInt WindowAttrib fromC: " ++ show v
+  toC WindowAttrib'Decorated = c'GLFW_DECORATED
+  toC WindowAttrib'Resizable = c'GLFW_RESIZABLE
+  toC WindowAttrib'Floating = c'GLFW_FLOATING
+  toC WindowAttrib'AutoIconify = c'GLFW_AUTO_ICONIFY
+  toC WindowAttrib'FocusOnShow = c'GLFW_FOCUS_ON_SHOW
+
 --------------------------------------------------------------------------------
 
 {-# ANN module "HLint: ignore Use camelCase" #-}

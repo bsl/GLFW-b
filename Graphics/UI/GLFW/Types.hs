@@ -175,6 +175,18 @@ data WindowHint =
 
 instance NFData WindowHint
 
+-- | A window-specific attribute.
+-- See <https://www.glfw.org/docs/3.3/window_guide.html#window_attribs Window Attributes>
+data WindowAttrib
+  = WindowAttrib'Decorated
+  | WindowAttrib'Resizable
+  | WindowAttrib'Floating
+  | WindowAttrib'AutoIconify
+  | WindowAttrib'FocusOnShow
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData WindowAttrib
+
 -- | The OpenGL robustness strategy.
 data ContextRobustness =
     ContextRobustness'NoRobustness

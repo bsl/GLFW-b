@@ -129,6 +129,7 @@ tests mon win =
       , glfwTest "getWindowOpenGLForwardCompat" $ test_getWindowOpenGLForwardCompat win
       , glfwTest "getWindowOpenGLDebugContext"  $ test_getWindowOpenGLDebugContext win
       , glfwTest "getWindowOpenGLProfile"       $ test_getWindowOpenGLProfile win
+      , glfwTest "window attribs"               $ test_windowAttribs win
       , glfwTest "window close flag"            $ test_window_close_flag win
       , glfwTest "setWindowTitle"               $ test_setWindowTitle win
       , glfwTest "window pos"                   $ test_window_pos win
@@ -271,6 +272,20 @@ test_getGammaRamp mon = do
 test_defaultWindowHints :: IO ()
 test_defaultWindowHints =
     GLFW.defaultWindowHints
+
+test_windowAttribs :: GLFW.Window -> IO ()
+test_windowAttribs win = do
+    oldRsz <- GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable
+
+    GLFW.setWindowAttrib win GLFW.WindowAttrib'Resizable False
+    rsz <- GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable
+    rsz @?= False
+
+    GLFW.setWindowAttrib win GLFW.WindowAttrib'Resizable True
+    rsz <- GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable
+    rsz @?= True
+
+    GLFW.setWindowAttrib win GLFW.WindowAttrib'Resizable oldRsz
 
 test_window_close_flag :: GLFW.Window -> IO ()
 test_window_close_flag win = do

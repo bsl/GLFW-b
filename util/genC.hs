@@ -461,4 +461,11 @@ cInfos =
         [ ( "c'GLFW_TRUE",  "StickyMouseButtonsInputMode'Enabled" )
         , ( "c'GLFW_FALSE", "StickyMouseButtonsInputMode'Disabled" )
         ]
+    , CInfo "CInt" "WindowAttrib"
+        [ ( "c'GLFW_DECORATED",     "WindowAttrib'Decorated"   )
+        , ( "c'GLFW_RESIZABLE",     "WindowAttrib'Resizable"   )
+        , ( "c'GLFW_FLOATING",      "WindowAttrib'Floating"    )
+        , ( "c'GLFW_AUTO_ICONIFY",  "WindowAttrib'AutoIconify" )
+        , ( "c'GLFW_FOCUS_ON_SHOW", "WindowAttrib'FocusOnShow" )
+        ]
     ]

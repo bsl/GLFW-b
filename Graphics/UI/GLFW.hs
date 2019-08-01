@@ -56,6 +56,7 @@ module Graphics.UI.GLFW
     -- * Window handling
   , Window
   , WindowHint             (..)
+  , WindowAttrib           (..)
   , ContextRobustness      (..)
   , OpenGLProfile          (..)
   , ClientAPI              (..)
@@ -64,6 +65,8 @@ module Graphics.UI.GLFW
     --
   , defaultWindowHints
   , windowHint
+  , setWindowAttrib
+  , getWindowAttrib
   , createWindow
   , destroyWindow
   , windowShouldClose
@@ -802,6 +805,18 @@ destroyWindow win = do
     free storedWindowRefreshFun
     free storedWindowSizeFun
     freeStablePtr pcb
+
+-- | Returns the value of an attribute of the specified window or its OpenGL or
+-- OpenGL ES context.
+-- See <https://www.glfw.org/docs/3.3/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+getWindowAttrib :: Window -> WindowAttrib -> IO Bool
+getWindowAttrib win attrib =
+  fromC <$> c'glfwGetWindowAttrib (toC win) (toC attrib)
+
+-- | Sets the value of an attribute of the specified window.
+-- See <https://www.glfw.org/docs/3.3/group__window.html#gace2afda29b4116ec012e410a6819033e glfwSetWindowAttrib>
+setWindowAttrib :: Window -> WindowAttrib -> Bool -> IO ()
+setWindowAttrib win attrib = c'glfwSetWindowAttrib (toC win) (toC attrib) . toC
 
 -- | If the window should close or not.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga24e02fbfefbb81fc45320989f8140ab5 glfwWindowShouldClose>

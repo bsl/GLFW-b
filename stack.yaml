@@ -42,7 +42,7 @@ packages:
 # (e.g., acme-missiles-0.3)
 extra-deps:
 - git: https://github.com/Mokosha/bindings-GLFW.git
-  commit: 747914232a03e7907d91aa4328f540c6c1520eff
+  commit: 972f33a8665e0fd770cde9d228173e633f011a97
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

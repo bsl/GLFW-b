@@ -1201,6 +1201,27 @@ setWindowIconifyCallback win = setWindowCallback
     storedWindowIconifyFun
     win
 
+-- | Sets the callback for when the content scale of the window changes.
+-- See <https://www.glfw.org/docs/3.3/window_guide.html#window_scale Window Content Scale>
+setWindowContentScaleCallback :: Window -> Maybe WindowContentScaleCallback -> IO ()
+setWindowContentScaleCallback win = setWindowCallback
+    mk'GLFWwindowcontentscalefun
+    (\cb w (CFloat f1) (CFloat f2) -> schedule $ cb (fromC w) f1 f2)
+    (c'glfwSetWindowContentScaleCallback (toC win))
+    storedWindowContentScaleFun
+    win
+
+-- | Sets the maximization callback of the specified window, which is called
+-- when the window is maximized or restored.
+-- See <https://www.glfw.org/docs/3.3/window_guide.html#window_maximize Window maximization>
+setWindowMaximizeCallback :: Window -> Maybe WindowMaximizeCallback -> IO ()
+setWindowMaximizeCallback win = setWindowCallback
+    mk'GLFWwindowmaximizefun
+    (\cb w x -> schedule $ cb (fromC w) (fromC x))
+    (c'glfwSetWindowMaximizeCallback (toC win))
+    storedWindowMaximizeFun
+    win
+
 -- | Sets the callback to use when the framebuffer's size changes.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga3203461a5303bf289f2e05f854b2f7cf glfwSetFramebufferSizeCallback>
 setFramebufferSizeCallback :: Window -> Maybe FramebufferSizeCallback -> IO ()
@@ -1399,25 +1420,6 @@ setScrollCallback win = setWindowCallback
     (c'glfwSetScrollCallback (toC win))
     storedScrollFun
     win
-
--- | Sets the callback for when the content scale of the window changes.
--- See <https://www.glfw.org/docs/3.3/window_guide.html#window_scale Window Content Scale>
-setWindowContentScaleCallback :: Window -> Maybe WindowContentScaleCallback -> IO ()
-setWindowContentScaleCallback = setWindowCallback
-    mk'GLFWwindowcontentscalefun
-    (\cb w (CFloat f1) (CFloat f2) -> schedule $ cb (fromC w) f1 f2)
-    c'glfwSetWindowContentScaleCallback
-    storedWindowContentScaleFun
-
--- | Sets the maximization callback of the specified window, which is called
--- when the window is maximized or restored.
--- See <https://www.glfw.org/docs/3.3/window_guide.html#window_maximize Window maximization>
-setWindowMaximizeCallback :: Window -> Maybe WindowMaximizeCallback -> IO ()
-setWindowMaximizeCallback = setWindowCallback
-    mk'GLFWwindowmaximizefun
-    (\cb w x -> schedule $ cb (fromC w) (fromC x))
-    c'glfwSetWindowMaximizeCallback
-    storedWindowMaximizeFun
 
 -- | Tests if the joystick is present at all
 -- See <http://www.glfw.org/docs/3.3/group__input.html#gaffcbd9ac8ee737fcdd25475123a3c790 glfwJoystickPresent>

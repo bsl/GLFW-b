@@ -109,21 +109,23 @@ makeGammaRamp rs gs bs
 
 -- | Collects all the callbacks that can be associated with a Window into a single place.
 data WindowCallbacks = WindowCallbacks
-  { storedCharFun             :: !(IORef C'GLFWcharfun)
-  , storedCharModsFun         :: !(IORef C'GLFWcharmodsfun)
-  , storedCursorEnterFun      :: !(IORef C'GLFWcursorenterfun)
-  , storedCursorPosFun        :: !(IORef C'GLFWcursorposfun)
-  , storedFramebufferSizeFun  :: !(IORef C'GLFWframebuffersizefun)
-  , storedKeyFun              :: !(IORef C'GLFWkeyfun)
-  , storedMouseButtonFun      :: !(IORef C'GLFWmousebuttonfun)
-  , storedScrollFun           :: !(IORef C'GLFWscrollfun)
-  , storedWindowCloseFun      :: !(IORef C'GLFWwindowclosefun)
-  , storedWindowFocusFun      :: !(IORef C'GLFWwindowfocusfun)
-  , storedWindowIconifyFun    :: !(IORef C'GLFWwindowiconifyfun)
-  , storedWindowPosFun        :: !(IORef C'GLFWwindowposfun)
-  , storedWindowRefreshFun    :: !(IORef C'GLFWwindowrefreshfun)
-  , storedWindowSizeFun       :: !(IORef C'GLFWwindowsizefun)
-  , storedDropFun             :: !(IORef C'GLFWdropfun)
+  { storedCharFun               :: !(IORef C'GLFWcharfun)
+  , storedCharModsFun           :: !(IORef C'GLFWcharmodsfun)
+  , storedCursorEnterFun        :: !(IORef C'GLFWcursorenterfun)
+  , storedCursorPosFun          :: !(IORef C'GLFWcursorposfun)
+  , storedFramebufferSizeFun    :: !(IORef C'GLFWframebuffersizefun)
+  , storedKeyFun                :: !(IORef C'GLFWkeyfun)
+  , storedMouseButtonFun        :: !(IORef C'GLFWmousebuttonfun)
+  , storedScrollFun             :: !(IORef C'GLFWscrollfun)
+  , storedWindowCloseFun        :: !(IORef C'GLFWwindowclosefun)
+  , storedWindowFocusFun        :: !(IORef C'GLFWwindowfocusfun)
+  , storedWindowIconifyFun      :: !(IORef C'GLFWwindowiconifyfun)
+  , storedWindowPosFun          :: !(IORef C'GLFWwindowposfun)
+  , storedWindowRefreshFun      :: !(IORef C'GLFWwindowrefreshfun)
+  , storedWindowSizeFun         :: !(IORef C'GLFWwindowsizefun)
+  , storedWindowContentScaleFun :: !(IORef C'GLFWwindowcontentscalefun)
+  , storedWindowMaximizeFun     :: !(IORef C'GLFWwindowmaximizefun)
+  , storedDropFun               :: !(IORef C'GLFWdropfun)
   }
 
 -- | Reprisents a GLFW window value.
@@ -172,6 +174,18 @@ data WindowHint =
   deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData WindowHint
+
+-- | A window-specific attribute.
+-- See <https://www.glfw.org/docs/3.3/window_guide.html#window_attribs Window Attributes>
+data WindowAttrib
+  = WindowAttrib'Decorated
+  | WindowAttrib'Resizable
+  | WindowAttrib'Floating
+  | WindowAttrib'AutoIconify
+  | WindowAttrib'FocusOnShow
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData WindowAttrib
 
 -- | The OpenGL robustness strategy.
 data ContextRobustness =
@@ -523,9 +537,13 @@ data GamepadAxis
 
 instance NFData GamepadAxis
 
+-- | This describes the input state of a gamepad
 data GamepadState = GamepadState
                     { getButtonState :: GamepadButton -> GamepadButtonState
+                      -- ^ Returns the current state of the given button
                     , getAxisState :: GamepadAxis -> Float
+                      -- ^ Returns a value in the range [-1.0, 1.0] for the
+                      -- given game axis
                     } deriving (Typeable, Generic)
 
 instance Eq GamepadState where

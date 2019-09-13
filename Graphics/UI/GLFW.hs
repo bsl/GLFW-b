@@ -43,6 +43,8 @@ module Graphics.UI.GLFW
   , getPrimaryMonitor
   , getMonitorPos
   , getMonitorPhysicalSize
+  , getMonitorContentScale
+  , getMonitorWorkarea
   , getMonitorName
   , setMonitorCallback, MonitorCallback
   , getVideoModes
@@ -54,6 +56,7 @@ module Graphics.UI.GLFW
     -- * Window handling
   , Window
   , WindowHint             (..)
+  , WindowAttrib           (..)
   , ContextRobustness      (..)
   , OpenGLProfile          (..)
   , ClientAPI              (..)
@@ -62,6 +65,8 @@ module Graphics.UI.GLFW
     --
   , defaultWindowHints
   , windowHint
+  , setWindowAttrib
+  , getWindowAttrib
   , createWindow
   , destroyWindow
   , windowShouldClose
@@ -74,6 +79,7 @@ module Graphics.UI.GLFW
   , setWindowSizeLimits
   , setWindowAspectRatio
   , getWindowFrameSize
+  , getWindowContentScale
   , getFramebufferSize
   , setWindowIcon
   , iconifyWindow
@@ -82,6 +88,7 @@ module Graphics.UI.GLFW
   , maximizeWindow
   , showWindow
   , hideWindow
+  , requestWindowAttention
   , getWindowMonitor
   , setCursorPos
   , setFullscreen
@@ -105,13 +112,15 @@ module Graphics.UI.GLFW
   , getWindowOpenGLForwardCompat       -- |
   , getWindowOpenGLDebugContext        -- |
   , getWindowOpenGLProfile  --------------'
-  , setWindowPosCallback,       WindowPosCallback
-  , setWindowSizeCallback,      WindowSizeCallback
-  , setWindowCloseCallback,     WindowCloseCallback
-  , setWindowRefreshCallback,   WindowRefreshCallback
-  , setWindowFocusCallback,     WindowFocusCallback
-  , setWindowIconifyCallback,   WindowIconifyCallback
-  , setFramebufferSizeCallback, FramebufferSizeCallback
+  , setWindowPosCallback,          WindowPosCallback
+  , setWindowSizeCallback,         WindowSizeCallback
+  , setWindowCloseCallback,        WindowCloseCallback
+  , setWindowRefreshCallback,      WindowRefreshCallback
+  , setWindowFocusCallback,        WindowFocusCallback
+  , setWindowIconifyCallback,      WindowIconifyCallback
+  , setFramebufferSizeCallback,    FramebufferSizeCallback
+  , setWindowContentScaleCallback, WindowContentScaleCallback
+  , setWindowMaximizeCallback,     WindowMaximizeCallback
   , pollEvents
   , waitEvents
   , waitEventsTimeout
@@ -148,6 +157,7 @@ module Graphics.UI.GLFW
   , setStickyMouseButtonsInputMode  -----'
   , getKey
   , getKeyName
+  , getKeyScancode
   , getMouseButton
   , getCursorPos
   , setKeyCallback,         KeyCallback
@@ -302,40 +312,44 @@ storeCallback ior new = do
 --------------------------------------------------------------------------------
 
 -- | The error code and also a human-readable error message.
-type ErrorCallback           = Error -> String                                           -> IO ()
+type ErrorCallback              = Error -> String                                           -> IO ()
 -- | Fires when the window position changes.
-type WindowPosCallback       = Window -> Int -> Int                                      -> IO ()
+type WindowPosCallback          = Window -> Int -> Int                                      -> IO ()
 -- | Fires when the window is resized (in Screen Coordinates, which might not map 1:1 with pixels).
-type WindowSizeCallback      = Window -> Int -> Int                                      -> IO ()
+type WindowSizeCallback         = Window -> Int -> Int                                      -> IO ()
 -- | Fires when the user is attempting to close the window
-type WindowCloseCallback     = Window                                                    -> IO ()
+type WindowCloseCallback        = Window                                                    -> IO ()
 -- | Fires when the contents of the window are damaged and they must be refreshed.
-type WindowRefreshCallback   = Window                                                    -> IO ()
+type WindowRefreshCallback      = Window                                                    -> IO ()
 -- | Fires when the window gains or loses input focus.
-type WindowFocusCallback     = Window -> Bool                                            -> IO ()
+type WindowFocusCallback        = Window -> Bool                                            -> IO ()
 -- | Fires when the window is iconified (minimized) or not.
-type WindowIconifyCallback   = Window -> Bool                                            -> IO ()
+type WindowIconifyCallback      = Window -> Bool                                            -> IO ()
 -- | Fires when the size of the framebuffer for the window changes (in Pixels).
-type FramebufferSizeCallback = Window -> Int -> Int                                      -> IO ()
+type FramebufferSizeCallback    = Window -> Int -> Int                                      -> IO ()
 -- | Fires whenever a mouse button is clicked.
-type MouseButtonCallback     = Window -> MouseButton -> MouseButtonState -> ModifierKeys -> IO ()
+type MouseButtonCallback        = Window -> MouseButton -> MouseButtonState -> ModifierKeys -> IO ()
 -- | Fires every time the cursor position changes. Sub-pixel accuracy is used, when available.
-type CursorPosCallback       = Window -> Double -> Double                                -> IO ()
+type CursorPosCallback          = Window -> Double -> Double                                -> IO ()
 -- | Fires when the cursor enters or exits the client area of the window.
-type CursorEnterCallback     = Window -> CursorState                                     -> IO ()
+type CursorEnterCallback        = Window -> CursorState                                     -> IO ()
 -- | Fires when the user scrolls the mouse wheel or via touch gesture.
-type ScrollCallback          = Window -> Double -> Double                                -> IO ()
+type ScrollCallback             = Window -> Double -> Double                                -> IO ()
 -- | Fires for each press or repeat of keyboard keys (regardless of if it has textual meaning or not, eg Shift)
-type KeyCallback             = Window -> Key -> Int -> KeyState -> ModifierKeys          -> IO ()
+type KeyCallback                = Window -> Key -> Int -> KeyState -> ModifierKeys          -> IO ()
 -- | Fires when a complete character codepoint is typed by the user, Shift then 'b' generates "B".
-type CharCallback            = Window -> Char                                            -> IO ()
+type CharCallback               = Window -> Char                                            -> IO ()
 -- | Similar to 'CharCallback', fires when a complete unicode codepoint is typed by the user.
-type CharModsCallback        = Window -> Char -> ModifierKeys                            -> IO ()
+type CharModsCallback           = Window -> Char -> ModifierKeys                            -> IO ()
 -- | Fires when a monitor is connected or disconnected.
-type MonitorCallback         = Monitor -> MonitorState                                   -> IO ()
+type MonitorCallback            = Monitor -> MonitorState                                   -> IO ()
 -- | Fires when a joystick is connected or disconnected.
-type JoystickCallback        = Joystick -> JoystickState                                 -> IO ()
-
+type JoystickCallback           = Joystick -> JoystickState                                 -> IO ()
+-- | Fires when a window is rescaled
+type WindowContentScaleCallback = Window -> Float -> Float                                  -> IO ()
+-- | Fires when a window is maximized or restored. Returns True if the window
+-- was maximized and False if the window was restored.
+type WindowMaximizeCallback = Window -> Bool                                                -> IO ()
 --------------------------------------------------------------------------------
 -- CB scheduling
 
@@ -622,6 +636,37 @@ setGammaRamp mon gr =
           poke p'ggr ggr
           c'glfwSetGammaRamp (toC mon) p'ggr
 
+-- | This function retrieves the content scale for the specified monitor. The
+-- content scale is the ratio between the current DPI and the platform's default
+-- DPI.
+-- See <https://www.glfw.org/docs/3.3/group__monitor.html#gad3152e84465fa620b601265ebfcdb21b glfwGetMonitorContentScale>
+getMonitorContentScale :: Monitor -> IO (Float, Float)
+getMonitorContentScale mon =
+  alloca $ \p'x ->
+  alloca $ \p'y -> do
+    c'glfwGetMonitorContentScale (toC mon) p'x p'y
+    CFloat x <- peek p'x
+    CFloat y <- peek p'y
+    return (x, y)
+
+-- | This function returns the position, in screen coordinates, of the
+-- upper-left corner of the work area of the specified monitor along with the
+-- work area size in screen coordinates. Returned tuple is:
+-- (xPos, yPos, width, height)
+-- See <https://www.glfw.org/docs/3.3/group__monitor.html#ga7387a3bdb64bfe8ebf2b9e54f5b6c9d0 glfwGetMonitorWorkarea>
+getMonitorWorkarea :: Monitor -> IO (Int, Int, Int, Int)
+getMonitorWorkarea mon =
+  alloca $ \p'x ->
+  alloca $ \p'y ->
+  alloca $ \p'w ->
+  alloca $ \p'h -> do
+    c'glfwGetMonitorWorkarea (toC mon) p'x p'y p'w p'h
+    x <- fromC <$> peek p'x
+    y <- fromC <$> peek p'y
+    w <- fromC <$> peek p'w
+    h <- fromC <$> peek p'h
+    return (x, y, w, h)
+
 --------------------------------------------------------------------------------
 -- Window handling
 
@@ -686,37 +731,41 @@ createWindow :: Int -- ^ Desired width for the window.
              -> IO (Maybe Window)
 createWindow w h title mmon mwin =
     withCString title $ \ptitle -> do
-        charFun             <- newIORef nullFunPtr
-        charModsFun         <- newIORef nullFunPtr
-        cursorEnterFun      <- newIORef nullFunPtr
-        cursorPosFun        <- newIORef nullFunPtr
-        framebufferSizeFun  <- newIORef nullFunPtr
-        keyFun              <- newIORef nullFunPtr
-        mouseButtonFun      <- newIORef nullFunPtr
-        scrollFun           <- newIORef nullFunPtr
-        windowCloseFun      <- newIORef nullFunPtr
-        windowFocusFun      <- newIORef nullFunPtr
-        windowIconifyFun    <- newIORef nullFunPtr
-        windowPosFun        <- newIORef nullFunPtr
-        windowRefreshFun    <- newIORef nullFunPtr
-        windowSizeFun       <- newIORef nullFunPtr
-        dropFun             <- newIORef nullFunPtr
+        charFun               <- newIORef nullFunPtr
+        charModsFun           <- newIORef nullFunPtr
+        cursorEnterFun        <- newIORef nullFunPtr
+        cursorPosFun          <- newIORef nullFunPtr
+        framebufferSizeFun    <- newIORef nullFunPtr
+        keyFun                <- newIORef nullFunPtr
+        mouseButtonFun        <- newIORef nullFunPtr
+        scrollFun             <- newIORef nullFunPtr
+        windowCloseFun        <- newIORef nullFunPtr
+        windowFocusFun        <- newIORef nullFunPtr
+        windowIconifyFun      <- newIORef nullFunPtr
+        windowPosFun          <- newIORef nullFunPtr
+        windowRefreshFun      <- newIORef nullFunPtr
+        windowSizeFun         <- newIORef nullFunPtr
+        windowContentScaleFun <- newIORef nullFunPtr
+        windowMaximizeFun     <- newIORef nullFunPtr
+        dropFun               <- newIORef nullFunPtr
         let callbacks = WindowCallbacks
-              { storedCharFun             = charFun
-              , storedCharModsFun         = charModsFun
-              , storedCursorEnterFun      = cursorEnterFun
-              , storedCursorPosFun        = cursorPosFun
-              , storedFramebufferSizeFun  = framebufferSizeFun
-              , storedKeyFun              = keyFun
-              , storedMouseButtonFun      = mouseButtonFun
-              , storedScrollFun           = scrollFun
-              , storedWindowCloseFun      = windowCloseFun
-              , storedWindowFocusFun      = windowFocusFun
-              , storedWindowIconifyFun    = windowIconifyFun
-              , storedWindowPosFun        = windowPosFun
-              , storedWindowRefreshFun    = windowRefreshFun
-              , storedWindowSizeFun       = windowSizeFun
-              , storedDropFun             = dropFun
+              { storedCharFun               = charFun
+              , storedCharModsFun           = charModsFun
+              , storedCursorEnterFun        = cursorEnterFun
+              , storedCursorPosFun          = cursorPosFun
+              , storedFramebufferSizeFun    = framebufferSizeFun
+              , storedKeyFun                = keyFun
+              , storedMouseButtonFun        = mouseButtonFun
+              , storedScrollFun             = scrollFun
+              , storedWindowCloseFun        = windowCloseFun
+              , storedWindowFocusFun        = windowFocusFun
+              , storedWindowIconifyFun      = windowIconifyFun
+              , storedWindowPosFun          = windowPosFun
+              , storedWindowRefreshFun      = windowRefreshFun
+              , storedWindowSizeFun         = windowSizeFun
+              , storedWindowContentScaleFun = windowContentScaleFun
+              , storedWindowMaximizeFun     = windowMaximizeFun
+              , storedDropFun               = dropFun
               }
         p'win <- c'glfwCreateWindow
           (toC w)
@@ -756,6 +805,18 @@ destroyWindow win = do
     free storedWindowRefreshFun
     free storedWindowSizeFun
     freeStablePtr pcb
+
+-- | Returns the value of an attribute of the specified window or its OpenGL or
+-- OpenGL ES context.
+-- See <https://www.glfw.org/docs/3.3/group__window.html#gacccb29947ea4b16860ebef42c2cb9337 glfwGetWindowAttrib>
+getWindowAttrib :: Window -> WindowAttrib -> IO Bool
+getWindowAttrib win attrib =
+  fromC <$> c'glfwGetWindowAttrib (toC win) (toC attrib)
+
+-- | Sets the value of an attribute of the specified window.
+-- See <https://www.glfw.org/docs/3.3/group__window.html#gace2afda29b4116ec012e410a6819033e glfwSetWindowAttrib>
+setWindowAttrib :: Window -> WindowAttrib -> Bool -> IO ()
+setWindowAttrib win attrib = c'glfwSetWindowAttrib (toC win) (toC attrib) . toC
 
 -- | If the window should close or not.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga24e02fbfefbb81fc45320989f8140ab5 glfwWindowShouldClose>
@@ -861,6 +922,19 @@ setWindowAspectRatio win Nothing =
 setWindowAspectRatio win (Just (w, h)) =
   c'glfwSetWindowAspectRatio (toC win) (toC w) (toC h)
 
+-- | This function retrieves the content scale for the specified window. The
+-- content scale is the ratio between the current DPI and the platform's
+-- default DPI.
+-- See <https://www.glfw.org/docs/3.3/group__window.html#gaf5d31de9c19c4f994facea64d2b3106c glfwGetWindowContentScale>
+getWindowContentScale :: Window -> IO (Float, Float)
+getWindowContentScale win =
+    alloca $ \p'x ->
+    alloca $ \p'y -> do
+        c'glfwGetWindowContentScale (toC win) p'x p'y
+        CFloat x <- peek p'x
+        CFloat y <- peek p'y
+        return (x, y)
+
 -- | The size of the framebuffer (in Pixels)
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga0e2637a4161afb283f5300c7f94785c9 glfwGetFramebufferSize>
 getFramebufferSize :: Window -> IO (Int, Int)
@@ -897,14 +971,12 @@ setWindowIcon win imgs =
 -- | Iconifies (minimizes) the window.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga1bb559c0ebaad63c5c05ad2a066779c4 glfwIconifyWindow>
 iconifyWindow :: Window -> IO ()
-iconifyWindow =
-    c'glfwIconifyWindow . toC
+iconifyWindow = c'glfwIconifyWindow . toC
 
 -- | Restores the window from an iconified/minimized state.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga52527a5904b47d802b6b4bb519cdebc7 glfwRestoreWindow>
 restoreWindow :: Window -> IO ()
-restoreWindow =
-    c'glfwRestoreWindow . toC
+restoreWindow = c'glfwRestoreWindow . toC
 
 -- | Brings the specified window to front and sets input focus. The window
 -- should already be visible and not iconified.
@@ -920,14 +992,17 @@ maximizeWindow = c'glfwMaximizeWindow . toC
 -- | Shows the window.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga61be47917b72536a148300f46494fc66 glfwShowWindow>
 showWindow :: Window -> IO ()
-showWindow =
-    c'glfwShowWindow . toC
+showWindow = c'glfwShowWindow . toC
 
 -- | Hides the window.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga49401f82a1ba5f15db5590728314d47c glfwHideWindow>
 hideWindow :: Window -> IO ()
-hideWindow =
-    c'glfwHideWindow . toC
+hideWindow = c'glfwHideWindow . toC
+
+-- | Requests user attention to the specified window.
+-- See <https://www.glfw.org/docs/3.3/group__window.html#ga2f8d59323fc4692c1d54ba08c863a703 glfwRequestWindowAttention>
+requestWindowAttention :: Window -> IO ()
+requestWindowAttention = c'glfwRequestWindowAttention . toC
 
 -- | Gets the monitor that this window is running on, provided the window is
 -- fullscreen.
@@ -1141,6 +1216,27 @@ setWindowIconifyCallback win = setWindowCallback
     storedWindowIconifyFun
     win
 
+-- | Sets the callback for when the content scale of the window changes.
+-- See <https://www.glfw.org/docs/3.3/window_guide.html#window_scale Window Content Scale>
+setWindowContentScaleCallback :: Window -> Maybe WindowContentScaleCallback -> IO ()
+setWindowContentScaleCallback win = setWindowCallback
+    mk'GLFWwindowcontentscalefun
+    (\cb w (CFloat f1) (CFloat f2) -> schedule $ cb (fromC w) f1 f2)
+    (c'glfwSetWindowContentScaleCallback (toC win))
+    storedWindowContentScaleFun
+    win
+
+-- | Sets the maximization callback of the specified window, which is called
+-- when the window is maximized or restored.
+-- See <https://www.glfw.org/docs/3.3/window_guide.html#window_maximize Window maximization>
+setWindowMaximizeCallback :: Window -> Maybe WindowMaximizeCallback -> IO ()
+setWindowMaximizeCallback win = setWindowCallback
+    mk'GLFWwindowmaximizefun
+    (\cb w x -> schedule $ cb (fromC w) (fromC x))
+    (c'glfwSetWindowMaximizeCallback (toC win))
+    storedWindowMaximizeFun
+    win
+
 -- | Sets the callback to use when the framebuffer's size changes.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga3203461a5303bf289f2e05f854b2f7cf glfwSetFramebufferSizeCallback>
 setFramebufferSizeCallback :: Window -> Maybe FramebufferSizeCallback -> IO ()
@@ -1241,6 +1337,11 @@ getKeyName k scancode = do
   if cstr == nullPtr
     then return Nothing
     else Just `fmap` peekCString cstr
+
+-- | This function returns the platform-specific scancode of the specified key.
+-- See <https://www.glfw.org/docs/3.3/group__input.html#ga67ddd1b7dcbbaff03e4a76c0ea67103a glfwGetKeyScancode>
+getKeyScancode :: Key -> IO Int
+getKeyScancode = fmap fromC . c'glfwGetKeyScancode . toC
 
 -- | Gets the state of a single specified mouse button. If sticky mouse button
 -- mode isn't enabled it's possible for mouse polling to miss individual mouse events. Use
@@ -1412,6 +1513,9 @@ getGamepadName js = do
     then return Nothing
     else Just <$> peekCString p'name
 
+-- | This function retrives the state of the specified joystick remapped to an
+-- Xbox-like gamepad.
+-- See <https://www.glfw.org/docs/3.3/group__input.html#gadccddea8bce6113fa459de379ddaf051 glfwGetGamepadState>
 getGamepadState :: Joystick -> IO (Maybe GamepadState)
 getGamepadState js = alloca $ \p'gps -> do
   hasGamepad <- fromC <$> c'glfwGetGamepadState (toC js) p'gps

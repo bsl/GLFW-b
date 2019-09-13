@@ -110,6 +110,7 @@ tests mon win =
       , glfwTest "getPrimaryMonitor"        test_getPrimaryMonitor
       , glfwTest "getMonitorPos"          $ test_getMonitorPos mon
       , glfwTest "getMonitorPhysicalSize" $ test_getMonitorPhysicalSize mon
+      , glfwTest "getMonitorWorkarea"     $ test_getMonitorWorkarea mon
       , glfwTest "getMonitorName"         $ test_getMonitorName mon
       , glfwTest "getVideoModes"          $ test_getVideoModes mon
       , glfwTest "getVideoMode"           $ test_getVideoMode mon
@@ -128,6 +129,7 @@ tests mon win =
       , glfwTest "getWindowOpenGLForwardCompat" $ test_getWindowOpenGLForwardCompat win
       , glfwTest "getWindowOpenGLDebugContext"  $ test_getWindowOpenGLDebugContext win
       , glfwTest "getWindowOpenGLProfile"       $ test_getWindowOpenGLProfile win
+      , glfwTest "window attribs"               $ test_windowAttribs win
       , glfwTest "window close flag"            $ test_window_close_flag win
       , glfwTest "setWindowTitle"               $ test_setWindowTitle win
       , glfwTest "window pos"                   $ test_window_pos win
@@ -223,6 +225,14 @@ test_getMonitorPhysicalSize mon = do
     assertBool "" $ w `between` (0, 1000)
     assertBool "" $ h `between` (0,  500)
 
+test_getMonitorWorkarea :: GLFW.Monitor -> IO ()
+test_getMonitorWorkarea mon = do
+    (x, y, w, h) <- GLFW.getMonitorWorkarea mon
+    assertBool "workarea x nonnegative" $ x >= 0
+    assertBool "workarea y nonnegative" $ y >= 0
+    assertBool "workarea width positive" $ w > 0
+    assertBool "workarea height positive" $ h > 0
+
 test_getMonitorName :: GLFW.Monitor -> IO ()
 test_getMonitorName mon = do
     mname <- GLFW.getMonitorName mon
@@ -262,6 +272,20 @@ test_getGammaRamp mon = do
 test_defaultWindowHints :: IO ()
 test_defaultWindowHints =
     GLFW.defaultWindowHints
+
+test_windowAttribs :: GLFW.Window -> IO ()
+test_windowAttribs win = do
+    oldRsz <- GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable
+
+    GLFW.setWindowAttrib win GLFW.WindowAttrib'Resizable False
+    rsz <- GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable
+    rsz @?= False
+
+    GLFW.setWindowAttrib win GLFW.WindowAttrib'Resizable True
+    rsz <- GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable
+    rsz @?= True
+
+    GLFW.setWindowAttrib win GLFW.WindowAttrib'Resizable oldRsz
 
 test_window_close_flag :: GLFW.Window -> IO ()
 test_window_close_flag win = do

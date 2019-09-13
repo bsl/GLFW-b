@@ -389,6 +389,17 @@ cInfos =
         , ( "c'GLFW_JOYSTICK_15", "Joystick'15" )
         , ( "c'GLFW_JOYSTICK_16", "Joystick'16" )
         ]
+    , CInfo "CUChar" "JoystickHatState"
+        [ ( "c'GLFW_HAT_CENTERED",   "JoystickHatState'Centered")
+        , ( "c'GLFW_HAT_UP",         "JoystickHatState'Up")
+        , ( "c'GLFW_HAT_RIGHT",      "JoystickHatState'Right")
+        , ( "c'GLFW_HAT_DOWN",       "JoystickHatState'Down")
+        , ( "c'GLFW_HAT_LEFT",       "JoystickHatState'Left")
+        , ( "c'GLFW_HAT_RIGHT_UP",   "JoystickHatState'RightUp")
+        , ( "c'GLFW_HAT_RIGHT_DOWN", "JoystickHatState'RightDown")
+        , ( "c'GLFW_HAT_LEFT_UP",    "JoystickHatState'LeftUp")
+        , ( "c'GLFW_HAT_LEFT_DOWN",  "JoystickHatState'LeftDown")
+        ]
     , CInfo "CUChar" "JoystickButtonState"
         [ ( "c'GLFW_PRESS",   "JoystickButtonState'Pressed"  )
         , ( "c'GLFW_RELEASE", "JoystickButtonState'Released" )

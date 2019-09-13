@@ -485,6 +485,28 @@ instance C CInt Joystick where
   toC Joystick'15 = c'GLFW_JOYSTICK_15
   toC Joystick'16 = c'GLFW_JOYSTICK_16
 
+instance C CUChar JoystickHatState where
+  fromC v
+    | v == c'GLFW_HAT_CENTERED = JoystickHatState'Centered
+    | v == c'GLFW_HAT_UP = JoystickHatState'Up
+    | v == c'GLFW_HAT_RIGHT = JoystickHatState'Right
+    | v == c'GLFW_HAT_DOWN = JoystickHatState'Down
+    | v == c'GLFW_HAT_LEFT = JoystickHatState'Left
+    | v == c'GLFW_HAT_RIGHT_UP = JoystickHatState'RightUp
+    | v == c'GLFW_HAT_RIGHT_DOWN = JoystickHatState'RightDown
+    | v == c'GLFW_HAT_LEFT_UP = JoystickHatState'LeftUp
+    | v == c'GLFW_HAT_LEFT_DOWN = JoystickHatState'LeftDown
+    | otherwise = error $ "C CUChar JoystickHatState fromC: " ++ show v
+  toC JoystickHatState'Centered = c'GLFW_HAT_CENTERED
+  toC JoystickHatState'Up = c'GLFW_HAT_UP
+  toC JoystickHatState'Right = c'GLFW_HAT_RIGHT
+  toC JoystickHatState'Down = c'GLFW_HAT_DOWN
+  toC JoystickHatState'Left = c'GLFW_HAT_LEFT
+  toC JoystickHatState'RightUp = c'GLFW_HAT_RIGHT_UP
+  toC JoystickHatState'RightDown = c'GLFW_HAT_RIGHT_DOWN
+  toC JoystickHatState'LeftUp = c'GLFW_HAT_LEFT_UP
+  toC JoystickHatState'LeftDown = c'GLFW_HAT_LEFT_DOWN
+
 instance C CUChar JoystickButtonState where
   fromC v
     | v == c'GLFW_PRESS = JoystickButtonState'Pressed

@@ -176,6 +176,7 @@ module Graphics.UI.GLFW
   , joystickIsGamepad
   , getJoystickAxes
   , getJoystickButtons
+  , getJoystickHats
   , getJoystickName
   , getJoystickGUID
   , setJoystickCallback,    JoystickCallback
@@ -1439,30 +1440,37 @@ setScrollCallback win = setWindowCallback
 -- | Tests if the joystick is present at all
 -- See <http://www.glfw.org/docs/3.3/group__input.html#gaffcbd9ac8ee737fcdd25475123a3c790 glfwJoystickPresent>
 joystickPresent :: Joystick -> IO Bool
-joystickPresent js =
-    fromC `fmap` c'glfwJoystickPresent (toC js)
+joystickPresent = fmap fromC . c'glfwJoystickPresent . toC
 
 -- | Returns the values of all axes of the specified joystick, normalized to between -1.0 and 1.0
 -- See <http://www.glfw.org/docs/3.3/group__input.html#ga6271d46a5901ec2c99601ccf4dd14731 glfwGetJoystickAxes>
 getJoystickAxes :: Joystick -> IO (Maybe [Double])
-getJoystickAxes js =
-    alloca $ \p'n -> do
-        p'axes <- c'glfwGetJoystickAxes (toC js) p'n
-        n <- fromC `fmap` peek p'n
-        if p'axes == nullPtr || n <= 0
-          then return Nothing
-          else (Just . map fromC) `fmap` peekArray n p'axes
+getJoystickAxes js = alloca $ \p'n -> do
+    p'axes <- c'glfwGetJoystickAxes (toC js) p'n
+    n <- fromC <$> peek p'n
+    if p'axes == nullPtr || n <= 0
+      then return Nothing
+      else (Just . map fromC) <$> peekArray n p'axes
 
 -- | Returns a list of all joystick button states for the specified joystick.
 -- See <http://www.glfw.org/docs/3.3/group__input.html#gace54cd930dcd502e118fe4021384ce1b glfwGetJoystickButtons>
 getJoystickButtons :: Joystick -> IO (Maybe [JoystickButtonState])
-getJoystickButtons js =
-    alloca $ \p'n -> do
-        p'buttons <- c'glfwGetJoystickButtons (toC js) p'n
-        n <- fromC `fmap` peek p'n
-        if p'buttons == nullPtr || n <= 0
-          then return Nothing
-          else (Just . map fromC) `fmap` peekArray n p'buttons
+getJoystickButtons js = alloca $ \p'n -> do
+    p'buttons <- c'glfwGetJoystickButtons (toC js) p'n
+    n <- fromC <$> peek p'n
+    if p'buttons == nullPtr || n <= 0
+      then return Nothing
+      else (Just . map fromC) <$> peekArray n p'buttons
+
+-- | Returns a list of all hats of the specified joystick.
+-- See <https://www.glfw.org/docs/3.3/group__input.html#ga2d8d0634bb81c180899aeb07477a67ea glfwGetJoystickHats>
+getJoystickHats :: Joystick -> IO (Maybe [JoystickHatState])
+getJoystickHats js = alloca $ \p'n -> do
+    p'hats <- c'glfwGetJoystickHats (toC js) p'n
+    n <- fromC <$> peek p'n
+    if p'hats == nullPtr || n <= 0
+      then return Nothing
+      else (Just . map fromC) <$> peekArray n p'hats
 
 -- | A human-readable name for a Joystick. Not guranteed to be unique.
 -- See <http://www.glfw.org/docs/3.3/group__input.html#gac8d7f6107e05cfd106cfba973ab51e19 glfwGetJoystickName>
@@ -1471,7 +1479,7 @@ getJoystickName js = do
     p'name <- c'glfwGetJoystickName (toC js)
     if p'name == nullPtr
       then return Nothing
-      else Just `fmap` peekCString p'name
+      else Just <$> peekCString p'name
 
 -- | Sets a callback for when a joystick is connected or disconnected.
 -- See <http://www.glfw.org/docs/3.3/group__input.html#gab1dc8379f1b82bb660a6b9c9fa06ca07 glfwSetJoystickCallback>

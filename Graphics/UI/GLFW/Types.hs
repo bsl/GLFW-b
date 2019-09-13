@@ -421,6 +421,23 @@ data JoystickState
 
 instance NFData JoystickState
 
+-- | The valid hat states of a joystick. Part of the
+-- <https://www.glfw.org/docs/3.3/input_guide.html#joystick_hat joystick hat>
+-- system.
+data JoystickHatState
+  = JoystickHatState'Centered
+  | JoystickHatState'Up
+  | JoystickHatState'Right
+  | JoystickHatState'Down
+  | JoystickHatState'Left
+  | JoystickHatState'RightUp
+  | JoystickHatState'RightDown
+  | JoystickHatState'LeftUp
+  | JoystickHatState'LeftDown
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData JoystickHatState
+
 -- | Part of the <http://www.glfw.org/docs/3.3/input.html#input_mouse Mouse Input> system.
 data MouseButton =
     MouseButton'1

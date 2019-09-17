@@ -26,6 +26,8 @@ module Graphics.UI.GLFW
   , Version (..)
     --
   , init
+  , InitHint(..)
+  , initHint
   , terminate
   , getVersion
   , getVersionString
@@ -438,8 +440,12 @@ withGLFWImage (Image w h pxs) f =
 -- See <http://www.glfw.org/docs/3.3/group__init.html#ga317aac130a235ab08c6db0834907d85e glfwInit>
 -- and <http://www.glfw.org/docs/3.3/intro.html#intro_init Initialization and Termination>
 init :: IO Bool
-init =
-    fromC `fmap` c'glfwInit
+init = fromC `fmap` c'glfwInit
+
+-- | This function sets hints for the next initialization of GLFW. See
+-- <https://www.glfw.org/docs/3.3/group__init.html#ga110fd1d3f0412822b4f1908c026f724a glfwInitHint>
+initHint :: InitHint -> Bool -> IO ()
+initHint hint val = c'glfwInitHint (toC hint) (toC val)
 
 -- | Cleans up GLFW and puts the library into an uninitialized state.
 -- Once you call this, you must initilize the library again.

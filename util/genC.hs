@@ -215,6 +215,11 @@ cInfos =
         , ( "c'GLFW_PLATFORM_ERROR",      "Error'PlatformError"      )
         , ( "c'GLFW_FORMAT_UNAVAILABLE",  "Error'FormatUnavailable"  )
         ]
+    , CInfo "CInt" "InitHint"
+        [ ( "c'GLFW_JOYSTICK_HAT_BUTTONS",  "InitHint'JoystickHatButtons" )
+        , ( "c'GLFW_COCOA_CHDIR_RESOURCES", "InitHint'CocoaChdirResources" )
+        , ( "c'GLFW_COCOA_MENUBAR",         "InitHint'CocoaMenubar" )
+        ]
     , CInfo "CInt" "MonitorState"
         [ ( "c'GLFW_CONNECTED",  "MonitorState'Connected"    )
         , ( "c'GLFW_DISCONNECTED", "MonitorState'Disconnected" )

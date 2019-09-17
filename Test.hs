@@ -25,6 +25,7 @@ main = do
     GLFW.setErrorCallback $ Just $ \e s ->
         putStrLn $ unwords ["###", show e, show s]
 
+    GLFW.initHint GLFW.InitHint'CocoaChdirResources False
     True <- GLFW.init
 
     Just mon <- GLFW.getPrimaryMonitor

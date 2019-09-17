@@ -137,6 +137,16 @@ instance C CInt Error where
   toC Error'PlatformError = c'GLFW_PLATFORM_ERROR
   toC Error'FormatUnavailable = c'GLFW_FORMAT_UNAVAILABLE
 
+instance C CInt InitHint where
+  fromC v
+    | v == c'GLFW_JOYSTICK_HAT_BUTTONS = InitHint'JoystickHatButtons
+    | v == c'GLFW_COCOA_CHDIR_RESOURCES = InitHint'CocoaChdirResources
+    | v == c'GLFW_COCOA_MENUBAR = InitHint'CocoaMenubar
+    | otherwise = error $ "C CInt InitHint fromC: " ++ show v
+  toC InitHint'JoystickHatButtons = c'GLFW_JOYSTICK_HAT_BUTTONS
+  toC InitHint'CocoaChdirResources = c'GLFW_COCOA_CHDIR_RESOURCES
+  toC InitHint'CocoaMenubar = c'GLFW_COCOA_MENUBAR
+
 instance C CInt MonitorState where
   fromC v
     | v == c'GLFW_CONNECTED = MonitorState'Connected

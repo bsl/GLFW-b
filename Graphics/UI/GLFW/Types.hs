@@ -41,6 +41,17 @@ instance NFData Error
 --------------------------------------------------------------------------------
 -- Initialization and version information
 
+-- | Initialization hints are set before glfwInit and affect how the library
+-- behaves until termination. Hints are set with glfwInitHint. See
+-- <https://www.glfw.org/docs/3.3/intro_guide.html#init_hints Init Hints>
+data InitHint
+  = InitHint'JoystickHatButtons
+  | InitHint'CocoaChdirResources
+  | InitHint'CocoaMenubar
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData InitHint
+
 -- | The library version of the GLFW implementation in use.
 -- See <http://www.glfw.org/docs/3.3/intro.html#intro_version Version Management>
 data Version = Version

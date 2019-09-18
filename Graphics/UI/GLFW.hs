@@ -73,6 +73,8 @@ module Graphics.UI.GLFW
   , destroyWindow
   , windowShouldClose
   , setWindowShouldClose
+  , getWindowOpacity
+  , setWindowOpacity
   , setWindowTitle
   , getWindowPos
   , setWindowPos
@@ -255,6 +257,13 @@ import Graphics.UI.GLFW.C
 import Graphics.UI.GLFW.Types
 
 import Bindings.GLFW
+
+--------------------------------------------------------------------------------
+-- Helper functions
+
+-- C to haskell float.
+hFloat :: CFloat -> Float
+hFloat (CFloat f) = f
 
 --------------------------------------------------------------------------------
 
@@ -881,6 +890,16 @@ windowShouldClose win =
 setWindowShouldClose :: Window -> Bool -> IO ()
 setWindowShouldClose win b =
     c'glfwSetWindowShouldClose (toC win) (toC b)
+
+-- | Returns the opacity of the window, including any decorations.
+-- See <https://www.glfw.org/docs/3.3/group__window.html#gad09f0bd7a6307c4533b7061828480a84 glfwGetWindowOpacity
+getWindowOpacity :: Window -> IO Float
+getWindowOpacity = fmap hFloat . c'glfwGetWindowOpacity . toC
+
+-- | Sets the opacity of the window, including any decorations
+-- See <https://www.glfw.org/docs/3.3/group__window.html#gac31caeb3d1088831b13d2c8a156802e9 glfwSetWindowOpacity>
+setWindowOpacity :: Window -> Float -> IO ()
+setWindowOpacity win op = c'glfwSetWindowOpacity (toC win) (CFloat op)
 
 -- | Sets the Title string of the window.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga5d877f09e968cef7a360b513306f17ff glfwSetWindowTitle>
@@ -1585,7 +1604,7 @@ getGamepadState js = alloca $ \p'gps -> do
         { getButtonState = fromC . (c'GLFWgamepadstate'buttons gps !!)
                          . (fromIntegral :: CInt -> Int)
                          . toC
-        , getAxisState = (\(CFloat f) -> f)
+        , getAxisState = hFloat
                        . (c'GLFWgamepadstate'axes gps !!)
                        . (fromIntegral :: CInt -> Int)
                        . toC

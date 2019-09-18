@@ -133,6 +133,7 @@ tests mon win =
       , glfwTest "getWindowOpenGLProfile"       $ test_getWindowOpenGLProfile win
       , glfwTest "window attribs"               $ test_windowAttribs win
       , glfwTest "window close flag"            $ test_window_close_flag win
+      , glfwTest "setWindowOpacity"             $ test_window_opacity win
       , glfwTest "setWindowTitle"               $ test_setWindowTitle win
       , glfwTest "window pos"                   $ test_window_pos win
       , glfwTest "window size"                  $ test_window_size win
@@ -300,6 +301,17 @@ test_window_close_flag win = do
     GLFW.setWindowShouldClose win False
     r2 <- GLFW.windowShouldClose win
     r2 @?= False
+
+test_window_opacity :: GLFW.Window -> IO ()
+test_window_opacity win = do
+    oldOpacity <- GLFW.getWindowOpacity win
+
+    GLFW.setWindowOpacity win 0.27
+    opacity <- GLFW.getWindowOpacity win
+    assertBool "Opacity is close to what we set it to." $
+      (abs (opacity - 0.27)) < 0.01
+
+    GLFW.setWindowOpacity win oldOpacity
 
 test_setWindowTitle :: GLFW.Window -> IO ()
 test_setWindowTitle win =

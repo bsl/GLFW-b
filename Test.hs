@@ -280,8 +280,7 @@ test_windowAttribs win = do
     oldRsz <- GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable
 
     GLFW.setWindowAttrib win GLFW.WindowAttrib'Resizable False
-    rsz <- GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable
-    rsz @?= False
+    GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable >>= (@?= False)
 
     GLFW.setWindowAttrib win GLFW.WindowAttrib'Resizable True
     rsz <- GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable

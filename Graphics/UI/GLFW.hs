@@ -683,49 +683,94 @@ defaultWindowHints :: IO ()
 defaultWindowHints =
     c'glfwDefaultWindowHints
 
--- | Hints something to the GLFW windowing system.
--- See <http://www.glfw.org/docs/3.3/group__window.html#ga7d9c8c62384b1e2821c4dc48952d2033 glfwWindowHint>
-windowHint :: WindowHint -> IO ()
-windowHint wh =
-    let (t, v) = unpack
-    in c'glfwWindowHint t v
-  where
-    unpack = case wh of
-      (WindowHint'Resizable              x) -> (c'GLFW_RESIZABLE,                toC x)
-      (WindowHint'Visible                x) -> (c'GLFW_VISIBLE,                  toC x)
-      (WindowHint'Decorated              x) -> (c'GLFW_DECORATED,                toC x)
-      (WindowHint'RedBits                x) -> (c'GLFW_RED_BITS,                 toC x)
-      (WindowHint'GreenBits              x) -> (c'GLFW_GREEN_BITS,               toC x)
-      (WindowHint'BlueBits               x) -> (c'GLFW_BLUE_BITS,                toC x)
-      (WindowHint'AlphaBits              x) -> (c'GLFW_ALPHA_BITS,               toC x)
-      (WindowHint'DepthBits              x) -> (c'GLFW_DEPTH_BITS,               toC x)
-      (WindowHint'StencilBits            x) -> (c'GLFW_STENCIL_BITS,             toC x)
-      (WindowHint'AccumRedBits           x) -> (c'GLFW_ACCUM_RED_BITS,           toC x)
-      (WindowHint'AccumGreenBits         x) -> (c'GLFW_ACCUM_GREEN_BITS,         toC x)
-      (WindowHint'AccumBlueBits          x) -> (c'GLFW_ACCUM_BLUE_BITS,          toC x)
-      (WindowHint'AccumAlphaBits         x) -> (c'GLFW_ACCUM_ALPHA_BITS,         toC x)
-      (WindowHint'AuxBuffers             x) -> (c'GLFW_AUX_BUFFERS,              toC x)
-      (WindowHint'Samples                x) -> (c'GLFW_SAMPLES,                  toC x)
-      (WindowHint'RefreshRate            x) -> (c'GLFW_REFRESH_RATE,             toC x)
-      (WindowHint'DoubleBuffer           x) -> (c'GLFW_DOUBLEBUFFER,             toC x)
-      (WindowHint'Stereo                 x) -> (c'GLFW_STEREO,                   toC x)
-      (WindowHint'sRGBCapable            x) -> (c'GLFW_SRGB_CAPABLE,             toC x)
-      (WindowHint'Floating               x) -> (c'GLFW_FLOATING,                 toC x)
-      (WindowHint'Focused                x) -> (c'GLFW_FOCUSED,                  toC x)
-      (WindowHint'Maximized              x) -> (c'GLFW_MAXIMIZED,                toC x)
-      (WindowHint'AutoIconify            x) -> (c'GLFW_AUTO_ICONIFY,             toC x)
-      (WindowHint'ClientAPI              x) -> (c'GLFW_CLIENT_API,               toC x)
-      (WindowHint'ContextCreationAPI     x) -> (c'GLFW_CONTEXT_CREATION_API,     toC x)
-      (WindowHint'ContextVersionMajor    x) -> (c'GLFW_CONTEXT_VERSION_MAJOR,    toC x)
-      (WindowHint'ContextVersionMinor    x) -> (c'GLFW_CONTEXT_VERSION_MINOR,    toC x)
-      (WindowHint'ContextRobustness      x) -> (c'GLFW_CONTEXT_ROBUSTNESS,       toC x)
-      (WindowHint'ContextReleaseBehavior x) -> (c'GLFW_CONTEXT_RELEASE_BEHAVIOR, toC x)
-      (WindowHint'ContextNoError         x) -> (c'GLFW_CONTEXT_NO_ERROR,         toC x)
-      (WindowHint'OpenGLForwardCompat    x) -> (c'GLFW_OPENGL_FORWARD_COMPAT,    toC x)
-      (WindowHint'OpenGLDebugContext     x) -> (c'GLFW_OPENGL_DEBUG_CONTEXT,     toC x)
-      (WindowHint'OpenGLProfile          x) -> (c'GLFW_OPENGL_PROFILE,           toC x)
+setStringHint :: CInt -> String -> IO ()
+setStringHint hint = flip withCString (c'glfwWindowHintString hint)
 
--- | Creates a new window.
+-- | Hints something to the GLFW windowing system.
+-- See
+-- <http://www.glfw.org/docs/3.3/group__window.html#ga7d9c8c62384b1e2821c4dc48952d2033 glfwWindowHint>
+-- and
+-- <https://www.glfw.org/docs/3.3/group__window.html#ga8cb2782861c9d997bcf2dea97f363e5f glfwWindowHintString>
+windowHint :: WindowHint -> IO ()
+windowHint (WindowHint'Resizable              x) =
+  c'glfwWindowHint c'GLFW_RESIZABLE                (toC x)
+windowHint (WindowHint'Visible                x) =
+  c'glfwWindowHint c'GLFW_VISIBLE                  (toC x)
+windowHint (WindowHint'Decorated              x) =
+  c'glfwWindowHint c'GLFW_DECORATED                (toC x)
+windowHint (WindowHint'RedBits                x) =
+  c'glfwWindowHint c'GLFW_RED_BITS                 (toC x)
+windowHint (WindowHint'GreenBits              x) =
+  c'glfwWindowHint c'GLFW_GREEN_BITS               (toC x)
+windowHint (WindowHint'BlueBits               x) =
+  c'glfwWindowHint c'GLFW_BLUE_BITS                (toC x)
+windowHint (WindowHint'AlphaBits              x) =
+  c'glfwWindowHint c'GLFW_ALPHA_BITS               (toC x)
+windowHint (WindowHint'DepthBits              x) =
+  c'glfwWindowHint c'GLFW_DEPTH_BITS               (toC x)
+windowHint (WindowHint'StencilBits            x) =
+  c'glfwWindowHint c'GLFW_STENCIL_BITS             (toC x)
+windowHint (WindowHint'AccumRedBits           x) =
+  c'glfwWindowHint c'GLFW_ACCUM_RED_BITS           (toC x)
+windowHint (WindowHint'AccumGreenBits         x) =
+  c'glfwWindowHint c'GLFW_ACCUM_GREEN_BITS         (toC x)
+windowHint (WindowHint'AccumBlueBits          x) =
+  c'glfwWindowHint c'GLFW_ACCUM_BLUE_BITS          (toC x)
+windowHint (WindowHint'AccumAlphaBits         x) =
+  c'glfwWindowHint c'GLFW_ACCUM_ALPHA_BITS         (toC x)
+windowHint (WindowHint'AuxBuffers             x) =
+  c'glfwWindowHint c'GLFW_AUX_BUFFERS              (toC x)
+windowHint (WindowHint'Samples                x) =
+  c'glfwWindowHint c'GLFW_SAMPLES                  (toC x)
+windowHint (WindowHint'RefreshRate            x) =
+  c'glfwWindowHint c'GLFW_REFRESH_RATE             (toC x)
+windowHint (WindowHint'DoubleBuffer           x) =
+  c'glfwWindowHint c'GLFW_DOUBLEBUFFER             (toC x)
+windowHint (WindowHint'Stereo                 x) =
+  c'glfwWindowHint c'GLFW_STEREO                   (toC x)
+windowHint (WindowHint'sRGBCapable            x) =
+  c'glfwWindowHint c'GLFW_SRGB_CAPABLE             (toC x)
+windowHint (WindowHint'Floating               x) =
+  c'glfwWindowHint c'GLFW_FLOATING                 (toC x)
+windowHint (WindowHint'Focused                x) =
+  c'glfwWindowHint c'GLFW_FOCUSED                  (toC x)
+windowHint (WindowHint'Maximized              x) =
+  c'glfwWindowHint c'GLFW_MAXIMIZED                (toC x)
+windowHint (WindowHint'AutoIconify            x) =
+  c'glfwWindowHint c'GLFW_AUTO_ICONIFY             (toC x)
+windowHint (WindowHint'ClientAPI              x) =
+  c'glfwWindowHint c'GLFW_CLIENT_API               (toC x)
+windowHint (WindowHint'ContextCreationAPI     x) =
+  c'glfwWindowHint c'GLFW_CONTEXT_CREATION_API     (toC x)
+windowHint (WindowHint'ContextVersionMajor    x) =
+  c'glfwWindowHint c'GLFW_CONTEXT_VERSION_MAJOR    (toC x)
+windowHint (WindowHint'ContextVersionMinor    x) =
+  c'glfwWindowHint c'GLFW_CONTEXT_VERSION_MINOR    (toC x)
+windowHint (WindowHint'ContextRobustness      x) =
+  c'glfwWindowHint c'GLFW_CONTEXT_ROBUSTNESS       (toC x)
+windowHint (WindowHint'ContextReleaseBehavior x) =
+  c'glfwWindowHint c'GLFW_CONTEXT_RELEASE_BEHAVIOR (toC x)
+windowHint (WindowHint'ContextNoError         x) =
+  c'glfwWindowHint c'GLFW_CONTEXT_NO_ERROR         (toC x)
+windowHint (WindowHint'OpenGLForwardCompat    x) =
+  c'glfwWindowHint c'GLFW_OPENGL_FORWARD_COMPAT    (toC x)
+windowHint (WindowHint'OpenGLDebugContext     x) =
+  c'glfwWindowHint c'GLFW_OPENGL_DEBUG_CONTEXT     (toC x)
+windowHint (WindowHint'OpenGLProfile          x) =
+  c'glfwWindowHint c'GLFW_OPENGL_PROFILE           (toC x)
+windowHint (WindowHint'TransparentFramebuffer x) =
+  c'glfwWindowHint c'GLFW_TRANSPARENT_FRAMEBUFFER  (toC x)
+windowHint (WindowHint'CenterCursor           x) =
+  c'glfwWindowHint c'GLFW_CENTER_CURSOR            (toC x)
+windowHint (WindowHint'FocusOnShow            x) =
+  c'glfwWindowHint c'GLFW_FOCUS_ON_SHOW            (toC x)
+windowHint (WindowHint'ScaleToMonitor         x) =
+  c'glfwWindowHint c'GLFW_SCALE_TO_MONITOR         (toC x)
+windowHint (WindowHint'CocoaFrameName  x) = setStringHint c'GLFW_COCOA_FRAME_NAME  x
+windowHint (WindowHint'X11ClassName    x) = setStringHint c'GLFW_X11_CLASS_NAME    x
+windowHint (WindowHint'X11InstanceName x) = setStringHint c'GLFW_X11_INSTANCE_NAME x
+
+-- | Creates c'a new window. (toC x)
 -- Note: If running in GHCI don't forget to `:set -fno-ghci-sandbox` or you
 -- may run into an assertion failure, segfault or other nasty crash.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga5c336fddf2cbb5b92f65f10fb6043344 glfwCreateWindow>

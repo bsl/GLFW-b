@@ -182,6 +182,13 @@ data WindowHint =
   | WindowHint'OpenGLForwardCompat    !Bool
   | WindowHint'OpenGLDebugContext     !Bool
   | WindowHint'OpenGLProfile          !OpenGLProfile
+  | WindowHint'TransparentFramebuffer !Bool
+  | WindowHint'CenterCursor           !Bool
+  | WindowHint'FocusOnShow            !Bool
+  | WindowHint'ScaleToMonitor         !Bool
+  | WindowHint'CocoaFrameName         !String
+  | WindowHint'X11ClassName           !String
+  | WindowHint'X11InstanceName        !String
   deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData WindowHint

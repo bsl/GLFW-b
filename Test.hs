@@ -31,6 +31,7 @@ main = do
     Just mon <- GLFW.getPrimaryMonitor
 
     GLFW.windowHint $ GLFW.WindowHint'Visible False
+    GLFW.windowHint $ GLFW.WindowHint'CocoaFrameName "GLFW-b test"
     mwin@(Just win) <- GLFW.createWindow 100 100 "GLFW-b test" Nothing Nothing
     GLFW.makeContextCurrent mwin
 

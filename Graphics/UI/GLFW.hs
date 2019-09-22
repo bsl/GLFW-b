@@ -225,6 +225,8 @@ module Graphics.UI.GLFW
   , getX11Adapter
   , getX11Monitor
   , getX11Window
+  , getX11SelectionString
+  , setX11SelectionString
   , getGLXContext
   , getGLXWindow
   , getWaylandDisplay
@@ -1877,6 +1879,14 @@ getX11Monitor = c'glfwGetX11Monitor . toC
 -- | See <http://www.glfw.org/docs/3.3/group__native.html#ga90ca676322740842db446999a1b1f21d glfwGetX11Window>
 getX11Window  :: Window -> IO Word64
 getX11Window = c'glfwGetX11Window . toC
+
+-- | See <https://www.glfw.org/docs/3.3/group__native.html#ga72f23e3980b83788c70aa854eca31430 glfwGetX11SelectionString>
+getX11SelectionString :: IO String
+getX11SelectionString = c'glfwGetX11SelectionString >>= peekCString
+
+-- | See <https://www.glfw.org/docs/3.3/group__native.html#ga55f879ab02d93367f966186b6f0133f7 glfwSetX11SelectionString>
+setX11SelectionString :: String -> IO ()
+setX11SelectionString = flip withCString c'glfwSetX11SelectionString
 
 -- | See <http://www.glfw.org/docs/3.3/group__native.html#ga62d884114b0abfcdc2930e89f20867e2 glfwGetGLXContext>
 getGLXContext :: Window -> IO (Ptr ())

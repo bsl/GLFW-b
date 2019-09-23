@@ -852,6 +852,8 @@ createWindow w h title mmon mwin =
           then return Nothing
           else do callbackPtr <- newStablePtr callbacks
                   c'glfwSetWindowUserPointer p'win (castStablePtrToPtr callbackPtr)
+                  -- Not sure why this isn't the default...
+                  c'glfwSetInputMode p'win c'GLFW_LOCK_KEY_MODS (toC True)
                   return $ Just $ fromC p'win
 
 -- | Cleans up a window and all associated resources

@@ -523,10 +523,12 @@ instance NFData StickyMouseButtonsInputMode
 
 -- | Modifier keys that were pressed as part of another keypress event.
 data ModifierKeys = ModifierKeys
-  { modifierKeysShift   :: !Bool
-  , modifierKeysControl :: !Bool
-  , modifierKeysAlt     :: !Bool
-  , modifierKeysSuper   :: !Bool
+  { modifierKeysShift    :: !Bool
+  , modifierKeysControl  :: !Bool
+  , modifierKeysAlt      :: !Bool
+  , modifierKeysSuper    :: !Bool
+  , modifierKeysCapsLock :: !Bool
+  , modifierKeysNumLock  :: !Bool
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData ModifierKeys

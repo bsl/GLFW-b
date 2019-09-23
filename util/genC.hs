@@ -155,10 +155,12 @@ simpleCInfos =
 
   , SimpleCInfo "CInt" "ModifierKeys"
       [ "fromC v = ModifierKeys"
-      , "  { modifierKeysShift   = (v .&. c'GLFW_MOD_SHIFT)   /= 0"
-      , "  , modifierKeysControl = (v .&. c'GLFW_MOD_CONTROL) /= 0"
-      , "  , modifierKeysAlt     = (v .&. c'GLFW_MOD_ALT)     /= 0"
-      , "  , modifierKeysSuper   = (v .&. c'GLFW_MOD_SUPER)   /= 0"
+      , "  { modifierKeysShift    = (v .&. c'GLFW_MOD_SHIFT)     /= 0"
+      , "  , modifierKeysControl  = (v .&. c'GLFW_MOD_CONTROL)   /= 0"
+      , "  , modifierKeysAlt      = (v .&. c'GLFW_MOD_ALT)       /= 0"
+      , "  , modifierKeysSuper    = (v .&. c'GLFW_MOD_SUPER)     /= 0"
+      , "  , modifierKeysCapsLock = (v .&. c'GLFW_MOD_CAPS_LOCK) /= 0"
+      , "  , modifierKeysNumLock  = (v .&. c'GLFW_MOD_NUM_LOCK)  /= 0"
       , "  }"
       ]
       ["toC = undefined"]

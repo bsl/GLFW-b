@@ -247,6 +247,7 @@ cInfos =
     , CInfo "CInt" "ContextCreationAPI"
         [ ( "c'GLFW_NATIVE_CONTEXT_API",  "ContextCreationAPI'Native" )
         , ( "c'GLFW_EGL_CONTEXT_API",     "ContextCreationAPI'EGL"    )
+        , ( "c'GLFW_OSMESA_CONTEXT_API",  "ContextCreationAPI'OSMesa" )
         ]
     , CInfo "CInt" "Key"
        [ ( "c'GLFW_KEY_UNKNOWN",       "Key'Unknown"      )
@@ -483,5 +484,6 @@ cInfos =
         , ( "c'GLFW_FLOATING",      "WindowAttrib'Floating"    )
         , ( "c'GLFW_AUTO_ICONIFY",  "WindowAttrib'AutoIconify" )
         , ( "c'GLFW_FOCUS_ON_SHOW", "WindowAttrib'FocusOnShow" )
+        , ( "c'GLFW_HOVERED",       "WindowAttrib'Hovered"     )
         ]
     ]

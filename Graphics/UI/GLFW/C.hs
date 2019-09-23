@@ -199,9 +199,11 @@ instance C CInt ContextCreationAPI where
   fromC v
     | v == c'GLFW_NATIVE_CONTEXT_API = ContextCreationAPI'Native
     | v == c'GLFW_EGL_CONTEXT_API = ContextCreationAPI'EGL
+    | v == c'GLFW_OSMESA_CONTEXT_API = ContextCreationAPI'OSMesa
     | otherwise = error $ "C CInt ContextCreationAPI fromC: " ++ show v
   toC ContextCreationAPI'Native = c'GLFW_NATIVE_CONTEXT_API
   toC ContextCreationAPI'EGL = c'GLFW_EGL_CONTEXT_API
+  toC ContextCreationAPI'OSMesa = c'GLFW_OSMESA_CONTEXT_API
 
 instance C CInt Key where
   fromC v
@@ -668,12 +670,14 @@ instance C CInt WindowAttrib where
     | v == c'GLFW_FLOATING = WindowAttrib'Floating
     | v == c'GLFW_AUTO_ICONIFY = WindowAttrib'AutoIconify
     | v == c'GLFW_FOCUS_ON_SHOW = WindowAttrib'FocusOnShow
+    | v == c'GLFW_HOVERED = WindowAttrib'Hovered
     | otherwise = error $ "C CInt WindowAttrib fromC: " ++ show v
   toC WindowAttrib'Decorated = c'GLFW_DECORATED
   toC WindowAttrib'Resizable = c'GLFW_RESIZABLE
   toC WindowAttrib'Floating = c'GLFW_FLOATING
   toC WindowAttrib'AutoIconify = c'GLFW_AUTO_ICONIFY
   toC WindowAttrib'FocusOnShow = c'GLFW_FOCUS_ON_SHOW
+  toC WindowAttrib'Hovered = c'GLFW_HOVERED
 
 --------------------------------------------------------------------------------
 

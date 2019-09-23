@@ -785,6 +785,10 @@ windowHint (WindowHint'FocusOnShow            x) =
   c'glfwWindowHint c'GLFW_FOCUS_ON_SHOW            (toC x)
 windowHint (WindowHint'ScaleToMonitor         x) =
   c'glfwWindowHint c'GLFW_SCALE_TO_MONITOR         (toC x)
+windowHint (WindowHint'CocoaRetinaFramebuffer x) =
+  c'glfwWindowHint c'GLFW_COCOA_RETINA_FRAMEBUFFER (toC x)
+windowHint (WindowHint'CocoaGraphicsSwitching x) =
+  c'glfwWindowHint c'GLFW_COCOA_GRAPHICS_SWITCHING (toC x)
 windowHint (WindowHint'CocoaFrameName  x) = setStringHint c'GLFW_COCOA_FRAME_NAME  x
 windowHint (WindowHint'X11ClassName    x) = setStringHint c'GLFW_X11_CLASS_NAME    x
 windowHint (WindowHint'X11InstanceName x) = setStringHint c'GLFW_X11_INSTANCE_NAME x

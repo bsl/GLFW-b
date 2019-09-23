@@ -186,6 +186,8 @@ data WindowHint =
   | WindowHint'CenterCursor           !Bool
   | WindowHint'FocusOnShow            !Bool
   | WindowHint'ScaleToMonitor         !Bool
+  | WindowHint'CocoaRetinaFramebuffer !Bool
+  | WindowHint'CocoaGraphicsSwitching !Bool
   | WindowHint'CocoaFrameName         !String
   | WindowHint'X11ClassName           !String
   | WindowHint'X11InstanceName        !String
@@ -201,6 +203,7 @@ data WindowAttrib
   | WindowAttrib'Floating
   | WindowAttrib'AutoIconify
   | WindowAttrib'FocusOnShow
+  | WindowAttrib'Hovered
   deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData WindowAttrib
@@ -243,6 +246,7 @@ instance NFData ClientAPI
 data ContextCreationAPI
   = ContextCreationAPI'Native
   | ContextCreationAPI'EGL
+  | ContextCreationAPI'OSMesa
   deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData ContextCreationAPI

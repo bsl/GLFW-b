@@ -33,6 +33,7 @@ module Graphics.UI.GLFW
   , getVersionString
   , getError
   , clearError
+  , rawMouseMotionSupported
 
     -- * Monitor handling
   , Monitor
@@ -155,6 +156,8 @@ module Graphics.UI.GLFW
     -- related to c'glfwSetInputMode ----.
   , getCursorInputMode                -- |
   , setCursorInputMode                -- |
+  , getRawMouseMotion                 -- |
+  , setRawMouseMotion                 -- |
   , getStickyKeysInputMode            -- |
   , setStickyKeysInputMode            -- |
   , getStickyMouseButtonsInputMode    -- |
@@ -512,6 +515,11 @@ getError = alloca $ \errStr -> do
 -- | Clears the last error as would be retreived by 'getError'.
 clearError :: IO ()
 clearError = c'glfwGetError nullPtr >> pure ()
+
+-- | Returns true if raw mouse motion is supported on the current system.
+-- See <https://www.glfw.org/docs/3.3/group__input.html#gae4ee0dbd0d256183e1ea4026d897e1c2 glfwRawMouseMotionSupported>
+rawMouseMotionSupported :: IO Bool
+rawMouseMotionSupported = fromC <$> c'glfwRawMouseMotionSupported
 
 --------------------------------------------------------------------------------
 -- Monitor handling
@@ -1365,6 +1373,22 @@ getCursorInputMode win =
 setCursorInputMode :: Window -> CursorInputMode -> IO ()
 setCursorInputMode win c =
     c'glfwSetInputMode (toC win) c'GLFW_CURSOR (toC c)
+
+-- | Sets the cursor to receive raw input, if available (See
+-- rawMouseMotionSupported and
+-- <https://www.glfw.org/docs/3.3/input_guide.html#raw_mouse_motion Raw Mouse Motion>
+setRawMouseMotion :: Window -> Bool -> IO ()
+setRawMouseMotion win toggle = do
+    supported <- rawMouseMotionSupported
+    if not supported
+      then putStrLn "WARNING -- Asked to set raw mouse motion but is unsupported"
+      else c'glfwSetInputMode (toC win) c'GLFW_RAW_MOUSE_MOTION (toC toggle)
+
+-- | Returns whether or not we've currently enabled raw mouse motion.
+-- See <https://www.glfw.org/docs/3.3/input_guide.html#raw_mouse_motion Raw Mouse Motion>
+getRawMouseMotion :: Window -> IO Bool
+getRawMouseMotion win =
+    fromC <$> c'glfwGetInputMode (toC win) c'GLFW_RAW_MOUSE_MOTION
 
 -- | Gets the current sticky keys mode.
 -- See <http://www.glfw.org/docs/3.3/group__input.html#gaa92336e173da9c8834558b54ee80563b glfwSetInputMode>

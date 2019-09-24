@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-|
 
 Threading restrictions which apply to the C version of GLFW still apply when
@@ -238,22 +239,27 @@ module Graphics.UI.GLFW
   , getEGLDisplay
   , getEGLContext
   , getEGLSurface
-
+  , getOSMesaContext
+  , getOSMesaColorBuffer
+  , getOSMesaDepthBuffer
   ) where
 
 --------------------------------------------------------------------------------
 
 import Prelude hiding (init)
 
-import Control.Monad         (when, liftM)
+import Control.Monad         (when, liftM, forM)
+import Data.Array.IArray     (Array, array)
+import Data.Bits             (shiftR, shiftL, (.&.), (.|.))
 import Data.IORef            (IORef, atomicModifyIORef, newIORef, readIORef)
-import Data.Word             (Word32, Word64)
+import Data.List             (foldl')
+import Data.Word             (Word8, Word16, Word32, Word64)
 import Foreign.C.String      (peekCString, withCString, CString)
 import Foreign.C.Types       (CUInt, CInt, CUShort, CFloat(..))
 import Foreign.Marshal.Alloc (alloca, allocaBytes)
 import Foreign.Marshal.Array (advancePtr, allocaArray, peekArray, withArray)
-import Foreign.Ptr           (FunPtr, freeHaskellFunPtr, nullFunPtr, nullPtr
-                             ,Ptr)
+import Foreign.Ptr           ( FunPtr, freeHaskellFunPtr, nullFunPtr, nullPtr
+                             , Ptr, castPtr, plusPtr)
 import Foreign.StablePtr
 import Foreign.Storable      (Storable (..))
 import System.IO.Unsafe      (unsafePerformIO)
@@ -1949,3 +1955,114 @@ getEGLContext = c'glfwGetEGLContext . toC
 -- | See <http://www.glfw.org/docs/3.3/group__native.html#ga2199b36117a6a695fec8441d8052eee6 glfwGetEGLSurface>
 getEGLSurface :: Window -> IO (Ptr ())
 getEGLSurface = c'glfwGetEGLSurface . toC
+
+-- | See <https://www.glfw.org/docs/3.3/group__native.html#ga9e47700080094eb569cb053afaa88773 glfwGetOSMesaContext>
+getOSMesaContext :: Window -> IO (Ptr ())
+getOSMesaContext = c'glfwGetOSMesaContext . toC
+
+-- | An RGBA type is a low-dynamic range representation of a color, represented
+-- by a 32-bit value. The channels here are in order: R, G, B, A
+type OSMesaRGBA = (Word8, Word8, Word8, Word8)
+
+-- | A color buffer is a two dimensional array of RGBA values. The first
+-- dimension is width, and the second is height.
+--
+-- TODO: It's a shame this is an Array and not a UArray.
+type OSMesaColorBuffer = Array (Int, Int) OSMesaRGBA
+
+-- | A depth buffer is a two dimensional array of depth values. The range is
+-- usually determined by a parameter returned from the query function.
+type OSMesaDepthBuffer = Array (Int, Int) Word32
+
+-- | Returns the color buffer of the offscreen context provided by OSMesa. The
+-- color buffer is returned as an array whose integers are unsigned and
+-- represent the (R, G, B, A) values. For formats that do not have alpha, A
+-- will always be 255.
+getOSMesaColorBuffer :: Window -> IO (Maybe OSMesaColorBuffer)
+getOSMesaColorBuffer win =
+    alloca $ \p'width ->
+    alloca $ \p'height ->
+    alloca $ \p'format ->
+    alloca $ \p'buf -> do
+        result <- fromC <$> c'glfwGetOSMesaColorBuffer (toC win)
+                                p'width p'height p'format p'buf
+        if not result then return Nothing else do
+            w <- peek p'width
+            h <- peek p'height
+            format <- peek p'format
+            buf <- peek p'buf
+            let (wi :: Int) = fromIntegral w
+            let (hi :: Int) = fromIntegral h
+            Just . array ((0, 0), (wi, hi)) <$> sequence
+              [ fmap (\rgba -> ((x, y), rgba)) $
+                  mkRGBA format (castPtr buf) (y * wi + x)
+              | x <- [0..wi]
+              , y <- [0..hi]
+              ]
+  where
+    getByte :: Int -> Word32 -> Word8
+    getByte i x = fromIntegral $ (x `shiftR` (i * 8)) .&. 0xFF
+
+    mkRGBA :: CInt -> Ptr Word8 -> Int -> IO OSMesaRGBA
+    mkRGBA 0x1908 buf offset = do
+        -- OSMESA_RGBA
+        (rgba :: Word32) <- peekElemOff (castPtr buf) offset
+        return (getByte 0 rgba, getByte 1 rgba, getByte 2 rgba, getByte 3 rgba)
+    mkRGBA 0x1 buf offset = do
+        -- OSMESA_BGRA
+        (bgra :: Word32) <- peekElemOff (castPtr buf) offset
+        return (getByte 2 bgra, getByte 1 bgra, getByte 0 bgra, getByte 3 bgra)
+    mkRGBA 0x2 buf offset = do
+        -- OSMESA_ARGB
+        (argb :: Word32) <- peekElemOff (castPtr buf) offset
+        return (getByte 1 argb, getByte 2 argb, getByte 3 argb, getByte 0 argb)
+    mkRGBA 0x1907 buf offset = do
+        -- OSMESA_RGB
+        r <- peek (buf `plusPtr` (offset * 3 + 0))
+        g <- peek (buf `plusPtr` (offset * 3 + 1))
+        b <- peek (buf `plusPtr` (offset * 3 + 2))
+        return (r, g, b, 255)
+    mkRGBA 0x4 buf offset = do
+        -- OSMESA_BGR
+        b <- peek (buf `plusPtr` (offset * 3 + 0))
+        g <- peek (buf `plusPtr` (offset * 3 + 1))
+        r <- peek (buf `plusPtr` (offset * 3 + 2))
+        return (r, g, b, 255)
+    mkRGBA 0x5 buf offset = do
+        -- OSMESA_RGB_565
+        (rgb :: Word16) <- peekElemOff (castPtr buf) offset
+        return (
+          fromIntegral $ rgb .&. 0x1F,
+          fromIntegral $ (rgb `shiftR` 5) .&. 0x3F,
+          fromIntegral $ (rgb `shiftR` 11) .&. 0x1F,
+          255)
+    mkRGBA fmt _ _ = error $ "Unrecognized OSMESA_FORMAT: " ++ show fmt
+
+-- | Returns the depth buffer and maximum depth value of the offscreen render
+-- target that's provided by OSMesa.
+getOSMesaDepthBuffer :: Window -> IO (Maybe (OSMesaDepthBuffer, Word32))
+getOSMesaDepthBuffer win =
+    alloca $ \p'width ->
+    alloca $ \p'height ->
+    alloca $ \p'bytesPerVal ->
+    alloca $ \p'buf -> do
+        result <- fromC <$> c'glfwGetOSMesaDepthBuffer (toC win)
+                                p'width p'height p'bytesPerVal p'buf
+        if not result then return Nothing else do
+            w <- fromIntegral <$> peek p'width
+            h <- fromIntegral <$> peek p'height
+            bytesPerVal <- fromIntegral <$> peek p'bytesPerVal
+            buf <- peek p'buf
+            depthBuffer <- array ((0, 0), (w, h)) <$> sequence
+              [ fmap (\d -> ((x, y), d)) $
+                  mkDepth bytesPerVal (castPtr buf) (y * w + x)
+              | x <- [0..w]
+              , y <- [0..h]
+              ]
+            return (Just (depthBuffer, (1 `shiftL` (8 * bytesPerVal)) - 1))
+  where
+    mkDepth bpv ptr offset = do
+        bytes <- forM [0..(bpv - 1)] $ \i ->
+          peekElemOff (castPtr ptr) (offset * bpv + i)
+        return $ foldl' (\d -> ((d `shiftL` 8) .|.)) 0 bytes
+    

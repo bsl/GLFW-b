@@ -155,10 +155,12 @@ simpleCInfos =
 
   , SimpleCInfo "CInt" "ModifierKeys"
       [ "fromC v = ModifierKeys"
-      , "  { modifierKeysShift   = (v .&. c'GLFW_MOD_SHIFT)   /= 0"
-      , "  , modifierKeysControl = (v .&. c'GLFW_MOD_CONTROL) /= 0"
-      , "  , modifierKeysAlt     = (v .&. c'GLFW_MOD_ALT)     /= 0"
-      , "  , modifierKeysSuper   = (v .&. c'GLFW_MOD_SUPER)   /= 0"
+      , "  { modifierKeysShift    = (v .&. c'GLFW_MOD_SHIFT)     /= 0"
+      , "  , modifierKeysControl  = (v .&. c'GLFW_MOD_CONTROL)   /= 0"
+      , "  , modifierKeysAlt      = (v .&. c'GLFW_MOD_ALT)       /= 0"
+      , "  , modifierKeysSuper    = (v .&. c'GLFW_MOD_SUPER)     /= 0"
+      , "  , modifierKeysCapsLock = (v .&. c'GLFW_MOD_CAPS_LOCK) /= 0"
+      , "  , modifierKeysNumLock  = (v .&. c'GLFW_MOD_NUM_LOCK)  /= 0"
       , "  }"
       ]
       ["toC = undefined"]
@@ -215,6 +217,11 @@ cInfos =
         , ( "c'GLFW_PLATFORM_ERROR",      "Error'PlatformError"      )
         , ( "c'GLFW_FORMAT_UNAVAILABLE",  "Error'FormatUnavailable"  )
         ]
+    , CInfo "CInt" "InitHint"
+        [ ( "c'GLFW_JOYSTICK_HAT_BUTTONS",  "InitHint'JoystickHatButtons" )
+        , ( "c'GLFW_COCOA_CHDIR_RESOURCES", "InitHint'CocoaChdirResources" )
+        , ( "c'GLFW_COCOA_MENUBAR",         "InitHint'CocoaMenubar" )
+        ]
     , CInfo "CInt" "MonitorState"
         [ ( "c'GLFW_CONNECTED",  "MonitorState'Connected"    )
         , ( "c'GLFW_DISCONNECTED", "MonitorState'Disconnected" )
@@ -242,6 +249,7 @@ cInfos =
     , CInfo "CInt" "ContextCreationAPI"
         [ ( "c'GLFW_NATIVE_CONTEXT_API",  "ContextCreationAPI'Native" )
         , ( "c'GLFW_EGL_CONTEXT_API",     "ContextCreationAPI'EGL"    )
+        , ( "c'GLFW_OSMESA_CONTEXT_API",  "ContextCreationAPI'OSMesa" )
         ]
     , CInfo "CInt" "Key"
        [ ( "c'GLFW_KEY_UNKNOWN",       "Key'Unknown"      )
@@ -389,6 +397,17 @@ cInfos =
         , ( "c'GLFW_JOYSTICK_15", "Joystick'15" )
         , ( "c'GLFW_JOYSTICK_16", "Joystick'16" )
         ]
+    , CInfo "CUChar" "JoystickHatState"
+        [ ( "c'GLFW_HAT_CENTERED",   "JoystickHatState'Centered")
+        , ( "c'GLFW_HAT_UP",         "JoystickHatState'Up")
+        , ( "c'GLFW_HAT_RIGHT",      "JoystickHatState'Right")
+        , ( "c'GLFW_HAT_DOWN",       "JoystickHatState'Down")
+        , ( "c'GLFW_HAT_LEFT",       "JoystickHatState'Left")
+        , ( "c'GLFW_HAT_RIGHT_UP",   "JoystickHatState'RightUp")
+        , ( "c'GLFW_HAT_RIGHT_DOWN", "JoystickHatState'RightDown")
+        , ( "c'GLFW_HAT_LEFT_UP",    "JoystickHatState'LeftUp")
+        , ( "c'GLFW_HAT_LEFT_DOWN",  "JoystickHatState'LeftDown")
+        ]
     , CInfo "CUChar" "JoystickButtonState"
         [ ( "c'GLFW_PRESS",   "JoystickButtonState'Pressed"  )
         , ( "c'GLFW_RELEASE", "JoystickButtonState'Released" )
@@ -396,6 +415,39 @@ cInfos =
     , CInfo "CInt" "JoystickState"
         [ ( "c'GLFW_CONNECTED",   "JoystickState'Connected"  )
         , ( "c'GLFW_DISCONNECTED", "JoystickState'Disconnected" )
+        ]
+    , CInfo "CInt" "GamepadButton"
+        [ ( "c'GLFW_GAMEPAD_BUTTON_A",            "GamepadButton'A" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_B",            "GamepadButton'B" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_X",            "GamepadButton'X" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_Y",            "GamepadButton'Y" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_LEFT_BUMPER",  "GamepadButton'LeftBumper" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER", "GamepadButton'RightBumper" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_BACK",         "GamepadButton'Back" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_START",        "GamepadButton'Start" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_GUIDE",        "GamepadButton'Guide" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_LEFT_THUMB",   "GamepadButton'LeftThumb" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_RIGHT_THUMB",  "GamepadButton'RightThumb" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_DPAD_UP",      "GamepadButton'DpadUp" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_DPAD_RIGHT",   "GamepadButton'DpadRight" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_DPAD_DOWN",    "GamepadButton'DpadDown" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_DPAD_LEFT",    "GamepadButton'DpadLeft" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_CROSS",        "GamepadButton'Cross" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_CIRCLE",       "GamepadButton'Circle" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_SQUARE",       "GamepadButton'Square" )
+        , ( "c'GLFW_GAMEPAD_BUTTON_TRIANGLE",     "GamepadButton'Triangle" )
+        ]
+    , CInfo "CUChar" "GamepadButtonState"
+        [ ( "c'GLFW_PRESS",   "GamepadButtonState'Pressed"  )
+        , ( "c'GLFW_RELEASE", "GamepadButtonState'Released" )
+        ]
+    , CInfo "CInt" "GamepadAxis"
+        [ ( "c'GLFW_GAMEPAD_AXIS_LEFT_X",        "GamepadAxis'LeftX" )
+        , ( "c'GLFW_GAMEPAD_AXIS_RIGHT_X",       "GamepadAxis'RightX" )
+        , ( "c'GLFW_GAMEPAD_AXIS_LEFT_Y",        "GamepadAxis'LeftY" )
+        , ( "c'GLFW_GAMEPAD_AXIS_RIGHT_Y",       "GamepadAxis'RightY" )
+        , ( "c'GLFW_GAMEPAD_AXIS_LEFT_TRIGGER",  "GamepadAxis'LeftTrigger" )
+        , ( "c'GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER", "GamepadAxis'RightTrigger" )
         ]
     , CInfo "CInt" "MouseButton"
         [ ( "c'GLFW_MOUSE_BUTTON_1", "MouseButton'1" )
@@ -427,5 +479,13 @@ cInfos =
     , CInfo "CInt" "StickyMouseButtonsInputMode"
         [ ( "c'GLFW_TRUE",  "StickyMouseButtonsInputMode'Enabled" )
         , ( "c'GLFW_FALSE", "StickyMouseButtonsInputMode'Disabled" )
+        ]
+    , CInfo "CInt" "WindowAttrib"
+        [ ( "c'GLFW_DECORATED",     "WindowAttrib'Decorated"   )
+        , ( "c'GLFW_RESIZABLE",     "WindowAttrib'Resizable"   )
+        , ( "c'GLFW_FLOATING",      "WindowAttrib'Floating"    )
+        , ( "c'GLFW_AUTO_ICONIFY",  "WindowAttrib'AutoIconify" )
+        , ( "c'GLFW_FOCUS_ON_SHOW", "WindowAttrib'FocusOnShow" )
+        , ( "c'GLFW_HOVERED",       "WindowAttrib'Hovered"     )
         ]
     ]

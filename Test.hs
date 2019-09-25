@@ -4,6 +4,7 @@ import Control.Monad      (forM_)
 import Data.Char          (isAscii)
 import Data.Bits          (xor)
 import Data.List          (intercalate, isPrefixOf)
+import Data.Maybe         (isNothing)
 
 -- HUnit
 import Test.HUnit ((@?=), assertBool, assertFailure)
@@ -24,11 +25,13 @@ main = do
     GLFW.setErrorCallback $ Just $ \e s ->
         putStrLn $ unwords ["###", show e, show s]
 
+    GLFW.initHint GLFW.InitHint'CocoaChdirResources False
     True <- GLFW.init
 
     Just mon <- GLFW.getPrimaryMonitor
 
     GLFW.windowHint $ GLFW.WindowHint'Visible False
+    GLFW.windowHint $ GLFW.WindowHint'CocoaFrameName "GLFW-b test"
     mwin@(Just win) <- GLFW.createWindow 100 100 "GLFW-b test" Nothing Nothing
     GLFW.makeContextCurrent mwin
 
@@ -46,8 +49,8 @@ main = do
 
 versionMajor, versionMinor, versionRevision :: Int
 versionMajor = 3
-versionMinor = 2
-versionRevision = 1
+versionMinor = 3
+versionRevision = 0
 
 giveItTime :: IO ()
 giveItTime = threadDelay 500000
@@ -87,79 +90,94 @@ videoModeLooksValid vm = and
 
 --------------------------------------------------------------------------------
 
+glfwTest :: String -> IO () -> Test
+glfwTest name test = testCase name $ do
+  GLFW.clearError
+  test
+  err <- GLFW.getError
+  case err of
+    Nothing -> return ()
+    Just e -> assertFailure $
+              concat ["Test '", name, "' generated error: ", show e]
+
 tests :: GLFW.Monitor -> GLFW.Window -> [Test]
 tests mon win =
     [ testGroup "Initialization and version information"
       [ testCase "getVersion"       test_getVersion
       , testCase "getVersionString" test_getVersionString
+      , testCase "getError"         test_getError
       ]
     , testGroup "Monitor handling"
-      [ testCase "getMonitors"              test_getMonitors
-      , testCase "getPrimaryMonitor"        test_getPrimaryMonitor
-      , testCase "getMonitorPos"          $ test_getMonitorPos mon
-      , testCase "getMonitorPhysicalSize" $ test_getMonitorPhysicalSize mon
-      , testCase "getMonitorName"         $ test_getMonitorName mon
-      , testCase "getVideoModes"          $ test_getVideoModes mon
-      , testCase "getVideoMode"           $ test_getVideoMode mon
-      , testCase "getGamma"               $ test_getGammaRamp mon
+      [ glfwTest "getMonitors"              test_getMonitors
+      , glfwTest "getPrimaryMonitor"        test_getPrimaryMonitor
+      , glfwTest "getMonitorPos"          $ test_getMonitorPos mon
+      , glfwTest "getMonitorPhysicalSize" $ test_getMonitorPhysicalSize mon
+      , glfwTest "getMonitorWorkarea"     $ test_getMonitorWorkarea mon
+      , glfwTest "getMonitorName"         $ test_getMonitorName mon
+      , glfwTest "getVideoModes"          $ test_getVideoModes mon
+      , glfwTest "getVideoMode"           $ test_getVideoMode mon
+      , glfwTest "getGamma"               $ test_getGammaRamp mon
       ]
     , testGroup "Window handling"
-      [ testCase "defaultWindowHints"             test_defaultWindowHints
+      [ glfwTest "defaultWindowHints"             test_defaultWindowHints
 
       -- Test window attributes
-      , testCase "getWindowFocused"             $ test_getWindowFocused win
-      , testCase "getWindowResizable"           $ test_getWindowResizable win
-      , testCase "getWindowDecorated"           $ test_getWindowDecorated win
-      , testCase "getWindowClientAPI"           $ test_getWindowClientAPI win
-      , testCase "window context version"       $ test_window_context_version win
-      , testCase "getWindowContextRobustness"   $ test_getWindowContextRobustness win
-      , testCase "getWindowOpenGLForwardCompat" $ test_getWindowOpenGLForwardCompat win
-      , testCase "getWindowOpenGLDebugContext"  $ test_getWindowOpenGLDebugContext win
-      , testCase "getWindowOpenGLProfile"       $ test_getWindowOpenGLProfile win
-      , testCase "window close flag"            $ test_window_close_flag win
-      , testCase "setWindowTitle"               $ test_setWindowTitle win
-      , testCase "window pos"                   $ test_window_pos win
-      , testCase "window size"                  $ test_window_size win
-      , testCase "getWindowFrameSize"           $ test_getWindowFrameSize win
-      , testCase "getFramebufferSize"           $ test_getFramebufferSize win
-      , testCase "iconification"                $ test_iconification win
-      -- , testCase "show/hide"                    $ test_show_hide win
-      , testCase "getWindowMonitor"             $ test_getWindowMonitor win mon
-      , testCase "setWindowed"                  $ test_setWindowed win
-      , testCase "setWindowIcon"                $ test_setWindowIcon win
-      , testCase "maximizeWindow"               $ test_maximizeWindow win
-      , testCase "setWindowSizeLimits"          $ test_setWindowSizeLimits win
-      , testCase "setWindowAspectRatio"         $ test_setWindowAspectRatio win
-      , testCase "focusWindow"                  $ test_focusWindow win
-      , testCase "cursor pos"                   $ test_cursor_pos win
-      , testCase "pollEvents"                     test_pollEvents
-      , testCase "waitEvents"                     test_waitEvents
-      , testCase "waitEventsTimeout"              test_waitEventsTimeout
+      , glfwTest "getWindowFocused"             $ test_getWindowFocused win
+      , glfwTest "getWindowResizable"           $ test_getWindowResizable win
+      , glfwTest "getWindowDecorated"           $ test_getWindowDecorated win
+      , glfwTest "getWindowClientAPI"           $ test_getWindowClientAPI win
+      , glfwTest "window context version"       $ test_window_context_version win
+      , glfwTest "getWindowContextRobustness"   $ test_getWindowContextRobustness win
+      , glfwTest "getWindowOpenGLForwardCompat" $ test_getWindowOpenGLForwardCompat win
+      , glfwTest "getWindowOpenGLDebugContext"  $ test_getWindowOpenGLDebugContext win
+      , glfwTest "getWindowOpenGLProfile"       $ test_getWindowOpenGLProfile win
+      , glfwTest "window attribs"               $ test_windowAttribs win
+      , glfwTest "window close flag"            $ test_window_close_flag win
+      , glfwTest "setWindowOpacity"             $ test_window_opacity win
+      , glfwTest "setWindowTitle"               $ test_setWindowTitle win
+      , glfwTest "window pos"                   $ test_window_pos win
+      , glfwTest "window size"                  $ test_window_size win
+      , glfwTest "getWindowFrameSize"           $ test_getWindowFrameSize win
+      , glfwTest "getFramebufferSize"           $ test_getFramebufferSize win
+      , glfwTest "iconification"                $ test_iconification win
+      -- , glfwTest "show/hide"                    $ test_show_hide win
+      , glfwTest "getWindowMonitor"             $ test_getWindowMonitor win mon
+      , glfwTest "setWindowed"                  $ test_setWindowed win
+      , glfwTest "setWindowIcon"                $ test_setWindowIcon win
+      , glfwTest "maximizeWindow"               $ test_maximizeWindow win
+      , glfwTest "setWindowSizeLimits"          $ test_setWindowSizeLimits win
+      , glfwTest "setWindowAspectRatio"         $ test_setWindowAspectRatio win
+      , glfwTest "focusWindow"                  $ test_focusWindow win
+      , glfwTest "cursor pos"                   $ test_cursor_pos win
+      , glfwTest "pollEvents"                     test_pollEvents
+      , glfwTest "waitEvents"                     test_waitEvents
+      , glfwTest "waitEventsTimeout"              test_waitEventsTimeout
       ]
     , testGroup "Input handling"
-      [ testCase "cursor input mode"               $ test_cursor_input_mode win
-      , testCase "sticky keys input mode"          $ test_sticky_keys_input_mode win
-      , testCase "sticky mouse buttons input mode" $ test_sticky_mouse_buttons_input_mode win
-      , testCase "joystickPresent"                   test_joystickPresent
-      , testCase "getJoystickAxes"                   test_getJoystickAxes
-      , testCase "getJoystickButtons"                test_getJoystickButtons
-      , testCase "getJoystickName"                   test_getJoystickName
-      , testCase "getKeyName"                        test_getKeyName
+      [ glfwTest "cursor input mode"               $ test_cursor_input_mode win
+      , glfwTest "sticky keys input mode"          $ test_sticky_keys_input_mode win
+      , glfwTest "sticky mouse buttons input mode" $ test_sticky_mouse_buttons_input_mode win
+      , glfwTest "joystickPresent"                   test_joystickPresent
+      , glfwTest "getJoystickAxes"                   test_getJoystickAxes
+      , glfwTest "getJoystickButtons"                test_getJoystickButtons
+      , glfwTest "getJoystickName"                   test_getJoystickName
+      , glfwTest "getKeyName"                        test_getKeyName
+      , glfwTest "getGamepadState"                   test_getGamepadState
       ]
     , testGroup "Time"
-      [ testCase "getTime"              test_getTime
-      , testCase "setTime"              test_setTime
-      , testCase "getTimerValue"        test_getTimerValue
-      , testCase "getTimerFrequency"    test_getTimerFrequency
+      [ glfwTest "getTime"              test_getTime
+      , glfwTest "setTime"              test_setTime
+      , glfwTest "getTimerValue"        test_getTimerValue
+      , glfwTest "getTimerFrequency"    test_getTimerFrequency
       ]
     , testGroup "Context"
-      [ testCase "getCurrentContext"  $ test_getCurrentContext win
-      , testCase "swapBuffers"        $ test_swapBuffers win
-      , testCase "swapInterval"         test_swapInterval
-      , testCase "extensionSupported"   test_extensionSupported
+      [ glfwTest "getCurrentContext"  $ test_getCurrentContext win
+      , glfwTest "swapBuffers"        $ test_swapBuffers win
+      , glfwTest "swapInterval"         test_swapInterval
+      , glfwTest "extensionSupported"   test_extensionSupported
       ]
     , testGroup "Clipboard"
-      [ testCase "clipboard" $ test_clipboard win
+      [ glfwTest "clipboard" $ test_clipboard win
       ]
     ]
 
@@ -180,6 +198,9 @@ test_getVersionString = do
       Nothing -> assertFailure ""
   where
     v = intercalate "." $ map show [versionMajor, versionMinor]
+
+test_getError :: IO ()
+test_getError = GLFW.getError >>= assertBool "Got GLFW error!" . isNothing
 
 test_getMonitors :: IO ()
 test_getMonitors = do
@@ -206,6 +227,14 @@ test_getMonitorPhysicalSize mon = do
     (w, h) <- GLFW.getMonitorPhysicalSize mon
     assertBool "" $ w `between` (0, 1000)
     assertBool "" $ h `between` (0,  500)
+
+test_getMonitorWorkarea :: GLFW.Monitor -> IO ()
+test_getMonitorWorkarea mon = do
+    (x, y, w, h) <- GLFW.getMonitorWorkarea mon
+    assertBool "workarea x nonnegative" $ x >= 0
+    assertBool "workarea y nonnegative" $ y >= 0
+    assertBool "workarea width positive" $ w > 0
+    assertBool "workarea height positive" $ h > 0
 
 test_getMonitorName :: GLFW.Monitor -> IO ()
 test_getMonitorName mon = do
@@ -247,6 +276,19 @@ test_defaultWindowHints :: IO ()
 test_defaultWindowHints =
     GLFW.defaultWindowHints
 
+test_windowAttribs :: GLFW.Window -> IO ()
+test_windowAttribs win = do
+    oldRsz <- GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable
+
+    GLFW.setWindowAttrib win GLFW.WindowAttrib'Resizable False
+    GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable >>= (@?= False)
+
+    GLFW.setWindowAttrib win GLFW.WindowAttrib'Resizable True
+    rsz <- GLFW.getWindowAttrib win GLFW.WindowAttrib'Resizable
+    rsz @?= True
+
+    GLFW.setWindowAttrib win GLFW.WindowAttrib'Resizable oldRsz
+
 test_window_close_flag :: GLFW.Window -> IO ()
 test_window_close_flag win = do
     r0 <- GLFW.windowShouldClose win
@@ -259,6 +301,17 @@ test_window_close_flag win = do
     GLFW.setWindowShouldClose win False
     r2 <- GLFW.windowShouldClose win
     r2 @?= False
+
+test_window_opacity :: GLFW.Window -> IO ()
+test_window_opacity win = do
+    oldOpacity <- GLFW.getWindowOpacity win
+
+    GLFW.setWindowOpacity win 0.27
+    opacity <- GLFW.getWindowOpacity win
+    assertBool "Opacity is close to what we set it to." $
+      (abs (opacity - 0.27)) < 0.01
+
+    GLFW.setWindowOpacity win oldOpacity
 
 test_setWindowTitle :: GLFW.Window -> IO ()
 test_setWindowTitle win =
@@ -545,6 +598,19 @@ test_getKeyName =
       Nothing -> return ()
       Just s -> s @?= n
 
+test_getGamepadState :: IO ()
+test_getGamepadState =
+  forM_ joysticks $ \js -> do
+    mst <- GLFW.getGamepadState js
+    case mst of
+      (Just st) -> do
+        GLFW.joystickIsGamepad js >>= assertBool "Is gamepad"
+        GLFW.getGamepadName js >>= assertBool "Gamepad has name" . not . null
+        forM_ [minBound..maxBound] $ assertBool "Button not pressed"
+                                   . (== GLFW.GamepadButtonState'Released)
+                                   . GLFW.getButtonState st
+      _ -> return ()
+
 --------------------------------------------------------------------------------
 
 test_getTime :: IO ()
@@ -607,7 +673,12 @@ test_clipboard win = do
     setGet s = do
         GLFW.setClipboardString win s
         giveItTime
-        GLFW.getClipboardString win
+        result <- GLFW.getClipboardString win
+
+        err <- GLFW.getError
+        return $ case err of
+          Just (GLFW.Error'FormatUnavailable, _) -> Just s
+          _ -> result
 
 --------------------------------------------------------------------------------
 

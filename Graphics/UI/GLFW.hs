@@ -1987,17 +1987,15 @@ getOSMesaColorBuffer win =
         result <- fromC <$> c'glfwGetOSMesaColorBuffer (toC win)
                                 p'width p'height p'format p'buf
         if not result then return Nothing else do
-            w <- peek p'width
-            h <- peek p'height
+            w <- fromIntegral <$> peek p'width
+            h <- fromIntegral <$> peek p'height
             format <- peek p'format
             buf <- peek p'buf
-            let (wi :: Int) = fromIntegral w
-            let (hi :: Int) = fromIntegral h
-            Just . array ((0, 0), (wi, hi)) <$> sequence
+            Just . array ((0, 0), (w, h)) <$> sequence
               [ fmap (\rgba -> ((x, y), rgba)) $
-                  mkRGBA format (castPtr buf) (y * wi + x)
-              | x <- [0..wi]
-              , y <- [0..hi]
+                  mkRGBA format (castPtr buf) (y * w + x)
+              | x <- [0..w]
+              , y <- [0..h]
               ]
   where
     getByte :: Int -> Word32 -> Word8
@@ -2061,8 +2059,9 @@ getOSMesaDepthBuffer win =
               ]
             return (Just (depthBuffer, (1 `shiftL` (8 * bytesPerVal)) - 1))
   where
+    mkDepth :: Int -> Ptr Word8 -> Int -> IO Word32
     mkDepth bpv ptr offset = do
-        bytes <- forM [0..(bpv - 1)] $ \i ->
-          peekElemOff (castPtr ptr) (offset * bpv + i)
-        return $ foldl' (\d -> ((d `shiftL` 8) .|.)) 0 bytes
+        -- Assumes little-endian?
+        bytes <- forM [0..(bpv - 1)] $ \i -> peekElemOff ptr (offset * bpv + i)
+        return $ foldl' (\d -> ((d `shiftL` 8) .|.) . fromIntegral) 0 bytes
     

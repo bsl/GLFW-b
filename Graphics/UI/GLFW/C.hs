@@ -71,10 +71,12 @@ instance C (Ptr C'GLFWwindow) Window where
 
 instance C CInt ModifierKeys where
   fromC v = ModifierKeys
-    { modifierKeysShift   = (v .&. c'GLFW_MOD_SHIFT)   /= 0
-    , modifierKeysControl = (v .&. c'GLFW_MOD_CONTROL) /= 0
-    , modifierKeysAlt     = (v .&. c'GLFW_MOD_ALT)     /= 0
-    , modifierKeysSuper   = (v .&. c'GLFW_MOD_SUPER)   /= 0
+    { modifierKeysShift    = (v .&. c'GLFW_MOD_SHIFT)     /= 0
+    , modifierKeysControl  = (v .&. c'GLFW_MOD_CONTROL)   /= 0
+    , modifierKeysAlt      = (v .&. c'GLFW_MOD_ALT)       /= 0
+    , modifierKeysSuper    = (v .&. c'GLFW_MOD_SUPER)     /= 0
+    , modifierKeysCapsLock = (v .&. c'GLFW_MOD_CAPS_LOCK) /= 0
+    , modifierKeysNumLock  = (v .&. c'GLFW_MOD_NUM_LOCK)  /= 0
     }
   toC = undefined
 
@@ -137,6 +139,16 @@ instance C CInt Error where
   toC Error'PlatformError = c'GLFW_PLATFORM_ERROR
   toC Error'FormatUnavailable = c'GLFW_FORMAT_UNAVAILABLE
 
+instance C CInt InitHint where
+  fromC v
+    | v == c'GLFW_JOYSTICK_HAT_BUTTONS = InitHint'JoystickHatButtons
+    | v == c'GLFW_COCOA_CHDIR_RESOURCES = InitHint'CocoaChdirResources
+    | v == c'GLFW_COCOA_MENUBAR = InitHint'CocoaMenubar
+    | otherwise = error $ "C CInt InitHint fromC: " ++ show v
+  toC InitHint'JoystickHatButtons = c'GLFW_JOYSTICK_HAT_BUTTONS
+  toC InitHint'CocoaChdirResources = c'GLFW_COCOA_CHDIR_RESOURCES
+  toC InitHint'CocoaMenubar = c'GLFW_COCOA_MENUBAR
+
 instance C CInt MonitorState where
   fromC v
     | v == c'GLFW_CONNECTED = MonitorState'Connected
@@ -189,9 +201,11 @@ instance C CInt ContextCreationAPI where
   fromC v
     | v == c'GLFW_NATIVE_CONTEXT_API = ContextCreationAPI'Native
     | v == c'GLFW_EGL_CONTEXT_API = ContextCreationAPI'EGL
+    | v == c'GLFW_OSMESA_CONTEXT_API = ContextCreationAPI'OSMesa
     | otherwise = error $ "C CInt ContextCreationAPI fromC: " ++ show v
   toC ContextCreationAPI'Native = c'GLFW_NATIVE_CONTEXT_API
   toC ContextCreationAPI'EGL = c'GLFW_EGL_CONTEXT_API
+  toC ContextCreationAPI'OSMesa = c'GLFW_OSMESA_CONTEXT_API
 
 instance C CInt Key where
   fromC v
@@ -485,6 +499,28 @@ instance C CInt Joystick where
   toC Joystick'15 = c'GLFW_JOYSTICK_15
   toC Joystick'16 = c'GLFW_JOYSTICK_16
 
+instance C CUChar JoystickHatState where
+  fromC v
+    | v == c'GLFW_HAT_CENTERED = JoystickHatState'Centered
+    | v == c'GLFW_HAT_UP = JoystickHatState'Up
+    | v == c'GLFW_HAT_RIGHT = JoystickHatState'Right
+    | v == c'GLFW_HAT_DOWN = JoystickHatState'Down
+    | v == c'GLFW_HAT_LEFT = JoystickHatState'Left
+    | v == c'GLFW_HAT_RIGHT_UP = JoystickHatState'RightUp
+    | v == c'GLFW_HAT_RIGHT_DOWN = JoystickHatState'RightDown
+    | v == c'GLFW_HAT_LEFT_UP = JoystickHatState'LeftUp
+    | v == c'GLFW_HAT_LEFT_DOWN = JoystickHatState'LeftDown
+    | otherwise = error $ "C CUChar JoystickHatState fromC: " ++ show v
+  toC JoystickHatState'Centered = c'GLFW_HAT_CENTERED
+  toC JoystickHatState'Up = c'GLFW_HAT_UP
+  toC JoystickHatState'Right = c'GLFW_HAT_RIGHT
+  toC JoystickHatState'Down = c'GLFW_HAT_DOWN
+  toC JoystickHatState'Left = c'GLFW_HAT_LEFT
+  toC JoystickHatState'RightUp = c'GLFW_HAT_RIGHT_UP
+  toC JoystickHatState'RightDown = c'GLFW_HAT_RIGHT_DOWN
+  toC JoystickHatState'LeftUp = c'GLFW_HAT_LEFT_UP
+  toC JoystickHatState'LeftDown = c'GLFW_HAT_LEFT_DOWN
+
 instance C CUChar JoystickButtonState where
   fromC v
     | v == c'GLFW_PRESS = JoystickButtonState'Pressed
@@ -500,6 +536,72 @@ instance C CInt JoystickState where
     | otherwise = error $ "C CInt JoystickState fromC: " ++ show v
   toC JoystickState'Connected = c'GLFW_CONNECTED
   toC JoystickState'Disconnected = c'GLFW_DISCONNECTED
+
+instance C CInt GamepadButton where
+  fromC v
+    | v == c'GLFW_GAMEPAD_BUTTON_A = GamepadButton'A
+    | v == c'GLFW_GAMEPAD_BUTTON_B = GamepadButton'B
+    | v == c'GLFW_GAMEPAD_BUTTON_X = GamepadButton'X
+    | v == c'GLFW_GAMEPAD_BUTTON_Y = GamepadButton'Y
+    | v == c'GLFW_GAMEPAD_BUTTON_LEFT_BUMPER = GamepadButton'LeftBumper
+    | v == c'GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER = GamepadButton'RightBumper
+    | v == c'GLFW_GAMEPAD_BUTTON_BACK = GamepadButton'Back
+    | v == c'GLFW_GAMEPAD_BUTTON_START = GamepadButton'Start
+    | v == c'GLFW_GAMEPAD_BUTTON_GUIDE = GamepadButton'Guide
+    | v == c'GLFW_GAMEPAD_BUTTON_LEFT_THUMB = GamepadButton'LeftThumb
+    | v == c'GLFW_GAMEPAD_BUTTON_RIGHT_THUMB = GamepadButton'RightThumb
+    | v == c'GLFW_GAMEPAD_BUTTON_DPAD_UP = GamepadButton'DpadUp
+    | v == c'GLFW_GAMEPAD_BUTTON_DPAD_RIGHT = GamepadButton'DpadRight
+    | v == c'GLFW_GAMEPAD_BUTTON_DPAD_DOWN = GamepadButton'DpadDown
+    | v == c'GLFW_GAMEPAD_BUTTON_DPAD_LEFT = GamepadButton'DpadLeft
+    | v == c'GLFW_GAMEPAD_BUTTON_CROSS = GamepadButton'Cross
+    | v == c'GLFW_GAMEPAD_BUTTON_CIRCLE = GamepadButton'Circle
+    | v == c'GLFW_GAMEPAD_BUTTON_SQUARE = GamepadButton'Square
+    | v == c'GLFW_GAMEPAD_BUTTON_TRIANGLE = GamepadButton'Triangle
+    | otherwise = error $ "C CInt GamepadButton fromC: " ++ show v
+  toC GamepadButton'A = c'GLFW_GAMEPAD_BUTTON_A
+  toC GamepadButton'B = c'GLFW_GAMEPAD_BUTTON_B
+  toC GamepadButton'X = c'GLFW_GAMEPAD_BUTTON_X
+  toC GamepadButton'Y = c'GLFW_GAMEPAD_BUTTON_Y
+  toC GamepadButton'LeftBumper = c'GLFW_GAMEPAD_BUTTON_LEFT_BUMPER
+  toC GamepadButton'RightBumper = c'GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER
+  toC GamepadButton'Back = c'GLFW_GAMEPAD_BUTTON_BACK
+  toC GamepadButton'Start = c'GLFW_GAMEPAD_BUTTON_START
+  toC GamepadButton'Guide = c'GLFW_GAMEPAD_BUTTON_GUIDE
+  toC GamepadButton'LeftThumb = c'GLFW_GAMEPAD_BUTTON_LEFT_THUMB
+  toC GamepadButton'RightThumb = c'GLFW_GAMEPAD_BUTTON_RIGHT_THUMB
+  toC GamepadButton'DpadUp = c'GLFW_GAMEPAD_BUTTON_DPAD_UP
+  toC GamepadButton'DpadRight = c'GLFW_GAMEPAD_BUTTON_DPAD_RIGHT
+  toC GamepadButton'DpadDown = c'GLFW_GAMEPAD_BUTTON_DPAD_DOWN
+  toC GamepadButton'DpadLeft = c'GLFW_GAMEPAD_BUTTON_DPAD_LEFT
+  toC GamepadButton'Cross = c'GLFW_GAMEPAD_BUTTON_CROSS
+  toC GamepadButton'Circle = c'GLFW_GAMEPAD_BUTTON_CIRCLE
+  toC GamepadButton'Square = c'GLFW_GAMEPAD_BUTTON_SQUARE
+  toC GamepadButton'Triangle = c'GLFW_GAMEPAD_BUTTON_TRIANGLE
+
+instance C CUChar GamepadButtonState where
+  fromC v
+    | v == c'GLFW_PRESS = GamepadButtonState'Pressed
+    | v == c'GLFW_RELEASE = GamepadButtonState'Released
+    | otherwise = error $ "C CUChar GamepadButtonState fromC: " ++ show v
+  toC GamepadButtonState'Pressed = c'GLFW_PRESS
+  toC GamepadButtonState'Released = c'GLFW_RELEASE
+
+instance C CInt GamepadAxis where
+  fromC v
+    | v == c'GLFW_GAMEPAD_AXIS_LEFT_X = GamepadAxis'LeftX
+    | v == c'GLFW_GAMEPAD_AXIS_RIGHT_X = GamepadAxis'RightX
+    | v == c'GLFW_GAMEPAD_AXIS_LEFT_Y = GamepadAxis'LeftY
+    | v == c'GLFW_GAMEPAD_AXIS_RIGHT_Y = GamepadAxis'RightY
+    | v == c'GLFW_GAMEPAD_AXIS_LEFT_TRIGGER = GamepadAxis'LeftTrigger
+    | v == c'GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER = GamepadAxis'RightTrigger
+    | otherwise = error $ "C CInt GamepadAxis fromC: " ++ show v
+  toC GamepadAxis'LeftX = c'GLFW_GAMEPAD_AXIS_LEFT_X
+  toC GamepadAxis'RightX = c'GLFW_GAMEPAD_AXIS_RIGHT_X
+  toC GamepadAxis'LeftY = c'GLFW_GAMEPAD_AXIS_LEFT_Y
+  toC GamepadAxis'RightY = c'GLFW_GAMEPAD_AXIS_RIGHT_Y
+  toC GamepadAxis'LeftTrigger = c'GLFW_GAMEPAD_AXIS_LEFT_TRIGGER
+  toC GamepadAxis'RightTrigger = c'GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER
 
 instance C CInt MouseButton where
   fromC v
@@ -562,6 +664,22 @@ instance C CInt StickyMouseButtonsInputMode where
     | otherwise = error $ "C CInt StickyMouseButtonsInputMode fromC: " ++ show v
   toC StickyMouseButtonsInputMode'Enabled = c'GLFW_TRUE
   toC StickyMouseButtonsInputMode'Disabled = c'GLFW_FALSE
+
+instance C CInt WindowAttrib where
+  fromC v
+    | v == c'GLFW_DECORATED = WindowAttrib'Decorated
+    | v == c'GLFW_RESIZABLE = WindowAttrib'Resizable
+    | v == c'GLFW_FLOATING = WindowAttrib'Floating
+    | v == c'GLFW_AUTO_ICONIFY = WindowAttrib'AutoIconify
+    | v == c'GLFW_FOCUS_ON_SHOW = WindowAttrib'FocusOnShow
+    | v == c'GLFW_HOVERED = WindowAttrib'Hovered
+    | otherwise = error $ "C CInt WindowAttrib fromC: " ++ show v
+  toC WindowAttrib'Decorated = c'GLFW_DECORATED
+  toC WindowAttrib'Resizable = c'GLFW_RESIZABLE
+  toC WindowAttrib'Floating = c'GLFW_FLOATING
+  toC WindowAttrib'AutoIconify = c'GLFW_AUTO_ICONIFY
+  toC WindowAttrib'FocusOnShow = c'GLFW_FOCUS_ON_SHOW
+  toC WindowAttrib'Hovered = c'GLFW_HOVERED
 
 --------------------------------------------------------------------------------
 

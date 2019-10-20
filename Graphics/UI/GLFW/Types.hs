@@ -23,17 +23,17 @@ import Bindings.GLFW
 --------------------------------------------------------------------------------
 -- Error handling
 
--- | An enum for one of the <http://www.glfw.org/docs/3.2/group__errors.html#ga196e125ef261d94184e2b55c05762f14 GLFW error codes>.
+-- | An enum for one of the <http://www.glfw.org/docs/3.3/group__errors.html#ga196e125ef261d94184e2b55c05762f14 GLFW error codes>.
 data Error =
-    Error'NotInitialized -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#ga2374ee02c177f12e1fa76ff3ed15e14a doc>
-  | Error'NoCurrentContext -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#gaa8290386e9528ccb9e42a3a4e16fc0d0 doc>
-  | Error'InvalidEnum -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#ga76f6bb9c4eea73db675f096b404593ce doc>
-  | Error'InvalidValue -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#gaaf2ef9aa8202c2b82ac2d921e554c687 doc>
-  | Error'OutOfMemory -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#ga9023953a2bcb98c2906afd071d21ee7f doc>
-  | Error'ApiUnavailable -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#ga56882b290db23261cc6c053c40c2d08e doc>
-  | Error'VersionUnavailable -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#gad16c5565b4a69f9c2a9ac2c0dbc89462 doc>
-  | Error'PlatformError -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#gad44162d78100ea5e87cdd38426b8c7a1 doc>
-  | Error'FormatUnavailable -- ^ <http://www.glfw.org/docs/3.2/group__errors.html#ga196e125ef261d94184e2b55c05762f14 doc>
+    Error'NotInitialized -- ^ <http://www.glfw.org/docs/3.3/group__errors.html#ga2374ee02c177f12e1fa76ff3ed15e14a doc>
+  | Error'NoCurrentContext -- ^ <http://www.glfw.org/docs/3.3/group__errors.html#gaa8290386e9528ccb9e42a3a4e16fc0d0 doc>
+  | Error'InvalidEnum -- ^ <http://www.glfw.org/docs/3.3/group__errors.html#ga76f6bb9c4eea73db675f096b404593ce doc>
+  | Error'InvalidValue -- ^ <http://www.glfw.org/docs/3.3/group__errors.html#gaaf2ef9aa8202c2b82ac2d921e554c687 doc>
+  | Error'OutOfMemory -- ^ <http://www.glfw.org/docs/3.3/group__errors.html#ga9023953a2bcb98c2906afd071d21ee7f doc>
+  | Error'ApiUnavailable -- ^ <http://www.glfw.org/docs/3.3/group__errors.html#ga56882b290db23261cc6c053c40c2d08e doc>
+  | Error'VersionUnavailable -- ^ <http://www.glfw.org/docs/3.3/group__errors.html#gad16c5565b4a69f9c2a9ac2c0dbc89462 doc>
+  | Error'PlatformError -- ^ <http://www.glfw.org/docs/3.3/group__errors.html#gad44162d78100ea5e87cdd38426b8c7a1 doc>
+  | Error'FormatUnavailable -- ^ <http://www.glfw.org/docs/3.3/group__errors.html#ga196e125ef261d94184e2b55c05762f14 doc>
   deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData Error
@@ -41,8 +41,19 @@ instance NFData Error
 --------------------------------------------------------------------------------
 -- Initialization and version information
 
+-- | Initialization hints are set before glfwInit and affect how the library
+-- behaves until termination. Hints are set with glfwInitHint. See
+-- <https://www.glfw.org/docs/3.3/intro_guide.html#init_hints Init Hints>
+data InitHint
+  = InitHint'JoystickHatButtons
+  | InitHint'CocoaChdirResources
+  | InitHint'CocoaMenubar
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData InitHint
+
 -- | The library version of the GLFW implementation in use.
--- See <http://www.glfw.org/docs/3.2/intro.html#intro_version Version Management>
+-- See <http://www.glfw.org/docs/3.3/intro.html#intro_version Version Management>
 data Version = Version
   { versionMajor    :: {-# UNPACK #-} !Int
   , versionMinor    :: {-# UNPACK #-} !Int
@@ -55,12 +66,13 @@ instance NFData Version
 -- Monitor handling
 
 -- | Represents a physical monitor that's currently connected.
--- See the <http://www.glfw.org/docs/3.2/monitor.html Monitor Guide>
+-- See the <http://www.glfw.org/docs/3.3/monitor.html Monitor Guide>
 newtype Monitor = Monitor
   { unMonitor :: Ptr C'GLFWmonitor
   } deriving (Data, Eq, Ord, Show, Typeable, Generic)
 
--- | Part of the 'MonitorCallback', for when a monitor gets connected or disconnected.
+-- | Part of the t'Graphics.UI.GLFW.MonitorCallback', for when a monitor gets
+-- connected or disconnected.
 data MonitorState =
     MonitorState'Connected
   | MonitorState'Disconnected
@@ -68,7 +80,7 @@ data MonitorState =
 
 instance NFData MonitorState
 
--- | See <http://www.glfw.org/docs/3.2/monitor.html#monitor_modes Video Modes>
+-- | See <http://www.glfw.org/docs/3.3/monitor.html#monitor_modes Video Modes>
 data VideoMode = VideoMode
   { videoModeWidth       :: {-# UNPACK #-} !Int
   , videoModeHeight      :: {-# UNPACK #-} !Int
@@ -81,7 +93,7 @@ data VideoMode = VideoMode
 instance NFData VideoMode
 
 -- | Lets you adjust the gamma of a monitor. To ensure that only valid values are created, use 'makeGammaRamp'.
--- See <http://www.glfw.org/docs/3.2/monitor.html#monitor_gamma Gamma Ramp>.
+-- See <http://www.glfw.org/docs/3.3/monitor.html#monitor_gamma Gamma Ramp>.
 data GammaRamp = GammaRamp
   -- NOTE: It would be bad to give clients a way to construct invalid gamma ramps
   -- with lists of unequal length, so this constructor should not be exported.
@@ -109,32 +121,34 @@ makeGammaRamp rs gs bs
 
 -- | Collects all the callbacks that can be associated with a Window into a single place.
 data WindowCallbacks = WindowCallbacks
-  { storedCharFun             :: !(IORef C'GLFWcharfun)
-  , storedCharModsFun         :: !(IORef C'GLFWcharmodsfun)
-  , storedCursorEnterFun      :: !(IORef C'GLFWcursorenterfun)
-  , storedCursorPosFun        :: !(IORef C'GLFWcursorposfun)
-  , storedFramebufferSizeFun  :: !(IORef C'GLFWframebuffersizefun)
-  , storedKeyFun              :: !(IORef C'GLFWkeyfun)
-  , storedMouseButtonFun      :: !(IORef C'GLFWmousebuttonfun)
-  , storedScrollFun           :: !(IORef C'GLFWscrollfun)
-  , storedWindowCloseFun      :: !(IORef C'GLFWwindowclosefun)
-  , storedWindowFocusFun      :: !(IORef C'GLFWwindowfocusfun)
-  , storedWindowIconifyFun    :: !(IORef C'GLFWwindowiconifyfun)
-  , storedWindowPosFun        :: !(IORef C'GLFWwindowposfun)
-  , storedWindowRefreshFun    :: !(IORef C'GLFWwindowrefreshfun)
-  , storedWindowSizeFun       :: !(IORef C'GLFWwindowsizefun)
-  , storedDropFun             :: !(IORef C'GLFWdropfun)
+  { storedCharFun               :: !(IORef C'GLFWcharfun)
+  , storedCharModsFun           :: !(IORef C'GLFWcharmodsfun)
+  , storedCursorEnterFun        :: !(IORef C'GLFWcursorenterfun)
+  , storedCursorPosFun          :: !(IORef C'GLFWcursorposfun)
+  , storedFramebufferSizeFun    :: !(IORef C'GLFWframebuffersizefun)
+  , storedKeyFun                :: !(IORef C'GLFWkeyfun)
+  , storedMouseButtonFun        :: !(IORef C'GLFWmousebuttonfun)
+  , storedScrollFun             :: !(IORef C'GLFWscrollfun)
+  , storedWindowCloseFun        :: !(IORef C'GLFWwindowclosefun)
+  , storedWindowFocusFun        :: !(IORef C'GLFWwindowfocusfun)
+  , storedWindowIconifyFun      :: !(IORef C'GLFWwindowiconifyfun)
+  , storedWindowPosFun          :: !(IORef C'GLFWwindowposfun)
+  , storedWindowRefreshFun      :: !(IORef C'GLFWwindowrefreshfun)
+  , storedWindowSizeFun         :: !(IORef C'GLFWwindowsizefun)
+  , storedWindowContentScaleFun :: !(IORef C'GLFWwindowcontentscalefun)
+  , storedWindowMaximizeFun     :: !(IORef C'GLFWwindowmaximizefun)
+  , storedDropFun               :: !(IORef C'GLFWdropfun)
   }
 
 -- | Reprisents a GLFW window value.
--- See the <http://www.glfw.org/docs/3.2/window.html Window Guide>
+-- See the <http://www.glfw.org/docs/3.3/window.html Window Guide>
 newtype Window = Window
   { unWindow :: Ptr C'GLFWwindow
   } deriving (Data, Eq, Ord, Show, Typeable, Generic)
 
 -- | Lets you set various window hints before creating a 'Window'.
--- See <http://www.glfw.org/docs/3.2/window.html#window_hints Window Hints>,
--- particularly <http://www.glfw.org/docs/3.2/window.html#window_hints_values Supported and Default Values>.
+-- See <http://www.glfw.org/docs/3.3/window.html#window_hints Window Hints>,
+-- particularly <http://www.glfw.org/docs/3.3/window.html#window_hints_values Supported and Default Values>.
 data WindowHint =
     WindowHint'Resizable              !Bool
   | WindowHint'Visible                !Bool
@@ -169,9 +183,31 @@ data WindowHint =
   | WindowHint'OpenGLForwardCompat    !Bool
   | WindowHint'OpenGLDebugContext     !Bool
   | WindowHint'OpenGLProfile          !OpenGLProfile
+  | WindowHint'TransparentFramebuffer !Bool
+  | WindowHint'CenterCursor           !Bool
+  | WindowHint'FocusOnShow            !Bool
+  | WindowHint'ScaleToMonitor         !Bool
+  | WindowHint'CocoaRetinaFramebuffer !Bool
+  | WindowHint'CocoaGraphicsSwitching !Bool
+  | WindowHint'CocoaFrameName         !String
+  | WindowHint'X11ClassName           !String
+  | WindowHint'X11InstanceName        !String
   deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData WindowHint
+
+-- | A window-specific attribute.
+-- See <https://www.glfw.org/docs/3.3/window_guide.html#window_attribs Window Attributes>
+data WindowAttrib
+  = WindowAttrib'Decorated
+  | WindowAttrib'Resizable
+  | WindowAttrib'Floating
+  | WindowAttrib'AutoIconify
+  | WindowAttrib'FocusOnShow
+  | WindowAttrib'Hovered
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData WindowAttrib
 
 -- | The OpenGL robustness strategy.
 data ContextRobustness =
@@ -211,6 +247,7 @@ instance NFData ClientAPI
 data ContextCreationAPI
   = ContextCreationAPI'Native
   | ContextCreationAPI'EGL
+  | ContextCreationAPI'OSMesa
   deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData ContextCreationAPI
@@ -233,7 +270,7 @@ instance NFData ContextReleaseBehavior
 --------------------------------------------------------------------------------
 -- Input handling
 
--- | Part of the <http://www.glfw.org/docs/3.2/input.html#input_keyboard Keyboard Input> system.
+-- | Part of the <http://www.glfw.org/docs/3.3/input.html#input_keyboard Keyboard Input> system.
 data Key =
     Key'Unknown
   | Key'Space
@@ -360,7 +397,7 @@ data Key =
 
 instance NFData Key
 
--- | The state of an individual key when 'getKey' is called.
+-- | The state of an individual key when 'Graphics.UI.GLFW.getKey' is called.
 data KeyState =
     KeyState'Pressed
   | KeyState'Released
@@ -369,7 +406,7 @@ data KeyState =
 
 instance NFData KeyState
 
--- | For use with the <http://www.glfw.org/docs/3.2/input.html#joystick Joystick Input> system.
+-- | For use with the <http://www.glfw.org/docs/3.3/input.html#joystick Joystick Input> system.
 data Joystick =
     Joystick'1
   | Joystick'2
@@ -391,7 +428,8 @@ data Joystick =
 
 instance NFData Joystick
 
--- | If a given joystick button is pressed or not when 'getJoystickButtons' is called.
+-- | If a given joystick button is pressed or not when
+-- 'Graphics.UI.GLFW.getJoystickButtons' is called.
 data JoystickButtonState =
     JoystickButtonState'Pressed
   | JoystickButtonState'Released
@@ -399,7 +437,8 @@ data JoystickButtonState =
 
 instance NFData JoystickButtonState
 
--- | Part of the 'JoystickCallback', for when a monitor gets connected or disconnected.
+-- | Part of the t'Graphics.UI.GLFW.JoystickCallback', for when a monitor gets
+-- connected or disconnected.
 data JoystickState
   = JoystickState'Connected
   | JoystickState'Disconnected
@@ -407,7 +446,24 @@ data JoystickState
 
 instance NFData JoystickState
 
--- | Part of the <http://www.glfw.org/docs/3.2/input.html#input_mouse Mouse Input> system.
+-- | The valid hat states of a joystick. Part of the
+-- <https://www.glfw.org/docs/3.3/input_guide.html#joystick_hat joystick hat>
+-- system.
+data JoystickHatState
+  = JoystickHatState'Centered
+  | JoystickHatState'Up
+  | JoystickHatState'Right
+  | JoystickHatState'Down
+  | JoystickHatState'Left
+  | JoystickHatState'RightUp
+  | JoystickHatState'RightDown
+  | JoystickHatState'LeftUp
+  | JoystickHatState'LeftDown
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData JoystickHatState
+
+-- | Part of the <http://www.Graphics.UI.GLFW.org/docs/3.3/input.html#input_mouse Mouse Input> system.
 data MouseButton =
     MouseButton'1
   | MouseButton'2
@@ -421,7 +477,8 @@ data MouseButton =
 
 instance NFData MouseButton
 
--- | If the mouse button is pressed or not when 'getMouseButton' is called.
+-- | If the mouse button is pressed or not when 'Graphics.UI.GLFW.getMouseButton' is
+-- called.
 data MouseButtonState =
     MouseButtonState'Pressed
   | MouseButtonState'Released
@@ -438,7 +495,7 @@ data CursorState =
 instance NFData CursorState
 
 -- | Allows for special forms of mouse input.
--- See <http://www.glfw.org/docs/3.2/input.html#cursor_mode Cursor Modes>
+-- See <http://www.glfw.org/docs/3.3/input.html#cursor_mode Cursor Modes>
 data CursorInputMode =
     CursorInputMode'Normal
   | CursorInputMode'Hidden
@@ -448,11 +505,11 @@ data CursorInputMode =
 instance NFData CursorInputMode
 
 -- | When sticky keys is enabled, once a key is pressed it will remain pressed
--- at least until the state is polled with 'getKey'. After that, if the key has
--- been released it will switch back to released. This helps prevent problems
--- with low-resolution polling missing key pressed. Note that use of the
--- callbacks to avoid this problem the the recommended route, and this is just
--- for a fallback.
+-- at least until the state is polled with 'Graphics.UI.GLFW.getKey'. After
+-- that, if the key has been released it will switch back to released. This
+-- helps prevent problems with low-resolution polling missing key pressed. Note
+-- that use of the callbacks to avoid this problem the the recommended route,
+-- and this is just for a fallback.
 data StickyKeysInputMode =
     StickyKeysInputMode'Enabled
   | StickyKeysInputMode'Disabled
@@ -470,17 +527,77 @@ instance NFData StickyMouseButtonsInputMode
 
 -- | Modifier keys that were pressed as part of another keypress event.
 data ModifierKeys = ModifierKeys
-  { modifierKeysShift   :: !Bool
-  , modifierKeysControl :: !Bool
-  , modifierKeysAlt     :: !Bool
-  , modifierKeysSuper   :: !Bool
+  { modifierKeysShift    :: !Bool
+  , modifierKeysControl  :: !Bool
+  , modifierKeysAlt      :: !Bool
+  , modifierKeysSuper    :: !Bool
+  , modifierKeysCapsLock :: !Bool
+  , modifierKeysNumLock  :: !Bool
   } deriving (Data, Eq, Ord, Read, Show, Typeable, Generic)
 
 instance NFData ModifierKeys
 
---------------------------------------------------------------------------------
--- 3.1 Additions
---------------------------------------------------------------------------------
+-- | The different types of buttons we can find on a Gamepad.
+data GamepadButton
+  = GamepadButton'A
+  | GamepadButton'B
+  | GamepadButton'X
+  | GamepadButton'Y
+  | GamepadButton'LeftBumper
+  | GamepadButton'RightBumper
+  | GamepadButton'Back
+  | GamepadButton'Start
+  | GamepadButton'Guide
+  | GamepadButton'LeftThumb
+  | GamepadButton'RightThumb
+  | GamepadButton'DpadUp
+  | GamepadButton'DpadRight
+  | GamepadButton'DpadDown
+  | GamepadButton'DpadLeft
+  | GamepadButton'Cross
+  | GamepadButton'Circle
+  | GamepadButton'Square
+  | GamepadButton'Triangle
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData GamepadButton
+
+-- | The states in which the gamepad buttons are found
+data GamepadButtonState
+  = GamepadButtonState'Pressed
+  | GamepadButtonState'Released
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData GamepadButtonState
+
+-- | The different axes along which we can measure continuous input on a Gamepad
+data GamepadAxis
+  = GamepadAxis'LeftX
+  | GamepadAxis'LeftY
+  | GamepadAxis'RightX
+  | GamepadAxis'RightY
+  | GamepadAxis'LeftTrigger
+  | GamepadAxis'RightTrigger
+  deriving (Bounded, Data, Enum, Eq, Ord, Read, Show, Typeable, Generic)
+
+instance NFData GamepadAxis
+
+-- | This describes the input state of a gamepad
+data GamepadState = GamepadState
+                    { getButtonState :: GamepadButton -> GamepadButtonState
+                      -- ^ Returns the current state of the given button
+                    , getAxisState :: GamepadAxis -> Float
+                      -- ^ Returns a value in the range [-1.0, 1.0] for the
+                      -- given game axis
+                    } deriving (Typeable, Generic)
+
+instance Eq GamepadState where
+  a == b =
+    let compareSt f x = (&& (f a x == f b x))
+     in foldr (compareSt getButtonState) True [minBound..maxBound] &&
+        foldr (compareSt getAxisState) True [minBound..maxBound]
+
+instance NFData GamepadState
 
 deriving instance Data CUChar
 
@@ -499,7 +616,7 @@ mkImage width height gen = Image
   , imageHeight = height
   , imagePixels = [ CUChar channel | y <- [0..(height - 1)]
                                    , x <- [0..(width - 1)]
-                                   , (r, g, b, a) <- [gen x y]
+                                   , let (r, g, b, a) = gen x y
                                    , channel <- [r, g, b, a]
                   ]
   }
@@ -513,7 +630,7 @@ newtype Cursor = Cursor
 
 -- | Lets you use one of the standard cursor appearnaces that the local
 -- system theme provides for.
--- See <http://www.glfw.org/docs/3.2/input.html#cursor_standard Standard Cursor Creation>.
+-- See <http://www.glfw.org/docs/3.3/input.html#cursor_standard Standard Cursor Creation>.
 data StandardCursorShape =
     StandardCursorShape'Arrow
   | StandardCursorShape'IBeam

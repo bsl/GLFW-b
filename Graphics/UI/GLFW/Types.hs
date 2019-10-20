@@ -71,7 +71,8 @@ newtype Monitor = Monitor
   { unMonitor :: Ptr C'GLFWmonitor
   } deriving (Data, Eq, Ord, Show, Typeable, Generic)
 
--- | Part of the 'MonitorCallback', for when a monitor gets connected or disconnected.
+-- | Part of the t'Graphics.UI.GLFW.MonitorCallback', for when a monitor gets
+-- connected or disconnected.
 data MonitorState =
     MonitorState'Connected
   | MonitorState'Disconnected
@@ -396,7 +397,7 @@ data Key =
 
 instance NFData Key
 
--- | The state of an individual key when 'getKey' is called.
+-- | The state of an individual key when 'Graphics.UI.GLFW.getKey' is called.
 data KeyState =
     KeyState'Pressed
   | KeyState'Released
@@ -427,7 +428,8 @@ data Joystick =
 
 instance NFData Joystick
 
--- | If a given joystick button is pressed or not when 'getJoystickButtons' is called.
+-- | If a given joystick button is pressed or not when
+-- 'Graphics.UI.GLFW.getJoystickButtons' is called.
 data JoystickButtonState =
     JoystickButtonState'Pressed
   | JoystickButtonState'Released
@@ -435,7 +437,8 @@ data JoystickButtonState =
 
 instance NFData JoystickButtonState
 
--- | Part of the 'JoystickCallback', for when a monitor gets connected or disconnected.
+-- | Part of the t'Graphics.UI.GLFW.JoystickCallback', for when a monitor gets
+-- connected or disconnected.
 data JoystickState
   = JoystickState'Connected
   | JoystickState'Disconnected
@@ -460,7 +463,7 @@ data JoystickHatState
 
 instance NFData JoystickHatState
 
--- | Part of the <http://www.glfw.org/docs/3.3/input.html#input_mouse Mouse Input> system.
+-- | Part of the <http://www.Graphics.UI.GLFW.org/docs/3.3/input.html#input_mouse Mouse Input> system.
 data MouseButton =
     MouseButton'1
   | MouseButton'2
@@ -474,7 +477,8 @@ data MouseButton =
 
 instance NFData MouseButton
 
--- | If the mouse button is pressed or not when 'getMouseButton' is called.
+-- | If the mouse button is pressed or not when 'Graphics.UI.GLFW.getMouseButton' is
+-- called.
 data MouseButtonState =
     MouseButtonState'Pressed
   | MouseButtonState'Released
@@ -501,11 +505,11 @@ data CursorInputMode =
 instance NFData CursorInputMode
 
 -- | When sticky keys is enabled, once a key is pressed it will remain pressed
--- at least until the state is polled with 'getKey'. After that, if the key has
--- been released it will switch back to released. This helps prevent problems
--- with low-resolution polling missing key pressed. Note that use of the
--- callbacks to avoid this problem the the recommended route, and this is just
--- for a fallback.
+-- at least until the state is polled with 'Graphics.UI.GLFW.getKey'. After
+-- that, if the key has been released it will switch back to released. This
+-- helps prevent problems with low-resolution polling missing key pressed. Note
+-- that use of the callbacks to avoid this problem the the recommended route,
+-- and this is just for a fallback.
 data StickyKeysInputMode =
     StickyKeysInputMode'Enabled
   | StickyKeysInputMode'Disabled

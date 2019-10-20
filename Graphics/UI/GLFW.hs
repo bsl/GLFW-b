@@ -184,7 +184,7 @@ module Graphics.UI.GLFW
   , joystickIsGamepad
   , getJoystickAxes
   , getJoystickButtons
-  , getJoystickHats
+  , getJoystickHats,        JoystickHatState(..)
   , getJoystickName
   , getJoystickGUID
   , setJoystickCallback,    JoystickCallback
@@ -240,8 +240,8 @@ module Graphics.UI.GLFW
   , getEGLContext
   , getEGLSurface
   , getOSMesaContext
-  , getOSMesaColorBuffer
-  , getOSMesaDepthBuffer
+  , getOSMesaColorBuffer,   OSMesaColorBuffer, OSMesaRGBA
+  , getOSMesaDepthBuffer,   OSMesaDepthBuffer
   ) where
 
 --------------------------------------------------------------------------------
@@ -360,7 +360,7 @@ type CursorEnterCallback        = Window -> CursorState                         
 type ScrollCallback             = Window -> Double -> Double                                -> IO ()
 -- | Fires for each press or repeat of keyboard keys (regardless of if it has textual meaning or not, eg Shift)
 type KeyCallback                = Window -> Key -> Int -> KeyState -> ModifierKeys          -> IO ()
--- | Fires when a complete character codepoint is typed by the user, Shift then 'b' generates "B".
+-- | Fires when a complete character codepoint is typed by the user, Shift then "b" generates "B".
 type CharCallback               = Window -> Char                                            -> IO ()
 -- | Similar to 'CharCallback', fires when a complete unicode codepoint is typed by the user.
 type CharModsCallback           = Window -> Char -> ModifierKeys                            -> IO ()
@@ -1867,7 +1867,7 @@ createWindowSurface i win acs s
 
 -- $nativeaccess
 -- The low level native-access bindings are exposed here via bindings-GLFW.
--- These must be enabled with the 'ExposeNative' flag passed to bindings-GLFW.
+-- These must be enabled with the @ExposeNative@ flag passed to bindings-GLFW.
 -- The return values of these functions are used as a best-guess and are not
 -- coupled with any other implementation. They should be used with caution
 -- and at your own risk.

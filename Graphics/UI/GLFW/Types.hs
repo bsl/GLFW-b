@@ -140,7 +140,7 @@ data WindowCallbacks = WindowCallbacks
   , storedDropFun               :: !(IORef C'GLFWdropfun)
   }
 
--- | Reprisents a GLFW window value.
+-- | Represents a GLFW window value.
 -- See the <http://www.glfw.org/docs/3.3/window.html Window Guide>
 newtype Window = Window
   { unWindow :: Ptr C'GLFWwindow
@@ -623,7 +623,7 @@ mkImage width height gen = Image
 
 instance NFData Image
 
--- | Reprisents a GLFW cursor.
+-- | Represents a GLFW cursor.
 newtype Cursor = Cursor
   { unCursor :: Ptr C'GLFWcursor
   } deriving (Data, Eq, Ord, Show, Typeable, Generic)

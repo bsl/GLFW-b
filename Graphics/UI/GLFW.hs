@@ -799,8 +799,8 @@ windowHint (WindowHint'CocoaFrameName  x) = setStringHint c'GLFW_COCOA_FRAME_NAM
 windowHint (WindowHint'X11ClassName    x) = setStringHint c'GLFW_X11_CLASS_NAME    x
 windowHint (WindowHint'X11InstanceName x) = setStringHint c'GLFW_X11_INSTANCE_NAME x
 
--- | Creates c'a new window. (toC x)
--- Note: If running in GHCI don't forget to `:set -fno-ghci-sandbox` or you
+-- | Creates a new window.
+-- Note: If running in GHCI don't forget to @:set -fno-ghci-sandbox@ or you
 -- may run into an assertion failure, segfault or other nasty crash.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga5c336fddf2cbb5b92f65f10fb6043344 glfwCreateWindow>
 createWindow :: Int -- ^ Desired width for the window.
@@ -929,7 +929,7 @@ setWindowTitle :: Window -> String -> IO ()
 setWindowTitle win title =
     withCString title $ c'glfwSetWindowTitle (toC win)
 
--- | Gets the window's position (in Screen Coordinates).
+-- | Gets the window's position (in screen coordinates).
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga73cb526c000876fd8ddf571570fdb634 glfwGetWindowPos>
 getWindowPos :: Window -> IO (Int, Int)
 getWindowPos win =
@@ -941,13 +941,13 @@ getWindowPos win =
         y <- fromC `fmap` peek p'y
         return (x, y)
 
--- | Sets the window's position (in Screen Coordinates).
+-- | Sets the window's position (in screen coordinates).
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga1abb6d690e8c88e0c8cd1751356dbca8 glfwSetWindowPos>
 setWindowPos :: Window -> Int -> Int -> IO ()
 setWindowPos win x y =
     c'glfwSetWindowPos (toC win) (toC x) (toC y)
 
--- | Gets the size of the window (in Screen Coordinates).
+-- | Gets the size of the window (in screen coordinates).
 -- See <http://www.glfw.org/docs/3.3/group__window.html#gaeea7cbc03373a41fb51cfbf9f2a5d4c6 glfwGetWindowSize>
 getWindowSize :: Window -> IO (Int, Int)
 getWindowSize win =
@@ -959,7 +959,7 @@ getWindowSize win =
         h <- fromC `fmap` peek p'h
         return (w, h)
 
--- | Gets the size of the frame around the window (in Screen Coordinates). This
+-- | Gets the size of the frame around the window (in screen coordinates). This
 -- size includes the title bar, if the window has one. Not to be confused with
 -- 'getFramebufferSize', which gets the size of the rendering area.
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga1a9fd382058c53101b21cf211898f1f1 glfwGetWindowFrameSize>
@@ -977,7 +977,7 @@ getWindowFrameSize win =
         b <- fromC `fmap` peek p'b
         return (l, t, r, b)
 
--- | Sets the size of the client area for the window (in Screen Coordinates).
+-- | Sets the size of the client area for the window (in screen coordinates).
 -- See <http://www.glfw.org/docs/3.3/group__window.html#ga371911f12c74c504dd8d47d832d095cb glfwSetWindowSize>
 setWindowSize :: Window -> Int -> Int -> IO ()
 setWindowSize win w h =
@@ -1767,7 +1767,7 @@ createStandardCursor = (fmap Cursor) . c'glfwCreateStandardCursor . toC
 
 -- | Sets the cursor image to be used when the cursor is over the client area
 -- of the specified window. The set cursor will only be visible when the cursor
--- mode of the window is GLFW_CURSOR_NORMAL.
+-- mode of the window is @GLFW_CURSOR_NORMAL@.
 
 -- On some platforms, the set cursor may not be visible unless the window also
 -- has input focus.

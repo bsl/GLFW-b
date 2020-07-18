@@ -3,17 +3,10 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages:
-- completed:
-    hackage: bindings-GLFW-3.3.0.0@sha256:e9a9432ed2711371210a841a38643abfaf475cf5512c0d79942f3d70cbf8b2f7,6301
-    pantry-tree:
-      size: 4543
-      sha256: e39a4d09142d89fffe1c7249eadfb960e786cdc1861f2ca3bdb22c24d3110379
-  original:
-    hackage: bindings-GLFW-3.3.0.0
+packages: []
 snapshots:
 - completed:
-    size: 499889
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/13/26.yaml
-    sha256: ecb02ee16829df8d7219e7d7fe6c310819820bf335b0b9534bce84d3ea896684
-  original: lts-13.26
+    size: 531674
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/2.yaml
+    sha256: 4b08fb9338ca297de7ade8318f4be1216f14dff8c0426c001fb7886ee88cb84a
+  original: lts-16.2

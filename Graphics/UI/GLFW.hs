@@ -37,7 +37,7 @@ module Graphics.UI.GLFW
   , rawMouseMotionSupported
 
     -- * Monitor handling
-  , Monitor
+  , Monitor      (..)
   , MonitorState (..)
   , VideoMode    (..)
   , GammaRamp    (gammaRampRed, gammaRampGreen, gammaRampBlue)
@@ -58,7 +58,7 @@ module Graphics.UI.GLFW
   , setGammaRamp
 
     -- * Window handling
-  , Window
+  , Window                 (..)
   , WindowHint             (..)
   , WindowAttrib           (..)
   , ContextRobustness      (..)

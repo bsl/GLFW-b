@@ -45,9 +45,9 @@ library
 
   exposed-modules:
     Graphics.UI.GLFW
+    Graphics.UI.GLFW.C
 
   other-modules:
-    Graphics.UI.GLFW.C
     Graphics.UI.GLFW.Types
 
   build-depends:
@@ -71,7 +71,6 @@ test-suite main
 
   other-modules:
     Graphics.UI.GLFW
-    Graphics.UI.GLFW.C
     Graphics.UI.GLFW.Types
 
   build-depends:

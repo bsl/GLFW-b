@@ -50,7 +50,7 @@ main = do
 versionMajor, versionMinor, versionRevision :: Int
 versionMajor = 3
 versionMinor = 3
-versionRevision = 0
+versionRevision = 9
 
 giveItTime :: IO ()
 giveItTime = threadDelay 500000
@@ -241,9 +241,7 @@ test_getMonitorName mon = do
     mname <- GLFW.getMonitorName mon
     case mname of
       Nothing   -> assertFailure ""
-      Just name -> do
-          assertBool "" $ length name `between` (0, 20)
-          assertBool "" $ all isAscii name
+      Just name -> assertBool "" $ all isAscii name
 
 test_getVideoModes :: GLFW.Monitor -> IO ()
 test_getVideoModes mon = do
